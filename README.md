@@ -7,8 +7,9 @@
 
 ## A Stack
 
-- **Front:** React + Vite
-- **Back:** Python (Django)
+- **Front:** React + Vite, Tailwind
+- **Back API:** Python (Django)
+- **Back API Client:** Delphi
 - **Database:** PostgreSQL
 
 ## Como contribuir:
