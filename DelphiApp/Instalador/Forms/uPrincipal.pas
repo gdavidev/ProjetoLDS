@@ -8,45 +8,39 @@ uses
   Vcl.ExtCtrls, EMS.ResourceAPI, EMS.FileResource;
 
 type
-  TForm1 = class(TForm)
-    pImage: TPanel;
-    Image1: TImage;
-    Panel1: TPanel;
-    btnNext: TButton;
-    btnBack: TButton;
-    Label1: TLabel;
-    procedure btnNextClick(Sender: TObject);
-    procedure btnBackClick(Sender: TObject);
+  TFormPrincipal = class(TForm)
+    panelImage: TPanel;
+    imgRetroFrame: TImage;
+    panelPrincipal: TPanel;
+    procedure FormShow(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
   private
     { Private declarations }
     procedure ExtractResourceToFile(const ResName, FileName: string);
     procedure InstallApplication;
   public
     { Public declarations }
+    procedure TrocaFrame(Direcao: Integer);
   end;
 
 var
-  Form1: TForm1;
+FormPrincipal: TFormPrincipal;
+ResStream: TResourceStream;
+FileStream: TFileStream;
+FrameAtivo: TFrame;
+NumFrame: Integer;
 
 implementation
+
+uses
+  uFrAvisos,
+  uFrCaminhos,
+  uFrLoad;
 
 {$R *.dfm}
 {$R resources.res}
 
-procedure TForm1.btnBackClick(Sender: TObject);
-begin
-  close;
-end;
-
-procedure TForm1.btnNextClick(Sender: TObject);
-begin
-  InstallApplication;
-end;
-
-procedure TForm1.ExtractResourceToFile(const ResName, FileName: string);
-var
-  ResStream: TResourceStream;
-  FileStream: TFileStream;
+procedure TFormPrincipal.ExtractResourceToFile(const ResName, FileName: string);
 begin
   ResStream := TResourceStream.Create(HInstance, ResName, RT_RCDATA);
   try
@@ -61,7 +55,21 @@ begin
   end;
 end;
 
-procedure TForm1.InstallApplication;
+procedure TFormPrincipal.FormCreate(Sender: TObject);
+begin
+  Left:=(Screen.Width-Width)  div 2;
+  Top:=(Screen.Height-Height) div 2;
+end;
+
+procedure TFormPrincipal.FormShow(Sender: TObject);
+begin
+  FrameAtivo := TfrAvisos.Create(Self);
+  FrameAtivo.Parent := panelPrincipal;
+  FrameAtivo.Show;
+  NumFrame := 1;
+end;
+
+procedure TFormPrincipal.InstallApplication;
 var
   DestFolder, AppFile, ConfigFile: string;
 begin
@@ -75,6 +83,58 @@ begin
   AppFile := DestFolder + 'RetroMenu.exe';
 
   ExtractResourceToFile('RETROMENU_EXE', AppFile);
+end;
+
+procedure TFormPrincipal.TrocaFrame(Direcao: Integer);
+begin
+  case Direcao of
+    0:
+    begin
+      case NumFrame of
+        1:
+        begin
+          Close;
+        end;
+
+        2:
+        begin
+          FrameAtivo := nil;
+          FrameAtivo := TfrAvisos.Create(Self);
+          FrameAtivo.Parent := panelPrincipal;
+          FrameAtivo.Show;
+          NumFrame := 1;
+        end;
+      end;
+    end;
+
+    1:
+    begin
+      case NumFrame of
+        1:
+        begin
+          FrameAtivo := nil;
+          FrameAtivo := TfrCaminhos.Create(Self);
+          FrameAtivo.Parent := panelPrincipal;
+          FrameAtivo.Show;
+          NumFrame := 2;
+        end;
+
+        2:
+        begin
+          FrameAtivo := nil;
+          FrameAtivo := TfrLoad.Create(Self);
+          FrameAtivo.Parent := panelPrincipal;
+          FrameAtivo.Show;
+          NumFrame := 3;
+        end;
+
+        3:
+        begin
+          close;
+        end;
+      end;
+    end;
+  end;
 end;
 
 end.
