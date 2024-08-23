@@ -53,6 +53,7 @@ begin
 
   if DirectoryExists(Caminho) then
   begin
+    TFormPrincipal(Owner).DefineDiretorio(Caminho);
     TFormPrincipal(Owner).TrocaFrame(1);
     Self.Destroy;
   end

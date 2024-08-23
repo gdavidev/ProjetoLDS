@@ -21,14 +21,16 @@ type
   public
     { Public declarations }
     procedure TrocaFrame(Direcao: Integer);
+    procedure DefineDiretorio(Dir: String);
   end;
 
 var
-FormPrincipal: TFormPrincipal;
-ResStream: TResourceStream;
-FileStream: TFileStream;
-FrameAtivo: TFrame;
-NumFrame: Integer;
+  FormPrincipal: TFormPrincipal;
+  ResStream: TResourceStream;
+  FileStream: TFileStream;
+  FrameAtivo: TFrame;
+  NumFrame: Integer;
+  Diretorio: String;
 
 implementation
 
@@ -39,6 +41,11 @@ uses
 
 {$R *.dfm}
 {$R resources.res}
+
+procedure TFormPrincipal.DefineDiretorio(Dir: String);
+begin
+  Diretorio := Dir;
+end;
 
 procedure TFormPrincipal.ExtractResourceToFile(const ResName, FileName: string);
 begin
@@ -57,8 +64,8 @@ end;
 
 procedure TFormPrincipal.FormCreate(Sender: TObject);
 begin
-  Left:=(Screen.Width-Width)  div 2;
-  Top:=(Screen.Height-Height) div 2;
+  Left := (Screen.Width - Width) div 2;
+  Top := (Screen.Height - Height) div 2;
 end;
 
 procedure TFormPrincipal.FormShow(Sender: TObject);
@@ -71,18 +78,18 @@ end;
 
 procedure TFormPrincipal.InstallApplication;
 var
-  DestFolder, AppFile, ConfigFile: string;
+  DestFolder, AppFile: string;
 begin
-  DestFolder := 'C:\RetroMenu\';
+  DestFolder := Diretorio + '\RetroMenu\';
 
   // Criar a pasta de destino se ela não existir
   if not DirectoryExists(DestFolder) then
     ForceDirectories(DestFolder);
 
   // Extrair os arquivos embutidos
-  AppFile := DestFolder + 'RetroMenu.exe';
+  AppFile := DestFolder + 'EmuHub.exe';
 
-  ExtractResourceToFile('RETROMENU_EXE', AppFile);
+  ExtractResourceToFile('EMUHUB_EXE', AppFile);
 end;
 
 procedure TFormPrincipal.TrocaFrame(Direcao: Integer);
@@ -92,9 +99,7 @@ begin
     begin
       case NumFrame of
         1:
-        begin
           Close;
-        end;
 
         2:
         begin
@@ -124,17 +129,17 @@ begin
           FrameAtivo := nil;
           FrameAtivo := TfrLoad.Create(Self);
           FrameAtivo.Parent := panelPrincipal;
+          InstallApplication;
           FrameAtivo.Show;
           NumFrame := 3;
         end;
 
         3:
-        begin
-          close;
-        end;
+          Close;
       end;
     end;
   end;
 end;
 
 end.
+
