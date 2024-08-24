@@ -5,7 +5,7 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.Imaging.jpeg,
-  Vcl.ExtCtrls, EMS.ResourceAPI, EMS.FileResource;
+  Vcl.ExtCtrls, EMS.ResourceAPI, EMS.FileResource, Registry;
 
 type
   TFormPrincipal = class(TForm)
@@ -18,6 +18,7 @@ type
     { Private declarations }
     procedure ExtractResourceToFile(const ResName, FileName: string);
     procedure InstallApplication;
+    procedure ConfiguraRegedit;
   public
     { Public declarations }
     procedure TrocaFrame(Direcao: Integer);
@@ -41,6 +42,54 @@ uses
 
 {$R *.dfm}
 {$R resources.res}
+
+procedure TFormPrincipal.ConfiguraRegedit;
+var
+  Reg: TRegistry;
+begin
+  Reg := TRegistry.Create(KEY_WRITE);
+  try
+    Reg.RootKey := HKEY_CLASSES_ROOT;
+
+    // Cria a chave EmuHub
+    if Reg.OpenKey('EmuHub', True) then
+    begin
+      try
+        // Define o valor da cadeia padrão
+        Reg.WriteString('', 'EmuHub');
+
+        // Define o valor da cadeia URL Protocol
+        Reg.WriteString('URL Protocol', '');
+
+        // Cria a chave shell
+        if Reg.OpenKey('shell', True) then
+        begin
+          // Cria a chave open
+          if Reg.OpenKey('open', True) then
+          begin
+            // Cria a chave command
+            if Reg.OpenKey('command', True) then
+            begin
+              // Define o valor da cadeia padrão
+              Reg.WriteString('', Diretorio + '\EmuHub\EmuHub.exe');
+              Reg.CloseKey;
+            end;
+            Reg.CloseKey;
+          end;
+          Reg.CloseKey;
+        end;
+        Reg.CloseKey;
+      except
+        on E: Exception do
+          ShowMessage('Erro ao criar chave do registro: ' + E.Message);
+      end;
+    end
+    else
+      ShowMessage('Não foi possível abrir a chave EmuHub.');
+  finally
+    Reg.Free;
+  end;
+end;
 
 procedure TFormPrincipal.DefineDiretorio(Dir: String);
 begin
@@ -80,7 +129,7 @@ procedure TFormPrincipal.InstallApplication;
 var
   DestFolder, AppFile: string;
 begin
-  DestFolder := Diretorio + '\RetroMenu\';
+  DestFolder := Diretorio + '\EmuHub\';
 
   // Criar a pasta de destino se ela não existir
   if not DirectoryExists(DestFolder) then
@@ -130,6 +179,7 @@ begin
           FrameAtivo := TfrLoad.Create(Self);
           FrameAtivo.Parent := panelPrincipal;
           InstallApplication;
+          ConfiguraRegedit;
           FrameAtivo.Show;
           NumFrame := 3;
         end;
