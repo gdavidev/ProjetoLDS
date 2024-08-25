@@ -1,10 +1,10 @@
 import searchIcon from './../../assets/icons/search-icon.png'
 
-export type SearchBarArgs = {
+type SearchBarArgs = {
   className?: string
 }
 
-function SearchBar(args: SearchBarArgs) {
+export default function SearchBar(args: SearchBarArgs) {
   return (
     <div id="search-bar" className={ "flex p-0 h-fit w-fit bg-slate-200 rounded-full overflow-hidden " + args.className }>
       <input type="image" src={searchIcon} className="p-2 w-8 z-index-1" />
@@ -12,4 +12,3 @@ function SearchBar(args: SearchBarArgs) {
     </div>
   );
 }
-export default SearchBar;

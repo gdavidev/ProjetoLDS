@@ -1,4 +1,4 @@
-function Sidebar() {
+export default function Sidebar() {
   return (
     <aside>
       <label id="console-select-label" htmlFor="console-select">Console:</label>
@@ -17,4 +17,3 @@ function Sidebar() {
     </aside>
   );
 }
-export default Sidebar
