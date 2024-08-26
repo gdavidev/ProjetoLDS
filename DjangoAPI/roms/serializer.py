@@ -1,7 +1,7 @@
 from rest_framework import serializers
-from .models import ROM
-from django.contrib.auth.models import User
-from django.contrib.auth.models import User
+from .models import ROM, User
+
+
 
 class ROMSerializer(serializers.ModelSerializer):
     class Meta:
@@ -11,4 +11,18 @@ class ROMSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'email', 'password', 'imagem_perfil', 'wishlist']
+        fields = ['username', 'email', 'password', 'admin']
+        extra_kwargs = {
+            'password': {'write_only': True},
+            'admin': {'required': False},
+        }
+
+    def create(self, validated_data):
+        user = User(
+            username=validated_data['username'],
+            email=validated_data['email'],
+            admin=validated_data.get('admin', False)
+        )
+        user.set_password(validated_data['password'])
+        user.save()
+        return user

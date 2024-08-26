@@ -23,7 +23,9 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-l@q(lofr4tva8wt%^oiez#ybb^18vt&b-k6b2-enzzk_@5c*(i"
+SECRET_KEY = "l@q(Ght65$e!@-iu*po_lk((14W&%^oiez#ybb^18vt&b-k6b2-enzzk_@5c*(i"
+
+JWT_ALGORITHM = 'HS256'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -75,12 +77,6 @@ TEMPLATES = [
 WSGI_APPLICATION = "Server.wsgi.application"
 
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
-    ],
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated',
-    ],
 }
 
 # Database
