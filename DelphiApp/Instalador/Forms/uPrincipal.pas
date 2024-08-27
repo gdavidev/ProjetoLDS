@@ -5,48 +5,98 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.Imaging.jpeg,
-  Vcl.ExtCtrls, EMS.ResourceAPI, EMS.FileResource;
+  Vcl.ExtCtrls, EMS.ResourceAPI, EMS.FileResource, Registry;
 
 type
-  TForm1 = class(TForm)
-    pImage: TPanel;
-    Image1: TImage;
-    Panel1: TPanel;
-    btnNext: TButton;
-    btnBack: TButton;
-    Label1: TLabel;
-    procedure btnNextClick(Sender: TObject);
-    procedure btnBackClick(Sender: TObject);
+  TFormPrincipal = class(TForm)
+    panelImage: TPanel;
+    imgRetroFrame: TImage;
+    panelPrincipal: TPanel;
+    procedure FormShow(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
   private
     { Private declarations }
     procedure ExtractResourceToFile(const ResName, FileName: string);
     procedure InstallApplication;
+    procedure ConfiguraRegedit;
   public
     { Public declarations }
+    procedure TrocaFrame(Direcao: Integer);
+    procedure DefineDiretorio(Dir: String);
   end;
 
 var
-  Form1: TForm1;
+  FormPrincipal: TFormPrincipal;
+  ResStream: TResourceStream;
+  FileStream: TFileStream;
+  FrameAtivo: TFrame;
+  NumFrame: Integer;
+  Diretorio: String;
 
 implementation
+
+uses
+  uFrAvisos,
+  uFrCaminhos,
+  uFrLoad;
 
 {$R *.dfm}
 {$R resources.res}
 
-procedure TForm1.btnBackClick(Sender: TObject);
-begin
-  close;
-end;
-
-procedure TForm1.btnNextClick(Sender: TObject);
-begin
-  InstallApplication;
-end;
-
-procedure TForm1.ExtractResourceToFile(const ResName, FileName: string);
+procedure TFormPrincipal.ConfiguraRegedit;
 var
-  ResStream: TResourceStream;
-  FileStream: TFileStream;
+  Reg: TRegistry;
+begin
+  Reg := TRegistry.Create(KEY_WRITE);
+  try
+    Reg.RootKey := HKEY_CLASSES_ROOT;
+
+    // Cria a chave EmuHub
+    if Reg.OpenKey('EmuHub', True) then
+    begin
+      try
+        // Define o valor da cadeia padrão
+        Reg.WriteString('', 'EmuHub');
+
+        // Define o valor da cadeia URL Protocol
+        Reg.WriteString('URL Protocol', '');
+
+        // Cria a chave shell
+        if Reg.OpenKey('shell', True) then
+        begin
+          // Cria a chave open
+          if Reg.OpenKey('open', True) then
+          begin
+            // Cria a chave command
+            if Reg.OpenKey('command', True) then
+            begin
+              // Define o valor da cadeia padrão
+              Reg.WriteString('', Diretorio + '\EmuHub\EmuHub.exe');
+              Reg.CloseKey;
+            end;
+            Reg.CloseKey;
+          end;
+          Reg.CloseKey;
+        end;
+        Reg.CloseKey;
+      except
+        on E: Exception do
+          ShowMessage('Erro ao criar chave do registro: ' + E.Message);
+      end;
+    end
+    else
+      ShowMessage('Não foi possível abrir a chave EmuHub.');
+  finally
+    Reg.Free;
+  end;
+end;
+
+procedure TFormPrincipal.DefineDiretorio(Dir: String);
+begin
+  Diretorio := Dir;
+end;
+
+procedure TFormPrincipal.ExtractResourceToFile(const ResName, FileName: string);
 begin
   ResStream := TResourceStream.Create(HInstance, ResName, RT_RCDATA);
   try
@@ -61,20 +111,85 @@ begin
   end;
 end;
 
-procedure TForm1.InstallApplication;
-var
-  DestFolder, AppFile, ConfigFile: string;
+procedure TFormPrincipal.FormCreate(Sender: TObject);
 begin
-  DestFolder := 'C:\RetroMenu\';
+  Left := (Screen.Width - Width) div 2;
+  Top := (Screen.Height - Height) div 2;
+end;
+
+procedure TFormPrincipal.FormShow(Sender: TObject);
+begin
+  FrameAtivo := TfrAvisos.Create(Self);
+  FrameAtivo.Parent := panelPrincipal;
+  FrameAtivo.Show;
+  NumFrame := 1;
+end;
+
+procedure TFormPrincipal.InstallApplication;
+var
+  DestFolder, AppFile: string;
+begin
+  DestFolder := Diretorio + '\EmuHub\';
 
   // Criar a pasta de destino se ela não existir
   if not DirectoryExists(DestFolder) then
     ForceDirectories(DestFolder);
 
   // Extrair os arquivos embutidos
-  AppFile := DestFolder + 'RetroMenu.exe';
+  AppFile := DestFolder + 'EmuHub.exe';
 
-  ExtractResourceToFile('RETROMENU_EXE', AppFile);
+  ExtractResourceToFile('EMUHUB_EXE', AppFile);
+end;
+
+procedure TFormPrincipal.TrocaFrame(Direcao: Integer);
+begin
+  case Direcao of
+    0:
+    begin
+      case NumFrame of
+        1:
+          Close;
+
+        2:
+        begin
+          FrameAtivo := nil;
+          FrameAtivo := TfrAvisos.Create(Self);
+          FrameAtivo.Parent := panelPrincipal;
+          FrameAtivo.Show;
+          NumFrame := 1;
+        end;
+      end;
+    end;
+
+    1:
+    begin
+      case NumFrame of
+        1:
+        begin
+          FrameAtivo := nil;
+          FrameAtivo := TfrCaminhos.Create(Self);
+          FrameAtivo.Parent := panelPrincipal;
+          FrameAtivo.Show;
+          NumFrame := 2;
+        end;
+
+        2:
+        begin
+          FrameAtivo := nil;
+          FrameAtivo := TfrLoad.Create(Self);
+          FrameAtivo.Parent := panelPrincipal;
+          InstallApplication;
+          ConfiguraRegedit;
+          FrameAtivo.Show;
+          NumFrame := 3;
+        end;
+
+        3:
+          Close;
+      end;
+    end;
+  end;
 end;
 
 end.
+

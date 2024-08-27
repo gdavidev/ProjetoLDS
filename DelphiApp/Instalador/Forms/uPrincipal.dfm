@@ -1,7 +1,8 @@
-object Form1: TForm1
+object FormPrincipal: TFormPrincipal
   Left = 0
   Top = 0
-  Caption = 'Instalar Retro Menu'
+  BorderStyle = bsDialog
+  Caption = 'Instalar EmuHub'
   ClientHeight = 429
   ClientWidth = 455
   Color = clBtnFace
@@ -10,19 +11,21 @@ object Form1: TForm1
   Font.Height = -12
   Font.Name = 'Segoe UI'
   Font.Style = []
+  OnCreate = FormCreate
+  OnShow = FormShow
   TextHeight = 15
-  object pImage: TPanel
+  object panelImage: TPanel
     Left = 0
     Top = 0
-    Width = 201
+    Width = 195
     Height = 429
     Align = alLeft
     TabOrder = 0
     DesignSize = (
-      201
+      195
       429)
-    object Image1: TImage
-      Left = -496
+    object imgRetroFrame: TImage
+      Left = -492
       Top = -138
       Width = 736
       Height = 1011
@@ -6756,40 +6759,16 @@ object Form1: TForm1
         0885E6900AFD880B1E353F63252A5466E3F8E269122B91621A2C440280449D6E
         5037699A8D96C586980EF992819C5131440F0806A4F319A66684DAFBC60819CE
         1A9C3E120657351E74C84A8850803B7FFE75FFD9}
+      ExplicitLeft = -496
       ExplicitTop = -128
     end
   end
-  object Panel1: TPanel
-    Left = 201
+  object panelPrincipal: TPanel
+    Left = 195
     Top = 0
-    Width = 254
+    Width = 260
     Height = 429
     Align = alClient
     TabOrder = 1
-    object Label1: TLabel
-      Left = 96
-      Top = 32
-      Width = 62
-      Height = 15
-      Caption = 'Retro Menu'
-    end
-    object btnNext: TButton
-      Left = 144
-      Top = 384
-      Width = 75
-      Height = 25
-      Caption = 'Next'
-      TabOrder = 0
-      OnClick = btnNextClick
-    end
-    object btnBack: TButton
-      Left = 32
-      Top = 384
-      Width = 75
-      Height = 25
-      Caption = 'Back'
-      TabOrder = 1
-      OnClick = btnBackClick
-    end
   end
 end
