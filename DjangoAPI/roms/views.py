@@ -50,20 +50,14 @@ class ROMDownload(generics.RetrieveAPIView):
 class ROMCreate(generics.CreateAPIView):
     queryset = ROM.objects.all()
     serializer_class = ROMSerializer
-    authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated]
 
 class ROMUpdate(generics.UpdateAPIView):
     queryset = ROM.objects.all()
     serializer_class = ROMSerializer
-    authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated]
 
 class ROMDelete(generics.DestroyAPIView):
     queryset = ROM.objects.all()
     serializer_class = ROMSerializer
-    authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated]
 
 
 #Views User
@@ -74,30 +68,18 @@ class UserList(generics.ListCreateAPIView):
 class UserDetail(generics.RetrieveAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated]
-
-class UserCreate(generics.CreateAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
 
 class UserUpdate(generics.UpdateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated]
 
 class UserDelete(generics.DestroyAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated]
 
 class UserWishlist(generics.RetrieveAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
         obj = self.get_object()
@@ -108,8 +90,6 @@ class UserWishlist(generics.RetrieveAPIView):
 class UserAddWishlist(generics.UpdateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated]
 
     def put(self, request, *args, **kwargs):
         obj = self.get_object()
@@ -122,8 +102,6 @@ class UserAddWishlist(generics.UpdateAPIView):
 class UserRemoveWishlist(generics.UpdateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated]
 
     def put(self, request, *args, **kwargs):
         obj = self.get_object()
@@ -132,9 +110,20 @@ class UserRemoveWishlist(generics.UpdateAPIView):
         obj.wishlist.remove(rom)
         serializer = UserSerializer(obj)
         return Response(serializer.data)
+
+#autenticacao
+class Register(generics.GenericAPIView):
+    serializer_class = UserSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+        return Response({
+            "user": UserSerializer(user, context=self.get_serializer_context()).data,
+            "message": "User Created Successfully.  Now perform Login to get your token",
+        })
         
-
-
 class Login(generics.GenericAPIView):
     serializer_class = UserSerializer
 
@@ -146,6 +135,8 @@ class Login(generics.GenericAPIView):
             user = User.objects.get(email=email)
             if not check_password(password, user.password):
                 return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+
+            print(user.id)
 
             token = create_Token.create_token(user.id, datetime.utcnow() + timedelta(minutes=15))
             refresh_token = create_Token.create_token(user.id, datetime.utcnow() + timedelta(days=7))

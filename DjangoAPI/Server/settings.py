@@ -77,6 +77,9 @@ TEMPLATES = [
 WSGI_APPLICATION = "Server.wsgi.application"
 
 REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
 }
 
 # Database
@@ -91,6 +94,11 @@ DATABASES = {
         "HOST": "localhost",
         "PORT": 5433
     }
+}
+
+SIMPLE_JWT = {
+    'USER_ID_FIELD': 'id',
+    'USER_ID_CLAIM': 'user_id',
 }
 
 
