@@ -4,11 +4,12 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls;
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls;
 
 type
-  TForm1 = class(TForm)
-    Label1: TLabel;
+  TFormPrincipal = class(TForm)
+    pnlPrincipal: TPanel;
+    procedure FormShow(Sender: TObject);
   private
     { Private declarations }
   public
@@ -16,10 +17,22 @@ type
   end;
 
 var
-  Form1: TForm1;
+  FormPrincipal: TFormPrincipal;
 
 implementation
 
+uses
+uEmpresas;
+
+var
+FormAtivo: Tform;
+
 {$R *.dfm}
+
+procedure TFormPrincipal.FormShow(Sender: TObject);
+begin
+  FormAtivo := TformEmpresas.Create(Self);
+  FormAtivo.Parent := pnlPrincipal;
+end;
 
 end.

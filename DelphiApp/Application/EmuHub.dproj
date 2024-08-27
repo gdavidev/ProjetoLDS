@@ -123,6 +123,10 @@
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
         <DCCReference Include="Forms\uPrincipal.pas">
+            <Form>FormPrincipal</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Forms\uEmpresas.pas">
             <Form>Form1</Form>
             <FormType>dfm</FormType>
         </DCCReference>
