@@ -6,7 +6,7 @@ from rest_framework.exceptions import NotFound
 from django.conf import settings
 from rest_framework import status
 from rest_framework.views import APIView
-from django.contrib.auth import authenticate
+from django.contrib.auth.hashers import check_password
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
@@ -65,12 +65,11 @@ class ROMDelete(generics.DestroyAPIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
-#Views User
 
+#Views User
 class UserList(generics.ListCreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-
 
 class UserDetail(generics.RetrieveAPIView):
     queryset = User.objects.all()
@@ -81,7 +80,6 @@ class UserDetail(generics.RetrieveAPIView):
 class UserCreate(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-
 
 class UserUpdate(generics.UpdateAPIView):
     queryset = User.objects.all()
@@ -136,32 +134,38 @@ class UserRemoveWishlist(generics.UpdateAPIView):
         return Response(serializer.data)
         
 
-class Login(APIView):
-    def post(self, request):
+
+class Login(generics.GenericAPIView):
+    serializer_class = UserSerializer
+
+    def post(self, request, *args, **kwargs):
         email = request.data.get('email')
-        print(email)
         password = request.data.get('password')
-        print(password)
-        user = authenticate(request, username=email, password=password)
-        print(user)
-        if user is not None:
-            token = create_Token.create_token(user.id, datetime.utcnow + timedelta(minutes=15))
-            refresh_token = create_Token.create_refresh_token(user.id, datetime.utcnow + timedelta(days=1))
-            response = Response()
+
+        try:
+            user = User.objects.get(email=email)
+            if not check_password(password, user.password):
+                return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+
+            token = create_Token.create_token(user.id, datetime.utcnow() + timedelta(minutes=15))
+            refresh_token = create_Token.create_token(user.id, datetime.utcnow() + timedelta(days=7))
+
+            response = Response({'token': token, 'user': UserSerializer(user).data})
             response.set_cookie(key='refresh_token', value=refresh_token, httponly=True)
-            return Response({'token': token})
-        else:
-            return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+            return response
+
+        except User.DoesNotExist:
+            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
 
 class RefreshToken(APIView):
     def get(self, request):
-        refresh_token = request.cookies.get('refresh_token')
+        refresh_token = request.COOKIES.get('refresh_token')
         if refresh_token is None:
             return Response({'error': 'Refresh token not provided'}, status=status.HTTP_401_UNAUTHORIZED)
         try:
             payload = jwt.decode(refresh_token, settings.SECRET_KEY, algorithms=['HS256'])
             user = User.objects.get(id=payload['id'])
-            token = create_Token.create_token(user.id, datetime.utcnow + timedelta(minutes=15))
+            token = create_Token.create_token(user.id, datetime.utcnow() + timedelta(minutes=15))
             serializer = UserSerializer(user)
             return Response({'token': token, 'user': serializer.data})
         except jwt.ExpiredSignatureError:
