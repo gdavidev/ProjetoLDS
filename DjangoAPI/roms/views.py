@@ -42,6 +42,9 @@ class ROMCreate(APIView):
     def post(self, request):
         token = request.headers.get('Authorization').split(' ')[1]
         payload = Token.decode_token(token)
+        if payload is None:
+            return Response({'error': 'Invalid token'}, status=status.HTTP_401_UNAUTHORIZED)
+
         serializer = ROMSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -52,6 +55,8 @@ class ROMUpdate(APIView):
     def put(self, request):
         token = request.headers.get('Authorization').split(' ')[1]
         payload = Token.decode_token(token)
+        if payload is None:
+            return Response({'error': 'Invalid token'}, status=status.HTTP_401_UNAUTHORIZED)
         user_id = payload['user_id']
         rom = ROM.objects.get(id=user_id)
         serializer = ROMSerializer(rom, data=request.data)
@@ -64,6 +69,8 @@ class ROMDelete(APIView):
     def delete(self, request):
         token = request.headers.get('Authorization').split(' ')[1]
         payload = Token.decode_token(token)
+        if payload is None:
+            return Response({'error': 'Invalid token'}, status=status.HTTP_401_UNAUTHORIZED)
         user_id = payload['user_id']
         rom = ROM.objects.get(id=user_id)
         rom.delete()
@@ -93,6 +100,9 @@ class UserListView(APIView):
     def get(self, request):
         token = request.headers.get('Authorization').split(' ')[1]
         payload = Token.decode_token(token)
+        if payload is None:
+            return Response({'error': 'Invalid token'}, status=status.HTTP_401_UNAUTHORIZED)
+
         user_id = payload['user_id']
         if user_id:
             user = self.get_object(user_id)
@@ -121,6 +131,8 @@ class UserUpdate(APIView):
     def put(self, request):
         token = request.headers.get('Authorization').split(' ')[1]
         payload = Token.decode_token(token)
+        if payload is None:
+            return Response({'error': 'Invalid token'}, status=status.HTTP_401_UNAUTHORIZED)
         user_id = payload['user_id']
         user = User.objects.get(id=user_id)
         serializer = UserSerializer(user, data=request.data)
@@ -133,6 +145,9 @@ class UserDelete(APIView):
     def delete(self, request):
         token = request.headers.get('Authorization').split(' ')[1]
         payload = Token.decode_token(token)
+        if payload is None:
+            return Response({'error': 'Invalid token'}, status=status.HTTP_401_UNAUTHORIZED)
+            
         user_id = payload['user_id']
         user = User.objects.get(id=user_id)
         user.delete()
@@ -142,8 +157,10 @@ class UserViewWishlist(APIView):
     def get(self, request):
         token = request.headers.get('Authorization').split(' ')[1]
         payload = Token.decode_token(token)
-        user_id = payload['user_id']
+        if payload is None:
+            return Response({'error': 'Invalid token'}, status=status.HTTP_401_UNAUTHORIZED)
 
+        user_id = payload['user_id']
         user = User.objects.get(id=user_id)
         wishlist = user.wishlist.all()
         serializer = ROMSerializer(wishlist, many=True)
@@ -153,6 +170,9 @@ class UserAddWishlist(APIView):
     def post(self, request):
         token = request.headers.get('Authorization').split(' ')[1]
         payload = Token.decode_token(token)
+        if payload is None:
+            return Response({'error': 'Invalid token'}, status=status.HTTP_401_UNAUTHORIZED)
+
         user_id = payload['user_id']
         rom_id = request.data.get('rom_id')
 
@@ -167,6 +187,10 @@ class UserRemoveWishlist(APIView):
     def delete(self, request):
         token = request.headers.get('Authorization').split(' ')[1]
         payload = Token.decode_token(token)
+
+        if payload is None:
+            return Response({'error': 'Invalid token'}, status=status.HTTP_401_UNAUTHORIZED)
+
         user_id = payload['user_id']
         user = User.objects.get(id=user_id)
         rom_id = request.data.get('rom_id')

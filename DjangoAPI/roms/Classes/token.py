@@ -1,6 +1,8 @@
 import jwt
 from django.conf import settings
 from datetime import datetime, timedelta
+from django.http import HttpResponse, FileResponse, Http404
+from rest_framework.response import Response
 
 class Token:
     def __init__(self):
@@ -26,6 +28,6 @@ class Token:
             payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.JWT_ALGORITHM])
             return payload
         except jwt.ExpiredSignatureError:
-            return ('Token expirado')
+            return None
         except jwt.InvalidTokenError:
-            return ('Token Invalido')
+            return None
