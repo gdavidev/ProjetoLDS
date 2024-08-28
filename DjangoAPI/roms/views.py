@@ -23,8 +23,8 @@ Token = Token()
 class ROMListView(APIView):
     def get(self, request):
         rom_id = request.data.get('rom_id')
-        if user_id:
-            rom = self.get_object(user_id)
+        if rom_id:
+            rom = self.get_object(rom_id)
             serializer = ROMSerializer(rom)
             return Response(serializer.data)
         else:
