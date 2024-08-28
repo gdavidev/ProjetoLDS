@@ -18,16 +18,56 @@ from .Classes.token import Token
 from .models import ROM, User
 from .serializer import ROMSerializer, UserSerializer
 
-create_Token = Token()
+Token = Token()
 
-
-class ROMList(generics.ListCreateAPIView):
-    queryset = ROM.objects.all()
-    serializer_class = ROMSerializer
+class ROMListView(APIView):
+    def get(self, request):
+        rom_id = request.data.get('rom_id')
+        if user_id:
+            rom = self.get_object(user_id)
+            serializer = ROMSerializer(rom)
+            return Response(serializer.data)
+        else:
+            roms = ROM.objects.all()
+            serializer = ROMSerializer(roms, many=True)
+            return Response(serializer.data)
     
-class ROMDetail(generics.RetrieveAPIView):
-    queryset = ROM.objects.all()
-    serializer_class = ROMSerializer
+    def get_object(self, id):
+        try:
+            return ROM.objects.get(id=id)
+        except ROM.DoesNotExist:
+            raise NotFound()
+
+class ROMCreate(APIView):
+    def post(self, request):
+        token = request.headers.get('Authorization').split(' ')[1]
+        payload = Token.decode_token(token)
+        serializer = ROMSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class ROMUpdate(APIView):
+    def put(self, request):
+        token = request.headers.get('Authorization').split(' ')[1]
+        payload = Token.decode_token(token)
+        user_id = payload['user_id']
+        rom = ROM.objects.get(id=user_id)
+        serializer = ROMSerializer(rom, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class ROMDelete(APIView):
+    def delete(self, request):
+        token = request.headers.get('Authorization').split(' ')[1]
+        payload = Token.decode_token(token)
+        user_id = payload['user_id']
+        rom = ROM.objects.get(id=user_id)
+        rom.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 class ROMDownload(generics.RetrieveAPIView):
     queryset = ROM.objects.all()
@@ -47,82 +87,95 @@ class ROMDownload(generics.RetrieveAPIView):
         else:
             raise Http404("No file associated with this object.")
 
-class ROMCreate(generics.CreateAPIView):
-    queryset = ROM.objects.all()
-    serializer_class = ROMSerializer
-
-class ROMUpdate(generics.UpdateAPIView):
-    queryset = ROM.objects.all()
-    serializer_class = ROMSerializer
-
-class ROMDelete(generics.DestroyAPIView):
-    queryset = ROM.objects.all()
-    serializer_class = ROMSerializer
-
-
 #Views User
-class UserList(generics.ListCreateAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
 
-class UserDetail(generics.RetrieveAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
+class UserListView(APIView):
+    def get(self, request):
+        token = request.headers.get('Authorization').split(' ')[1]
+        payload = Token.decode_token(token)
+        user_id = payload['user_id']
+        if user_id:
+            user = self.get_object(user_id)
+            serializer = UserSerializer(user)
+            return Response(serializer.data)
+        else:
+            users = User.objects.all()
+            serializer = UserSerializer(users, many=True)
+            return Response(serializer.data)
 
-class UserUpdate(generics.UpdateAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
+    def get_object(self, id):
+        try:
+            return User.objects.get(id=id)
+        except User.DoesNotExist:
+            raise NotFound()
 
-class UserDelete(generics.DestroyAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
+class UserRegister(APIView):            
+    def post(self, request):
+        serializer = UserSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class UserWishlist(generics.RetrieveAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
+class UserUpdate(APIView):
+    def put(self, request):
+        token = request.headers.get('Authorization').split(' ')[1]
+        payload = Token.decode_token(token)
+        user_id = payload['user_id']
+        user = User.objects.get(id=user_id)
+        serializer = UserSerializer(user, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def get(self, request, *args, **kwargs):
-        obj = self.get_object()
-        wishlist = obj.wishlist.all()
+class UserDelete(APIView):
+    def delete(self, request):
+        token = request.headers.get('Authorization').split(' ')[1]
+        payload = Token.decode_token(token)
+        user_id = payload['user_id']
+        user = User.objects.get(id=user_id)
+        user.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+class UserViewWishlist(APIView):
+    def get(self, request):
+        token = request.headers.get('Authorization').split(' ')[1]
+        payload = Token.decode_token(token)
+        user_id = payload['user_id']
+
+        user = User.objects.get(id=user_id)
+        wishlist = user.wishlist.all()
         serializer = ROMSerializer(wishlist, many=True)
         return Response(serializer.data)
 
-class UserAddWishlist(generics.UpdateAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-
-    def put(self, request, *args, **kwargs):
-        obj = self.get_object()
+class UserAddWishlist(APIView):
+    def post(self, request):
+        token = request.headers.get('Authorization').split(' ')[1]
+        payload = Token.decode_token(token)
+        user_id = payload['user_id']
         rom_id = request.data.get('rom_id')
+
+        user = User.objects.get(id=user_id)
         rom = ROM.objects.get(id=rom_id)
-        obj.wishlist.add(rom)
-        serializer = UserSerializer(obj)
+
+        user.wishlist.add(rom)
+        serializer = UserSerializer(user)
         return Response(serializer.data)
 
-class UserRemoveWishlist(generics.UpdateAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-
-    def put(self, request, *args, **kwargs):
-        obj = self.get_object()
+class UserRemoveWishlist(APIView):
+    def delete(self, request):
+        token = request.headers.get('Authorization').split(' ')[1]
+        payload = Token.decode_token(token)
+        user_id = payload['user_id']
+        user = User.objects.get(id=user_id)
         rom_id = request.data.get('rom_id')
         rom = ROM.objects.get(id=rom_id)
-        obj.wishlist.remove(rom)
-        serializer = UserSerializer(obj)
+        user.wishlist.remove(rom)
+        serializer = UserSerializer(user)
         return Response(serializer.data)
 
 #autenticacao
-class Register(generics.GenericAPIView):
-    serializer_class = UserSerializer
-
-    def post(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user = serializer.save()
-        return Response({
-            "user": UserSerializer(user, context=self.get_serializer_context()).data,
-            "message": "User Created Successfully.  Now perform Login to get your token",
-        })
         
 class Login(generics.GenericAPIView):
     serializer_class = UserSerializer
@@ -138,8 +191,8 @@ class Login(generics.GenericAPIView):
 
             print(user.id)
 
-            token = create_Token.create_token(user.id, datetime.utcnow() + timedelta(minutes=15))
-            refresh_token = create_Token.create_token(user.id, datetime.utcnow() + timedelta(days=7))
+            token = Token.create_token(user.id, datetime.utcnow() + timedelta(minutes=15))
+            refresh_token = Token.create_token(user.id, datetime.utcnow() + timedelta(days=7))
 
             response = Response({'token': token, 'user': UserSerializer(user).data})
             response.set_cookie(key='refresh_token', value=refresh_token, httponly=True)
@@ -156,7 +209,7 @@ class RefreshToken(APIView):
         try:
             payload = jwt.decode(refresh_token, settings.SECRET_KEY, algorithms=['HS256'])
             user = User.objects.get(id=payload['id'])
-            token = create_Token.create_token(user.id, datetime.utcnow() + timedelta(minutes=15))
+            token = Token.create_token(user.id, datetime.utcnow() + timedelta(minutes=15))
             serializer = UserSerializer(user)
             return Response({'token': token, 'user': serializer.data})
         except jwt.ExpiredSignatureError:

@@ -10,8 +10,7 @@ class Token:
 
         if not isinstance(expire, datetime):
             raise ValueError("Expire must be a datetime instance")
-        
-        print(user_id)
+
         payload = {
             'user_id': user_id,  
             'exp': expire,      
@@ -21,3 +20,12 @@ class Token:
         encoded_jwt = jwt.encode(payload, settings.SECRET_KEY, algorithm=settings.JWT_ALGORITHM)
         
         return encoded_jwt
+
+    def decode_token(self, token):
+        try:
+            payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.JWT_ALGORITHM])
+            return payload
+        except jwt.ExpiredSignatureError:
+            return ('Token expirado')
+        except jwt.InvalidTokenError:
+            return ('Token Invalido')
