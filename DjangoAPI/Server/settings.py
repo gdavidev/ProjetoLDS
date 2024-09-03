@@ -30,7 +30,7 @@ JWT_ALGORITHM = 'HS256'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['http://localhost', 'http://127.0.0.1']
 
 
 # Application definition
