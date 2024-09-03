@@ -25,6 +25,7 @@ class ROM(models.Model):
     emulador = models.CharField(max_length=125)
     image = models.ImageField(upload_to='img/')
     file = models.FileField(upload_to='roms/')
+    qtd_download = models.IntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     

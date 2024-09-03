@@ -1,11 +1,12 @@
 from django.urls import path
-from .views import ROMDelete, ROMCreate, ROMListView, ROMUpdate, ROMDownload, UserRegister, UserViewWishlist, UserAddWishlist, UserDelete, UserListView, UserRemoveWishlist, UserUpdate, RefreshToken, Login
+from .views import ROMDelete, ROMCreate, ROMListView, ROMUpdate, ROMDownload, UserRegister, UserViewWishlist, UserAddWishlist, UserDelete, UserListView, UserRemoveWishlist, UserUpdate, RefreshToken, Login, mostplayed
 from django.conf.urls.static import static
 from django.conf import settings
 
 urlpatterns = [
     path("roms/", ROMListView.as_view(), name="rom-list"),
     path("roms/detail/", ROMListView.as_view(), name="rom-detail"),
+    path("roms/mostplayed/", mostplayed.as_view, name="rom-mostplayed"),
     path("roms/<int:pk>/download/", ROMDownload.as_view(), name="rom-download"), 
     path("roms/update/", ROMUpdate.as_view(), name="rom-update"),
     path("roms/delete/", ROMDelete.as_view(), name="rom-delete"),

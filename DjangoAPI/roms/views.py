@@ -86,6 +86,8 @@ class ROMDownload(generics.RetrieveAPIView):
         if file_path:
             try:
                 response = FileResponse(open(file_path, 'rb'), as_attachment=True)
+                obj.qtd_download += 1
+                obj.save()
                 return response
             except FileNotFoundError:
                 raise Http404("File not found.")
@@ -93,6 +95,12 @@ class ROMDownload(generics.RetrieveAPIView):
                 raise Http404("An error occurred.")
         else:
             raise Http404("No file associated with this object.")
+
+class mostplayed(APIView):
+    def get(self, request):
+        roms = ROM.objects.order_by('-qtd_download')[:4]
+        serializer = ROMSerializer(roms, many=True)
+        return Response(serializer.data)
 
 #Views User
 

@@ -30,7 +30,7 @@ JWT_ALGORITHM = 'HS256'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 
 # Application definition
@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+#    "corsheaders",
     "rest_framework",
     "roms"
 ]
@@ -54,7 +55,13 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+#    'corsheaders.middleware.CorsMiddleware',
 ]
+
+#CORS_ALLOWED_ORIGINS = [
+#    "http://localhost:3000",
+#    "http://localhost:8080",
+#]
 
 ROOT_URLCONF = "Server.urls"
 
@@ -82,14 +89,25 @@ REST_FRAMEWORK = {
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
+#DATABASES = {
+#    'default': {
+#        'ENGINE': 'django.db.backends.postgresql',
+#        'NAME': os.getenv('DATABASE_NAME'),
+#        'USER': os.getenv('DATABASE_USER'),
+#        'PASSWORD': os.getenv('DATABASE_PASSWORD'),
+#        'HOST': os.getenv('DATABASE_HOST'),
+#        'PORT': os.getenv('DATABASE_PORT', '5432'),
+#    }
+#}
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('DATABASE_NAME'),
-        'USER': os.getenv('DATABASE_USER'),
-        'PASSWORD': os.getenv('DATABASE_PASSWORD'),
-        'HOST': os.getenv('DATABASE_HOST'),
-        'PORT': os.getenv('DATABASE_PORT', '5432'),
+        'NAME': 'ProjetoLDS',
+        'USER': 'postgres',
+        'PASSWORD': 'admin',
+        'HOST': 'localhost',
+        'PORT': '5433',
     }
 }
 
