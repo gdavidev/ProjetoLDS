@@ -13,8 +13,8 @@ export default function HomePage() {
 
   return (
     <>
-      <BannerSwiper />
-      <CardSwiper />
+      <BannerSwiper containerClassName="mb-16" />
+      <CardSwiper containerClassName="mb-16" />
     </>
   );
 }

@@ -13,14 +13,16 @@ export function HGameCard(props: HGameCardProps) {
   defaultProps.filePath  = defaultProps.filePath  || "./file"
 
   return (
-    <div className="flex">
-      <div>
-        <img src={ defaultProps.img } alt={ defaultProps.name } />
+    <div className="flex bg-slate-600 text-white p-3 align-middle gap-x-2">
+      <div className="overflow-hidden w-40 h-40">
+        <img className="h-full" src={ defaultProps.img } alt={ defaultProps.name } />
       </div>
       <div className="flex flex-col">
-        <h3>{ defaultProps.name }</h3>
-        <p>{ defaultProps.desc }</p>
-        <a href="">{ defaultProps.filePath }</a>
+        <h3 className="font-black text-3xl">{ defaultProps.name }</h3>
+        <p className="h-full">{ defaultProps.desc }</p>
+        <a href={ defaultProps.filePath } 
+          className="btn-r-md w-fit self-end bg-green-500 hover:bg-green-600">Play
+        </a>
       </div>    
     </div>
   );

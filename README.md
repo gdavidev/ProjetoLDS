@@ -7,7 +7,10 @@
 
 ## A Stack
 
-- **Front:** React + Vite, Tailwind
+- **Front:**
+  - Framework: React + Vite, Tailwind;
+  - Tooling: ReactQuery and Axios for HTTP Requests handling;
+  - Libraries: SwiperJS and MUI Components (Joy UI) for basic components.
 - **Back API:** Python (Django)
 - **Back API Client:** Delphi
 - **Database:** PostgreSQL

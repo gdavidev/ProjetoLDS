@@ -1,22 +1,28 @@
-type VGameCardProps = {
+import FavoriteButton from "./FavoriteButton";
+
+interface IVGameCardProps {
+  id?: number,
   name?: string,
   img?: string
   isUserFav?: boolean,
 }
 
-export default function VGameCard(props: VGameCardProps) {
-  let defaultProps = {...props};
-  defaultProps.name      = defaultProps.name      || "Example";
-  defaultProps.img       = defaultProps.img       || "https://placehold.co/160x200";
-  defaultProps.isUserFav = defaultProps.isUserFav || false;
+export default function VGameCard(props: IVGameCardProps) {
+  const defaultProps: Partial<IVGameCardProps> = {
+    id: 1,
+    name: "Example",
+    img: "https://placehold.co/90x120",
+    isUserFav: false,
+  }
 
   return (
     <div className="flex flex-col w-full h-70 select-none">
       <div className="overflow-hidden">
-        <a href="#"><img className="w-full" src={ defaultProps.img } alt="" /></a>
+        <img className="w-full" src={ defaultProps.img } alt="" />
       </div>
-      <div className="bg-red-600">
-        <h3 className="font-bold text-white mx-2">Example</h3>      
+      <div className="flex justify-between align-middle bg-red-600 px-2 py-1">
+        <h3 className="font-bold text-white">{ defaultProps.name }</h3>
+        <FavoriteButton checked={ defaultProps.isUserFav! } />
       </div>
     </div>
   );  
