@@ -36,6 +36,16 @@ class ROMDetailView(APIView):
         except ROM.DoesNotExist:
             raise NotFound()
 
+class ROMSearch(APIView):
+    def get(self, request)
+        try:
+            rom_title = request.data.get('rom_title')
+            rom = ROM.objects.filter(title__icontains=rom_title)
+            serializer = ROMSerializer(roms, many=True)
+            return Response(serializer.data)
+        except ROM.DoesNotExist:
+            raise NotFound()
+
 class ROMCreate(APIView):
     def post(self, request):
         token = request.headers.get('Authorization').split(' ')[1]
