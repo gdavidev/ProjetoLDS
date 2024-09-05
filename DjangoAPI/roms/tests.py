@@ -1,270 +1,90 @@
-from django.shortcuts import render
-from rest_framework import generics
-from django.http import HttpResponse, FileResponse, Http404
-from rest_framework.response import Response
-from rest_framework.exceptions import NotFound
-from django.conf import settings
+from rest_framework.test import APITestCase, APIClient
 from rest_framework import status
-from rest_framework.views import APIView
-from django.contrib.auth.hashers import check_password
-from rest_framework.permissions import IsAuthenticated
-from rest_framework_simplejwt.authentication import JWTAuthentication
-import jwt
-from datetime import datetime, timedelta
-from .Classes.token import Token
+from django.urls import reverse
 from .models import ROM, User
-from .serializer import ROMSerializer, UserSerializer
 
-Token = Token()
+class ROMTestCase(APITestCase):
+    def setUp(self):
+        # Criando um usuário de teste
+        self.user = User.objects.create_user(
+            username='testuser', email='testuser@example.com', password='testpassword'
+        )
+        self.client = APIClient()
+        self.client.force_authenticate(user=self.user)
 
-class ROMListView(APIView):
-    def get(self, request):
-        rom_id = request.query_params.get('rom_id')
-        if rom_id:
-            rom = self.get_object(rom_id)
-            serializer = ROMSerializer(rom)
-            return Response(serializer.data)
-        else:
-            roms = ROM.objects.all()
-            serializer = ROMSerializer(roms, many=True)
-            return Response(serializer.data)
+        # Criando ROM de teste
+        self.rom = ROM.objects.create(
+            title='Test ROM', description='Test ROM description', qtd_download=0
+        )
     
-    def get_object(self, id):
-        try:
-            return ROM.objects.get(id=id)
-        except ROM.DoesNotExist:
-            raise NotFound()
+    def test_rom_list_view(self):
+        url = reverse('rom-list')  # Verifique o nome da URL para a lista de ROMs
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertGreaterEqual(len(response.data), 1)
 
-class ROMCreate(APIView):
-    def post(self, request):
-        token = request.headers.get('Authorization').split(' ')[1]
-        payload = Token.decode_token(token)
-        if payload is None:
-            return Response({'error': 'Invalid token'}, status=status.HTTP_401_UNAUTHORIZED)
+    def test_rom_detail_view(self):
+        url = reverse('rom-detail', args=[self.rom.id])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['title'], self.rom.title)
 
-        serializer = ROMSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def test_rom_create_view(self):
+        url = reverse('rom-create')
+        data = {'title': 'New ROM', 'description': 'Description of new ROM'}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(ROM.objects.count(), 2)
 
-class ROMUpdate(APIView):
-    def put(self, request):
-        token = request.headers.get('Authorization').split(' ')[1]
-        payload = Token.decode_token(token)
-        if payload is None:
-            return Response({'error': 'Invalid token'}, status=status.HTTP_401_UNAUTHORIZED)
-        user_id = payload['user_id']
-        try:
-            rom = ROM.objects.get(id=user_id)
-        except ROM.DoesNotExist:
-            return Response({'error': 'ROM not found'}, status=status.HTTP_404_NOT_FOUND)
-        
-        serializer = ROMSerializer(rom, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def test_rom_update_view(self):
+        url = reverse('rom-update', args=[self.rom.id])
+        data = {'title': 'Updated ROM', 'description': 'Updated description'}
+        response = self.client.put(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.rom.refresh_from_db()
+        self.assertEqual(self.rom.title, 'Updated ROM')
 
-class ROMDelete(APIView):
-    def delete(self, request):
-        token = request.headers.get('Authorization').split(' ')[1]
-        payload = Token.decode_token(token)
-        if payload is None:
-            return Response({'error': 'Invalid token'}, status=status.HTTP_401_UNAUTHORIZED)
-        user_id = payload['user_id']
-        try:
-            rom = ROM.objects.get(id=user_id)
-        except ROM.DoesNotExist:
-            return Response({'error': 'ROM not found'}, status=status.HTTP_404_NOT_FOUND)
-        
-        rom.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+    def test_rom_delete_view(self):
+        url = reverse('rom-delete', args=[self.rom.id])
+        response = self.client.delete(url)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(ROM.objects.count(), 0)
 
-class ROMDownload(generics.RetrieveAPIView):
-    queryset = ROM.objects.all()
-    serializer_class = ROMSerializer
 
-    def get(self, request, *args, **kwargs):
-        obj = self.get_object()
-        file_path = obj.file.path
-        if file_path:
-            try:
-                response = FileResponse(open(file_path, 'rb'), as_attachment=True)
-                obj.qtd_download += 1
-                obj.save()
-                return response
-            except FileNotFoundError:
-                raise Http404("File not found.")
-            except Exception as e:
-                raise Http404("An error occurred.")
-        else:
-            raise Http404("No file associated with this object.")
+class UserTestCase(APITestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username='testuser', email='testuser@example.com', password='testpassword'
+        )
+        self.client = APIClient()
+        self.client.force_authenticate(user=self.user)
 
-class mostplayed(APIView):
-    def get(self, request):
-        roms = ROM.objects.order_by('-qtd_download')[:4]
-        serializer = ROMSerializer(roms, many=True)
-        return Response(serializer.data)
+    def test_user_register(self):
+        url = reverse('user-create')
+        data = {'username': 'newuser', 'email': 'newuser@example.com', 'password': 'newpassword'}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(User.objects.count(), 2)
 
-class UserListView(APIView):
-    def get(self, request):
-        token = request.headers.get('Authorization').split(' ')[1]
-        payload = Token.decode_token(token)
-        if payload is None:
-            return Response({'error': 'Invalid token'}, status=status.HTTP_401_UNAUTHORIZED)
+    def test_user_wishlist_view(self):
+        url = reverse('user-wishlist')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        user_id = payload['user_id']
-        if user_id:
-            user = self.get_object(user_id)
-            serializer = UserSerializer(user)
-            return Response(serializer.data)
-        else:
-            users = User.objects.all()
-            serializer = UserSerializer(users, many=True)
-            return Response(serializer.data)
+    def test_add_to_wishlist(self):
+        rom = ROM.objects.create(title='New ROM', description='Description of new ROM')
+        url = reverse('user-add-wishlist')
+        data = {'rom_id': rom.id}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn(rom, self.user.wishlist.all())
 
-    def get_object(self, id):
-        try:
-            return User.objects.get(id=id)
-        except User.DoesNotExist:
-            raise NotFound()
+    def test_remove_from_wishlist(self):
+        rom = ROM.objects.create(title='New ROM', description='Description of new ROM')
+        self.user.wishlist.add(rom)
+        url = reverse('user-remove-wishlist')
+        data = {'rom_id': rom.id}
+        response = self.client.delete(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertNotIn(rom, self.user.wishlist.all())
 
-class UserRegister(APIView):
-    def post(self, request):
-        serializer = UserSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-class UserUpdate(APIView):
-    def put(self, request):
-        token = request.headers.get('Authorization').split(' ')[1]
-        payload = Token.decode_token(token)
-        if payload is None:
-            return Response({'error': 'Invalid token'}, status=status.HTTP_401_UNAUTHORIZED)
-        user_id = payload['user_id']
-        try:
-            user = User.objects.get(id=user_id)
-        except User.DoesNotExist:
-            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
-        
-        serializer = UserSerializer(user, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-class UserDelete(APIView):
-    def delete(self, request):
-        token = request.headers.get('Authorization').split(' ')[1]
-        payload = Token.decode_token(token)
-        if payload is None:
-            return Response({'error': 'Invalid token'}, status=status.HTTP_401_UNAUTHORIZED)
-            
-        user_id = payload['user_id']
-        try:
-            user = User.objects.get(id=user_id)
-        except User.DoesNotExist:
-            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
-        
-        user.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
-class UserViewWishlist(APIView):
-    def get(self, request):
-        token = request.headers.get('Authorization').split(' ')[1]
-        payload = Token.decode_token(token)
-        if payload is None:
-            return Response({'error': 'Invalid token'}, status=status.HTTP_401_UNAUTHORIZED)
-
-        user_id = payload['user_id']
-        try:
-            user = User.objects.get(id=user_id)
-        except User.DoesNotExist:
-            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
-        
-        wishlist = user.wishlist.all()
-        serializer = ROMSerializer(wishlist, many=True)
-        return Response(serializer.data)
-
-class UserAddWishlist(APIView):
-    def post(self, request):
-        token = request.headers.get('Authorization').split(' ')[1]
-        payload = Token.decode_token(token)
-        if payload is None:
-            return Response({'error': 'Invalid token'}, status=status.HTTP_401_UNAUTHORIZED)
-
-        user_id = payload['user_id']
-        rom_id = request.data.get('rom_id')
-
-        try:
-            user = User.objects.get(id=user_id)
-            rom = ROM.objects.get(id=rom_id)
-        except (User.DoesNotExist, ROM.DoesNotExist):
-            return Response({'error': 'User or ROM not found'}, status=status.HTTP_404_NOT_FOUND)
-
-        user.wishlist.add(rom)
-        serializer = UserSerializer(user)
-        return Response(serializer.data)
-
-class UserRemoveWishlist(APIView):
-    def delete(self, request):
-        token = request.headers.get('Authorization').split(' ')[1]
-        payload = Token.decode_token(token)
-
-        if payload is None:
-            return Response({'error': 'Invalid token'}, status=status.HTTP_401_UNAUTHORIZED)
-
-        user_id = payload['user_id']
-        try:
-            user = User.objects.get(id=user_id)
-            rom_id = request.data.get('rom_id')
-            rom = ROM.objects.get(id=rom_id)
-        except (User.DoesNotExist, ROM.DoesNotExist):
-            return Response({'error': 'User or ROM not found'}, status=status.HTTP_404_NOT_FOUND)
-
-        user.wishlist.remove(rom)
-        serializer = UserSerializer(user)
-        return Response(serializer.data)
-
-class Login(generics.GenericAPIView):
-    serializer_class = UserSerializer
-
-    def post(self, request, *args, **kwargs):
-        email = request.data.get('email')
-        password = request.data.get('password')
-
-        try:
-            user = User.objects.get(email=email)
-            if not check_password(password, user.password):
-                return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
-
-            token = Token.create_token(user.id, datetime.utcnow() + timedelta(minutes=15))
-            refresh_token = Token.create_token(user.id, datetime.utcnow() + timedelta(days=7))
-
-            response = Response({'token': token, 'user': UserSerializer(user).data})
-            response.set_cookie(key='refresh_token', value=refresh_token, httponly=True)
-            return response
-
-        except User.DoesNotExist:
-            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
-
-class RefreshToken(APIView):
-    def get(self, request):
-        refresh_token = request.COOKIES.get('refresh_token')
-        if refresh_token is None:
-            return Response({'error': 'Refresh token not provided'}, status=status.HTTP_401_UNAUTHORIZED)
-        try:
-            payload = jwt.decode(refresh_token, settings.SECRET_KEY, algorithms=['HS256'])
-            user = User.objects.get(id=payload['id'])
-            new_token = Token.create_token(user.id, datetime.utcnow() + timedelta(minutes=15))
-            return Response({'token': new_token})
-
-        except jwt.ExpiredSignatureError:
-            return Response({'error': 'Token has expired'}, status=status.HTTP_401_UNAUTHORIZED)
-        except jwt.InvalidTokenError:
-            return Response({'error': 'Invalid token'}, status=status.HTTP_401_UNAUTHORIZED)
-        except User.DoesNotExist:
-            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)

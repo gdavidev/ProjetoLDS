@@ -6,7 +6,7 @@ from django.conf import settings
 urlpatterns = [
     path("roms/", ROMListView.as_view(), name="rom-list"),
     path("roms/detail/", ROMDetailView.as_view(), name="rom-detail"),
-    path("roms/search/", ROMSearch.as_view(), name="rom-search")
+    path("roms/search/", ROMSearch.as_view(), name="rom-search"),
     path("roms/mostplayed/", mostplayed.as_view, name="rom-mostplayed"),
     path("roms/<int:pk>/download/", ROMDownload.as_view(), name="rom-download"), 
     path("roms/update/", ROMUpdate.as_view(), name="rom-update"),

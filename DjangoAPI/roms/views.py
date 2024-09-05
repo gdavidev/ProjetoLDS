@@ -37,7 +37,7 @@ class ROMDetailView(APIView):
             raise NotFound()
 
 class ROMSearch(APIView):
-    def get(self, request)
+    def get(self, request):
         try:
             rom_title = request.data.get('rom_title')
             rom = ROM.objects.filter(title__icontains=rom_title)
