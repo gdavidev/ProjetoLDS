@@ -4,7 +4,7 @@ from django.db import models
 class User(models.Model):
     username = models.CharField(max_length=125)
     email = models.EmailField()
-    password = models.CharField(max_length=128)  # Ajuste o comprimento conforme necessário
+    password = models.CharField(max_length=128)  
     admin = models.BooleanField(default=False)
     imagem_perfil = models.ImageField(upload_to='img-perfil/')
     wishlist = models.ManyToManyField('ROM', related_name='wishlist', blank=True)

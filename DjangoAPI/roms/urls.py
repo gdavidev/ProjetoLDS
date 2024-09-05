@@ -1,18 +1,18 @@
 from django.urls import path
-from .views import ROMDelete, ROMCreate, ROMListView, ROMUpdate, ROMDownload, UserRegister, UserViewWishlist, UserAddWishlist, UserDelete, UserListView, UserRemoveWishlist, UserUpdate, RefreshToken, Login, mostplayed
+from .views import ROMDelete, ROMCreate, ROMListView, ROMUpdate, ROMDownload, UserRegister, UserViewWishlist, UserAddWishlist, UserDelete, UserListView, UserRemoveWishlist, UserUpdate, RefreshToken, Login, mostplayed, ROMDetailView, UserDetailView
 from django.conf.urls.static import static
 from django.conf import settings
 
 urlpatterns = [
     path("roms/", ROMListView.as_view(), name="rom-list"),
-    path("roms/detail/", ROMListView.as_view(), name="rom-detail"),
+    path("roms/detail/", ROMDetailView.as_view(), name="rom-detail"),
     path("roms/mostplayed/", mostplayed.as_view, name="rom-mostplayed"),
     path("roms/<int:pk>/download/", ROMDownload.as_view(), name="rom-download"), 
     path("roms/update/", ROMUpdate.as_view(), name="rom-update"),
     path("roms/delete/", ROMDelete.as_view(), name="rom-delete"),
     path("roms/create/", ROMCreate.as_view(), name="rom-create"),
     path("users/", UserListView.as_view(), name="user-list"),
-    path("users/list/", UserListView.as_view(), name="user-detail"),
+    path("users/detail/", UserDetailView.as_view(), name="user-detail"),
     path("users/update/", UserUpdate.as_view(), name="user-update"),
     path("users/delete/", UserDelete.as_view(), name="user-delete"),
     path("register/", UserRegister.as_view(), name="user-create"),

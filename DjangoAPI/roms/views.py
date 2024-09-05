@@ -22,19 +22,17 @@ Token = Token()
 
 class ROMListView(APIView):
     def get(self, request):
-        rom_id = request.data.get('rom_id')
-        if rom_id:
-            rom = self.get_object(rom_id)
+        roms = ROM.objects.all()
+        serializer = ROMSerializer(roms, many=True)
+        return Response(serializer.data)
+
+class ROMDetailView(APIView):
+    def get(self, request):
+        try:
+            rom_id = request.data.get('rom_id')
+            rom = ROM.objects.get(id=id)
             serializer = ROMSerializer(rom)
             return Response(serializer.data)
-        else:
-            roms = ROM.objects.all()
-            serializer = ROMSerializer(roms, many=True)
-            return Response(serializer.data)
-    
-    def get_object(self, id):
-        try:
-            return ROM.objects.get(id=id)
         except ROM.DoesNotExist:
             raise NotFound()
 
@@ -57,8 +55,8 @@ class ROMUpdate(APIView):
         payload = Token.decode_token(token)
         if payload is None:
             return Response({'error': 'Invalid token'}, status=status.HTTP_401_UNAUTHORIZED)
-        user_id = payload['user_id']
-        rom = ROM.objects.get(id=user_id)
+        rom_id = payload['rom_id']
+        rom = ROM.objects.get(id=rom_id)
         serializer = ROMSerializer(rom, data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -71,8 +69,8 @@ class ROMDelete(APIView):
         payload = Token.decode_token(token)
         if payload is None:
             return Response({'error': 'Invalid token'}, status=status.HTTP_401_UNAUTHORIZED)
-        user_id = payload['user_id']
-        rom = ROM.objects.get(id=user_id)
+        rom_id = payload['rom_id']
+        rom = ROM.objects.get(id=rom_id)
         rom.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -98,7 +96,7 @@ class ROMDownload(generics.RetrieveAPIView):
 
 class mostplayed(APIView):
     def get(self, request):
-        roms = ROM.objects.order_by('-qtd_download')[:4]
+        roms = ROM.objects.order_by('-qtd_download')[:10]
         serializer = ROMSerializer(roms, many=True)
         return Response(serializer.data)
 
@@ -110,15 +108,20 @@ class UserListView(APIView):
         payload = Token.decode_token(token)
         if payload is None:
             return Response({'error': 'Invalid token'}, status=status.HTTP_401_UNAUTHORIZED)
+        users = User.objects.all()
+        serializer = UserSerializer(users, many=True)
+        return Response(serializer.data)
 
+class UserDetailView(APIView):
+    def get(self, request):
+        token = request.headers.get('Authorization').split(' ')[1]
+        payload = Token.decode_token(token)
+        if payload is None:
+            return Response({'error': 'Invalid token'}, status=status.HTTP_401_UNAUTHORIZED)
         user_id = payload['user_id']
         if user_id:
             user = self.get_object(user_id)
             serializer = UserSerializer(user)
-            return Response(serializer.data)
-        else:
-            users = User.objects.all()
-            serializer = UserSerializer(users, many=True)
             return Response(serializer.data)
 
     def get_object(self, id):
@@ -156,7 +159,7 @@ class UserDelete(APIView):
         if payload is None:
             return Response({'error': 'Invalid token'}, status=status.HTTP_401_UNAUTHORIZED)
             
-        user_id = payload['user_id']
+        user_id = request.data.get('user_id')
         user = User.objects.get(id=user_id)
         user.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
