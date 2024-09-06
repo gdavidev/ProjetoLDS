@@ -1,14 +1,15 @@
 import { Outlet, useLocation } from 'react-router-dom'
 import Footer from './components/layout/Footer'
 import Header from './components/layout/Header'
-import './App.css';
+import './MainApp.css';
+import './../shared/AppsCommon.css';
 
 export default function App() {
   const currentPath: string = useLocation().pathname
   let backgroundClass: string = '';
   switch (currentPath) {
-    case '/sign-in':
-    case '/log-in':
+    case '/app/sign-in':
+    case '/app/log-in':
       backgroundClass = ' bg-cover bg-login-page'
       break;    
     default:

@@ -1,5 +1,5 @@
 import { createContext, Context, PropsWithChildren } from 'react'
-import User from './models/User'
+import User from '../../../models/User'
 
 export type MainProps = {
   currentUser: User

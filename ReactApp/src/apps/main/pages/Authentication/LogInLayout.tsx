@@ -1,8 +1,8 @@
 import React, { useContext, useState } from "react";
-import Axios, { AxiosError } from "axios";
+import Axios from "axios";
 import { AuthContext, AuthContextProps, AlertFeedbackType } from "./AuthPage.tsx";
-import FormInputGroupMerge from "../../components/formComponents/FromGroup/FormInputGroupMerge.tsx"
-import TextInput from "../../components/formComponents/FromGroup/TextInput.tsx";
+import FormInputGroupMerge from "../../../shared/components/formComponents/FromGroup/FormInputGroupMerge.tsx"
+import TextInput from "../../../shared/components/formComponents/FromGroup/TextInput.tsx";
 
 type userLogInData = {
   email: string,
@@ -22,8 +22,8 @@ export default function LogInLayout(): React.ReactElement {
     setUserLogInData(data => ({...data, password: newValue}));
 
   const retrieveUserCredentials = () => {
-    Axios.get('http://localhost:8080/api/users/', { params: userLogInData })
-      .then(response => console.log(response.data))
+    Axios.get('http://localhost:8080/api/token/', { params: userLogInData })
+      .then(response => console.log(response.data));
   }
 
   function submitData(): void {

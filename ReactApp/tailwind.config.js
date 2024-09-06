@@ -4,7 +4,7 @@ export default {
   theme: {
     extend: {
       backgroundImage: {
-        'login-page': "url('assets/backgrounds/login-page.png')"
+        'login-page': "url('/backgrounds/login-page.png')"
       },
       colors: {
         'primary': '#EE0001',

@@ -20,7 +20,7 @@ export const AuthContext: Context<AuthContextProps> =
   createContext<AuthContextProps>(defaultAuthContextProps);
 
 export default function AuthPage(): React.ReactElement {
-  const isLoginState = useLocation().pathname === '/log-in' ? true : false;
+  const isLoginState = useLocation().pathname === '/app/log-in' ? true : false;
   const [ alertFeedbackData, setAlertFeedbackData ] = useState<AlertFeedbackData>({
     message: '',
     type: AlertFeedbackType.HIDDEN

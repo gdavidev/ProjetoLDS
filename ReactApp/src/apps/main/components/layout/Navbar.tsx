@@ -5,13 +5,13 @@ export default function Navbar() {
     <nav className="flex justify-center mt-1">
       <ul className="flex flex-row text-white gap-x-2">
         <li className="navbar-item">
-          <Link to="/">Home</Link>
+          <Link to="/app/">Home</Link>
         </li>
         <li className="navbar-item">
-          <Link to="/games">Jogos</Link>
+          <Link to="/app/games">Jogos</Link>
         </li>
         <li className="navbar-item">
-          <Link to="/emulators">Emuladores</Link>
+          <Link to="/app/emulators">Emuladores</Link>
         </li>        
       </ul>  
     </nav>

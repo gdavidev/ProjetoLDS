@@ -1,8 +1,8 @@
 import { useContext } from "react";
-import SearchBar from "../formComponents/SearchBar";
+import SearchBar from "../../../shared/components/formComponents/SearchBar";
 import { Link } from "react-router-dom";
 import Navbar from "./Navbar";
-import { MainContext, MainProps } from "../../MainContextProvider";
+import { MainContext, MainProps } from "../../../shared/context/MainContextProvider";
 
 export default function Header() {
   const mainContext: MainProps = useContext(MainContext)
@@ -21,8 +21,8 @@ export default function Header() {
             [<a key={0} href="#">abs</a>,
             <a key={1} href="#">aaaa</a>]                   
             :            
-            [<Link key={0} className="btn-r-md bg-teal-300 hover:bg-teal-400 text-white" to="/log-in">Login</Link>,
-            <Link key={1} className="btn-r-md bg-teal-300 hover:bg-teal-400 text-white" to="/sign-in">Sign-in</Link>]              
+            [<Link key={0} className="btn-r-md bg-teal-300 hover:bg-teal-400 text-white" to="/app/log-in">Login</Link>,
+            <Link key={1} className="btn-r-md bg-teal-300 hover:bg-teal-400 text-white" to="/app/sign-in">Sign-in</Link>]              
         }
         </div>
       </div>

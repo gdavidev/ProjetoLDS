@@ -1,0 +1,61 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*------- POPPINS -------*/
+@font-face {
+  font-family: 'Poppins';
+  font-weight: bolder;
+  font-style: normal;
+  src: url('../../../public/fonts/Poppins/Poppins-Black.ttf') format('ttf'); 
+}
+@font-face {
+  font-family: 'Poppins';
+  font-weight: bold;
+  font-style: normal;
+  src: url('../../../public/fonts/Poppins/Poppins-Bold.ttf') format('ttf'); 
+}
+@font-face {
+  font-family: 'Poppins';
+  font-weight: bold;
+  font-style: italic;
+  src: url('../../../public/fonts/Poppins/Poppins-BoldItalic.ttf') format('ttf'); 
+}
+@font-face {
+  font-family: 'Poppins';
+  font-weight: normal;
+  font-style: italic;
+  src: url('../../../public/fonts/Poppins/Poppins-Italic.ttf') format('ttf'); 
+}
+@font-face {
+  font-family: 'Poppins';
+  font-weight: normal;
+  font-style: normal;
+  src: url('../../../public/fonts/Poppins/Poppins-Regular.ttf') format('ttf');
+}
+
+/*------- RUBIK -------*/
+@font-face {
+  font-family: 'Rubik';
+  font-weight: bolder;
+  font-style: normal;
+  src: url('assets/fonts/Rubik/Rubik-Black.ttf') format('ttf') 
+}
+@font-face { 
+  font-family: 'Rubik';
+  font-weight: bold;
+  font-style: normal;
+  src: url('assets/fonts/Rubik/Rubik-Bold.ttf') format('ttf');
+}
+@font-face { 
+  font-family: 'Rubik';
+  font-weight: normal;
+  font-style: normal;
+  src: url('assets/fonts/Rubik/Rubik-Medium.ttf') format('ttf');
+}
+@font-face { 
+  font-family: 'Rubik';
+  font-weight: normal;
+  font-style: italic;
+  src: url('assets/fonts/Rubik/Rubik-MediumItalic.ttf') format('ttf');
+}
