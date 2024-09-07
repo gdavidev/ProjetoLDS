@@ -7,7 +7,7 @@ import { AuthContext, AuthContextProps, AlertFeedbackType } from "./AuthPage.tsx
 
 type userSignInData = {
   email: string,
-  userName: string,
+  username: string,
   password: string,
   passwordConfirm: string,
 }
@@ -16,7 +16,7 @@ export default function SignInLayout(): React.ReactElement {
   const authContext: AuthContextProps = useContext(AuthContext);  
   const [ userSignInData, setUserSignInData ] = useState<userSignInData>({
     email: "",
-    userName: "",
+    username: "",
     password: "",
     passwordConfirm: "",
   });
@@ -24,7 +24,7 @@ export default function SignInLayout(): React.ReactElement {
   const handleEmailChange = (newValue: string): void =>
     setUserSignInData(data => ({...data, email: newValue}));
   const handleUserNameChange = (newValue: string): void =>
-    setUserSignInData(data => ({...data, userName: newValue}));
+    setUserSignInData(data => ({...data, username: newValue}));
   const handlePasswordChange = (newValue: string): void =>
     setUserSignInData(data => ({...data, password: newValue}));
   const handlePasswordConfirmChange = (newValue: string): void =>
@@ -33,26 +33,27 @@ export default function SignInLayout(): React.ReactElement {
   const mutation = useMutation(
     'ADD_USER',
     async (newUserSignInData: userSignInData) => {
-      Axios.post('http://localhost:8080/api/register/', { 
-        params: {
-          email: newUserSignInData.email,
-          userName: newUserSignInData.userName,
-          password: newUserSignInData.password,
-      }
-    }).then(response => console.log(response.data));
-  });
-
+      return Axios.post('http://localhost:8080/api/register/', { 
+        email: newUserSignInData.email,
+        username: newUserSignInData.username,
+        password: newUserSignInData.password
+      })
+      .then(response => console.log(response.data))
+      .catch(error => console.error('Error:', error.response?.data));
+    }
+  );
+  
   function handleSubmit(e: FormEvent<HTMLFormElement>): void {
-    let errorMessage: string = getErrorMessageIfNotValid(userSignInData);
     e.preventDefault();
+    let errorMessage: string = getErrorMessageIfNotValid(userSignInData);
     if (errorMessage !== '') {
       authContext.setAlertFeedbackData?.({ message: errorMessage, type: AlertFeedbackType.ERROR });
       return;
     }
     authContext.setAlertFeedbackData?.({ message: '', type: AlertFeedbackType.HIDDEN });
-
+  
     mutation.mutate(userSignInData);
-  }
+  }  
  
   // if (mutation.isLoading)
   //   authContext.setAlertFeedbackData?.({ message: "Enviando...", type: AlertFeedbackType.PROGRESS });
@@ -83,7 +84,7 @@ export default function SignInLayout(): React.ReactElement {
 function getErrorMessageIfNotValid(userSignInData: userSignInData): string {
   if (userSignInData.email.trim() === '') 
     return "Por favor, insira um email.";
-  if (userSignInData.userName.trim() === '') 
+  if (userSignInData.username.trim() === '') 
     return "Por favor, insira um nome de usuário.";
   if (userSignInData.password.trim() === '') 
     return "Por favor, insira uma senha.";
