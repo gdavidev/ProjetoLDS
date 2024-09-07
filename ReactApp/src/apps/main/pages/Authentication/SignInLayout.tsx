@@ -33,27 +33,26 @@ export default function SignInLayout(): React.ReactElement {
   const mutation = useMutation(
     'ADD_USER',
     async (newUserSignInData: userSignInData) => {
-      return Axios.post('http://localhost:8080/api/register/', { 
-        email: newUserSignInData.email,
-        username: newUserSignInData.username,
-        password: newUserSignInData.password
-      })
-      .then(response => console.log(response.data))
-      .catch(error => console.error('Error:', error.response?.data));
-    }
-  );
-  
+      Axios.post('http://localhost:8080/api/register/', { 
+        params: {
+          email: newUserSignInData.email,
+          username: newUserSignInData.username,
+          password: newUserSignInData.password,
+      }
+    }).then(response => console.log(response.data));
+  });
+
   function handleSubmit(e: FormEvent<HTMLFormElement>): void {
-    e.preventDefault();
     let errorMessage: string = getErrorMessageIfNotValid(userSignInData);
+    e.preventDefault();
     if (errorMessage !== '') {
       authContext.setAlertFeedbackData?.({ message: errorMessage, type: AlertFeedbackType.ERROR });
       return;
     }
     authContext.setAlertFeedbackData?.({ message: '', type: AlertFeedbackType.HIDDEN });
-  
+
     mutation.mutate(userSignInData);
-  }  
+  }
  
   // if (mutation.isLoading)
   //   authContext.setAlertFeedbackData?.({ message: "Enviando...", type: AlertFeedbackType.PROGRESS });
