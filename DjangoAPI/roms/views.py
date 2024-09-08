@@ -228,13 +228,14 @@ class Login(generics.GenericAPIView):
     def post(self, request, *args, **kwargs):
         email = request.data.get('email')
         password = request.data.get('password')
+        print(email, password)
 
         try:
             user = User.objects.get(email=email)
             if not check_password(password, user.password):
                 return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
-            print(user.id)
+            print(user)
 
             token = Token.create_token(user.id, datetime.utcnow() + timedelta(minutes=15))
             refresh_token = Token.create_token(user.id, datetime.utcnow() + timedelta(days=7))

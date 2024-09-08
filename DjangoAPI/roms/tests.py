@@ -2,23 +2,11 @@ from rest_framework.test import APITestCase, APIClient
 from rest_framework import status
 from django.urls import reverse
 from .models import ROM, User
+from django.db.models import Count
 
 class ROMTestCase(APITestCase):
-    def setUp(self):
-        # Criando um usuário de teste
-        self.user = User.objects.create_user(
-            username='testuser', email='testuser@example.com', password='testpassword'
-        )
-        self.client = APIClient()
-        self.client.force_authenticate(user=self.user)
-
-        # Criando ROM de teste
-        self.rom = ROM.objects.create(
-            title='Test ROM', description='Test ROM description', qtd_download=0
-        )
-    
     def test_rom_list_view(self):
-        url = reverse('rom-list')  # Verifique o nome da URL para a lista de ROMs
+        url = reverse('rom-list') 
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertGreaterEqual(len(response.data), 1)
@@ -52,13 +40,6 @@ class ROMTestCase(APITestCase):
 
 
 class UserTestCase(APITestCase):
-    def setUp(self):
-        self.user = User.objects.create_user(
-            username='testuser', email='testuser@example.com', password='testpassword'
-        )
-        self.client = APIClient()
-        self.client.force_authenticate(user=self.user)
-
     def test_user_register(self):
         url = reverse('user-create')
         data = {'username': 'newuser', 'email': 'newuser@example.com', 'password': 'newpassword'}
@@ -87,4 +68,3 @@ class UserTestCase(APITestCase):
         response = self.client.delete(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertNotIn(rom, self.user.wishlist.all())
-

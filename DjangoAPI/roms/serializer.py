@@ -16,6 +16,15 @@ class UserSerializer(serializers.ModelSerializer):
             'password': {'write_only': True},
             'admin': {'required': False},
         }
+    
+    def validate(self, data):
+        if User.objects.filter(username=data['username']).exists():
+            raise serializers.ValidationError({"username": "Este nome de usuário já está em uso."})
+        
+        if User.objects.filter(email=data['email']).exists():
+            raise serializers.ValidationError({"email": "Este email já está em uso."})
+        
+        return data
 
     def create(self, validated_data):
         user = User(
