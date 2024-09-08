@@ -22,7 +22,10 @@ export default function LogInLayout(): React.ReactElement {
     setUserLogInData(data => ({...data, password: newValue}));
 
   const retrieveUserCredentials = () => {
-    Axios.get('http://localhost:8080/api/token/', { params: userLogInData })
+    return Axios.post('http://localhost:8080/api/token/', { 
+      email: userLogInData.email,
+      password: userLogInData.password
+    })
       .then(response => console.log(response.data));
   }
 
