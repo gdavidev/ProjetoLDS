@@ -168,11 +168,17 @@ class UserDelete(APIView):
         payload = Token.decode_token(token)
         if payload is None:
             return Response({'error': 'Invalid token'}, status=status.HTTP_401_UNAUTHORIZED)
-            
+        
         user_id = request.data.get('user_id')
-        user = User.objects.get(id=user_id)
-        user.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        if not user_id:
+            return Response({'error': 'ID do usuário não fornecido'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            user = User.objects.get(id=user_id)
+            user.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except User.DoesNotExist:
+            return Response({'error': 'Usuário não encontrado'}, status=status.HTTP_404_NOT_FOUND)
 
 class UserViewWishlist(APIView):
     def get(self, request):
@@ -262,3 +268,5 @@ class RefreshToken(APIView):
             return Response({'error': 'Refresh token expired'}, status=status.HTTP_401_UNAUTHORIZED)
         except jwt.InvalidTokenError:
             return Response({'error': 'Invalid refresh token'}, status=status.HTTP_401_UNAUTHORIZED)
+
+
