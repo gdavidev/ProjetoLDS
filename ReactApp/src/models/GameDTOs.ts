@@ -14,3 +14,12 @@ export type GameUpdateDTO = {
   image?: File,
   file?: File,
 }
+
+export type GameGetDTO = {
+  description: string,
+  id: number,
+  emulador: string,
+  image: File,
+  file: File,
+  title: string,
+}

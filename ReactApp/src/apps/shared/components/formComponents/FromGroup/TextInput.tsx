@@ -1,4 +1,4 @@
-import { ChangeEventHandler, ReactNode } from "react";
+import { ChangeEventHandler, forwardRef, ReactNode, RefObject } from "react";
 
 type TextInputProps = {
   name: string,
@@ -10,11 +10,11 @@ type TextInputProps = {
   onChange?: ChangeEventHandler<HTMLInputElement>,
 }
 
-export default function TextInput(props: TextInputProps) {
+const TextInput = forwardRef((props: TextInputProps, ref: React.ForwardedRef<HTMLInputElement>) => {
   const formatedName: string = props.name.replace(" ", "-").toLowerCase()
 
   return (
-    <input id={ formatedName } name={ formatedName } 
+    <input ref={ ref } id={ formatedName } name={ formatedName } 
       placeholder={ props.name } type="text" defaultValue={ props.value }
       className={ 
         "px-3 py-2 front-lg focus:outline-none text-black"
@@ -25,4 +25,5 @@ export default function TextInput(props: TextInputProps) {
        }
        onChange={ props.onChange }/>
   );
-}
+})
+export default TextInput

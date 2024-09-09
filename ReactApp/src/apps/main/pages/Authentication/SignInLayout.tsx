@@ -1,8 +1,8 @@
 import { useMutation } from "react-query";
-import Axios, { AxiosError } from "axios";
+import Axios from "axios";
 import FormInputGroupMerge from "../../../shared/components/formComponents/FromGroup/FormInputGroupMerge.tsx"
 import TextInput from "../../../shared/components/formComponents/FromGroup/TextInput.tsx";
-import React, { FormEvent, useContext, useState } from "react";
+import React, { FormEvent, useContext, useEffect, useState } from "react";
 import { AuthContext, AuthContextProps, AlertFeedbackType } from "./AuthPage.tsx";
 
 type userSignInData = {
@@ -30,7 +30,7 @@ export default function SignInLayout(): React.ReactElement {
   const handlePasswordConfirmChange = (newValue: string): void =>
     setUserSignInData(data => ({...data, passwordConfirm: newValue}));
 
-  const mutation = useMutation(
+  const { isLoading, isSuccess, isError, error: mutationError, mutate } = useMutation(
     'ADD_USER',
     async (newUserSignInData: userSignInData) => {
       return Axios.post('http://localhost:8080/api/register/', { 
@@ -42,6 +42,17 @@ export default function SignInLayout(): React.ReactElement {
       .catch(error => console.error('Error:', error.response?.data));
     }
   );
+
+  useEffect(() => {
+    if (isLoading)
+      authContext.setAlertFeedbackData?.({ message: "Enviando...", type: AlertFeedbackType.PROGRESS });
+    else if (isError) 
+      authContext.setAlertFeedbackData?.({ message: "Erro: " + mutationError, type: AlertFeedbackType.ERROR });
+    else if (isSuccess)
+      authContext.setAlertFeedbackData?.({ message: "Registrado com sucesso!", type: AlertFeedbackType.SUCCESS });
+    else
+      authContext.setAlertFeedbackData?.({ type: AlertFeedbackType.HIDDEN });
+  }, [isLoading, isError, isSuccess])
   
   function handleSubmit(e: FormEvent<HTMLFormElement>): void {
     e.preventDefault();
@@ -52,19 +63,12 @@ export default function SignInLayout(): React.ReactElement {
     }
     authContext.setAlertFeedbackData?.({ message: '', type: AlertFeedbackType.HIDDEN });
   
-    mutation.mutate(userSignInData);
+    mutate(userSignInData);
   }
- 
-  // if (mutation.isLoading)
-  //   authContext.setAlertFeedbackData?.({ message: "Enviando...", type: AlertFeedbackType.PROGRESS });
-  // else if (mutation.isError) 
-  //   authContext.setAlertFeedbackData?.({ message: "Erro", type: AlertFeedbackType.ERROR });
-  // else if (mutation.isSuccess)
-  //   authContext.setAlertFeedbackData?.({ message: "Registrado com sucesso!", type: AlertFeedbackType.ERROR });
 
   return(
     <form onSubmit={ e => { handleSubmit(e) } }
-       className="flex flex-col gap-y-4 w-2/3 mx-auto">      
+       className="flex flex-col gap-y-4 w-full mx-auto">      
       <FormInputGroupMerge>
         <TextInput name="Email" onChange={ e => handleEmailChange(e.target.value) } />
         <TextInput name="Usuário" onChange={ e => handleUserNameChange(e.target.value) } />

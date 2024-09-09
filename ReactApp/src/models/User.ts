@@ -1,7 +1,7 @@
-import { UserRegisterDTO, UserLoginDTO } from "./UserDTOs";
+import { UserRegisterDTO, UserLoginDTO, UserLoginResponseDTO } from "./UserDTOs";
 
-export default class User {
-  id: number;
+export default class CurrentUser {
+  isAdmin?: boolean
   userName?: string
   email?: string
   password?: string
@@ -9,23 +9,26 @@ export default class User {
   profilePic?: File
 
   constructor()  
-  constructor(id?: number, userName?: string, token?: string, profilePic?: File, email?: string, password?: string) {
-    this.id = id || 0;
-    this.userName = userName || '';
-    this.token = token || '';
+  constructor(userName: string, email: string, password?: string, token?: string, isAdmin?: boolean)  
+  constructor(userName?: string, email?: string, password?: string, token?: string, isAdmin?: boolean, profilePic?: File) {
+    this.userName   = userName;
+    this.token      = token;
     this.profilePic = profilePic || undefined;
-    this.email = email || ''
-    this.password = password || ''
+    this.email      = email;
+    this.password   = password;
+    this.isAdmin    = isAdmin;
   }
 
   isAuth(): boolean { 
-    return this.token !== '' 
+    if (this.token)
+      return true
+    return false
   }
 
   toRegisterDTO(): {} {
     const dto: UserRegisterDTO = {
       username: this.userName!,
-      "e-mail": this.email!,
+      email: this.email!,
       password: this.password!,
       imagem_perfil: this.profilePic,
     }
@@ -34,9 +37,19 @@ export default class User {
 
   toLoginDTO(): {} {
     const dto: UserLoginDTO = {
-      "e-mail": this.email!,
+      email: this.email!,
       password: this.password!,
     }
     return dto;
+  }
+
+  static fromLoginResponseDTO(dto: UserLoginResponseDTO): CurrentUser {
+    return new CurrentUser(
+      dto.user.username,
+      dto.user.email,
+      '',
+      dto.token,
+      dto.user.admin
+    )
   }
 }

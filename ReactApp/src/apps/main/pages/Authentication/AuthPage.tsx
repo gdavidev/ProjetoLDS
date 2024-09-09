@@ -6,7 +6,7 @@ import LogInLayout from "./LogInLayout";
 
 export enum AlertFeedbackType { ERROR, SUCCESS, PROGRESS, HIDDEN }
 export type AlertFeedbackData = {
-  message: string,
+  message?: string,
   type: AlertFeedbackType,
 }
 
