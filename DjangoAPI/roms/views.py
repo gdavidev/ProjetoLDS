@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from rest_framework import generics
-from django.http import HttpResponse, FileResponse, Http404
+from django.http import HttpResponse, FileResponse, Http404, JsonResponse
 from rest_framework.response import Response
 from rest_framework.exceptions import NotFound
 from django.conf import settings
@@ -9,8 +9,10 @@ from rest_framework.views import APIView
 from django.contrib.auth.hashers import check_password
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from django.core.files.storage import default_storage
 
 
+import base64
 import jwt
 from datetime import datetime, timedelta
 
@@ -23,8 +25,26 @@ Token = Token()
 class ROMListView(APIView):
     def get(self, request):
         roms = ROM.objects.all()
-        serializer = ROMSerializer(roms, many=True)
-        return Response(serializer.data)
+        data = []
+        for rom in roms:
+            image_base64 = None
+            if rom.image and default_storage.exists(rom.image.name):
+                try:
+                    with rom.image.open('rb') as img_file:
+                        image_base64 = base64.b64encode(img_file.read()).decode('utf-8')
+                except Exception as e:
+                    # Log the exception if needed
+                    print(f"Error encoding image: {e}")
+            data.append({
+                'id': rom.id,
+                'title': rom.title,
+                'description': rom.description,
+                'emulador': rom.emulador,
+                'image_base64': image_base64,
+                'file': str(rom.file),
+            })
+        return JsonResponse(data, safe=False)
+
 
 class ROMDetailView(APIView):
     def get(self, request):
