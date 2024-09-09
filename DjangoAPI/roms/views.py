@@ -108,7 +108,7 @@ class ROMDownload(generics.RetrieveAPIView):
 
 class mostplayed(APIView):
     def get(self, request):
-        roms = ROM.objects.order_by('-qtd_download')[:10]
+        roms = ROM.objects.order_by('-qtd_download')[:4]
         serializer = ROMSerializer(roms, many=True)
         return Response(serializer.data)
 

@@ -4,6 +4,9 @@ from .models import ROM, User
 
 
 class ROMSerializer(serializers.ModelSerializer):
+    image_url = serializers.SerializerMethodField()
+
+
     class Meta:
         model = ROM
         fields = ['id', 'title', 'image', 'file', 'description', 'emulador']
