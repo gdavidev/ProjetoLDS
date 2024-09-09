@@ -30,7 +30,7 @@ class ROMDetailView(APIView):
     def get(self, request):
         try:
             rom_id = request.data.get('rom_id')
-            rom = ROM.objects.get(id=id)
+            rom = ROM.objects.get(id=rom_id)
             serializer = ROMSerializer(rom)
             return Response(serializer.data)
         except ROM.DoesNotExist:
@@ -49,7 +49,9 @@ class ROMSearch(APIView):
 class ROMCreate(APIView):
     def post(self, request):
         token = request.headers.get('Authorization').split(' ')[1]
+        print (token)
         payload = Token.decode_token(token)
+        print(payload)
         if payload is None:
             return Response({'error': 'Invalid token'}, status=status.HTTP_401_UNAUTHORIZED)
 

@@ -8,6 +8,12 @@ class ROMSerializer(serializers.ModelSerializer):
         model = ROM
         fields = ['id', 'title', 'image', 'file', 'description', 'emulador']
 
+        def get_image_url(self, obj):
+            request = self.context.get('request')
+            if obj.image and hasattr(obj.image, 'url'):
+                return request.build_absolute_uri(obj.image.url)
+            return None
+
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
