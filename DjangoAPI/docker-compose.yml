@@ -5,7 +5,9 @@ services:
     build: .
     command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
     volumes:
-      - .:/app
+      - img_roms:/DjangoAPI/media/img/
+      - arq_roms:/DjangoAPI/media/roms/
+      - img_perf:/DjangoAPI/media/img-perfil/
     ports:
       - "8080:8000"
     depends_on:
@@ -28,3 +30,6 @@ services:
 
 volumes:
   postgres_data:
+  img_roms:
+  arq_roms:
+  img_perf:

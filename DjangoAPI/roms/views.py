@@ -33,7 +33,7 @@ class ROMListView(APIView):
                     with rom.image.open('rb') as img_file:
                         image_base64 = base64.b64encode(img_file.read()).decode('utf-8')
                 except Exception as e:
-                    print(f"Error encoding image: {e}")
+                    print(f"Erro encoding image: {e}")
             data.append({
                 'id': rom.id,
                 'title': rom.title,
