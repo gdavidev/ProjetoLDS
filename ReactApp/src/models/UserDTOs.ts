@@ -1,11 +1,20 @@
 export type UserRegisterDTO = {
   username: string,
-	"e-mail": string,
+	email: string,
 	password: string,
 	imagem_perfil: File | undefined,
 }
 
 export type UserLoginDTO = {
-  "e-mail": string,
+  email: string,
 	password: string,
+}
+
+export type UserLoginResponseDTO = {
+  token: string
+	user: {
+		admin: boolean,
+		email: string,
+		username: string
+	}	
 }

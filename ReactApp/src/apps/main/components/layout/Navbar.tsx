@@ -9,10 +9,7 @@ export default function Navbar() {
         </li>
         <li className="navbar-item">
           <Link to="/app/games">Jogos</Link>
-        </li>
-        <li className="navbar-item">
-          <Link to="/app/emulators">Emuladores</Link>
-        </li>        
+        </li>      
       </ul>  
     </nav>
   );

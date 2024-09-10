@@ -3,18 +3,6 @@
 @tailwind utilities;
 
 @layer components {
-  /* BUTTONS */
-  .btn {
-    @apply font-rubik flex items-center font-bold px-5 py-1.5 hover:scale-[105%] 
-      active:scale-[98%] transition duration-150 ease-in-out cursor-pointer select-none
-  }  
-  .btn-r-full {
-    @apply btn rounded-full 
-  }
-  .btn-r-md {
-    @apply btn rounded-md 
-  }
-
   /* NAVBAR */
   .navbar-item {
     @apply font-rubik font-bold box-border flex bg-layout-backgroud/80 m-0 w-32 

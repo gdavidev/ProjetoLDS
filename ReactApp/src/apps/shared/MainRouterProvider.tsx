@@ -4,7 +4,6 @@ import MainApp from './../main/MainApp.tsx'
 import HomePage from './../main/pages/HomePage.tsx'
 import ProfilePage from './../main/pages/ProfilePage.tsx'
 import LibraryPage from './../main/pages/LibraryPage.tsx'
-import EmulatorsPage from './../main/pages/EmulatorsPage.tsx'
 import GamesPage from './../main/pages/GamesPage.tsx'
 import AuthPage from './../main/pages/Authentication/AuthPage.tsx';
 import AdminApp from '../admin/AdminApp.tsx'
@@ -22,7 +21,6 @@ const router = createBrowserRouter([
         { path: '/app',                     element: <HomePage />      },
         { path: '/app/profile/:profileId',  element: <ProfilePage />   },
         { path: '/app/library/:profileId',  element: <LibraryPage />   },
-        { path: '/app/emulators',           element: <EmulatorsPage /> },
         { path: '/app/games',               element: <GamesPage />     },
         { path: '/app/sign-in',             element: <AuthPage />      },
         { path: '/app/log-in',              element: <AuthPage />      },

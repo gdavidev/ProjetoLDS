@@ -1,37 +1,29 @@
-import { useContext, useState } from "react"
+import { useContext } from "react"
 import { Link } from "react-router-dom"
 
-import { MainContext, MainProps } from "../../../shared/context/MainContextProvider"
+import { MainContext, MainContextProps } from "../../../shared/context/MainContextProvider"
 import { IonIcon } from '@ionic/react'
-import { home, gameController, person, exit } from 'ionicons/icons';
+import { home, exit } from 'ionicons/icons';
 
 export default function SideMenu() {
-  const context: MainProps = useContext(MainContext)
+  const context: MainContextProps = useContext(MainContext)
   
   return (
     <aside className="flex flex-col h-screen w-1/5 py-5 bg-primary-dark font-rubik">
-      <div className="mx-auto text-white">        
-        <h1 className="border-s-4 border-s-red-700">CRUD</h1>
-        <h2>{ context.currentUser.userName || "User" }</h2>
-        <span>Admin</span>        
+      <div className="w-full px-3 text-white text-center mb-3">        
+        <h1 className="text-start border-s-4 border-s-white ps-1 font-black">CRUD</h1>
+        <h2 className="font-bold">{ context.currentUser?.userName || "User" }</h2>
+        <span className="text-sm">Admin</span>
       </div>
-      <div className="flex flex-col h-full justify-between">
-        <div>          
+      <div className="flex flex-col h-full justify-between items-center gap-y-3 px-3">
+        <div className="w-full">          
           <Link to="/admin/view-games" 
-              className="btn-r-md flex justify-start bg-primary-dark hover:bg-primary gap-x-2 w-48">
+              className="btn-r-md flex justify-start bg-primary hover:bg-primary-light gap-x-2 w-full">
             <IonIcon icon={ home } /> Games
-          </Link>
-          <Link to="/admin/view-emulators" 
-              className="btn-r-md flex justify-start bg-primary-dark hover:bg-primary gap-x-2 w-48">
-            <IonIcon icon={ gameController } /> Emulators
-          </Link>
-          <Link to="/admin/view-users" 
-              className="btn-r-md flex justify-start bg-primary-dark hover:bg-primary gap-x-2 w-48">
-            <IonIcon icon={ person } /> Users
-          </Link>        
+          </Link>                 
         </div>
-        <Link to="/admin/view-users" 
-            className="btn-r-md flex justify-start bg-primary-dark hover:bg-primary gap-x-2 w-48">
+        <Link to="/app/" 
+            className="btn-r-md flex justify-start bg-primary hover:bg-primary-light gap-x-2 w-full">
           <IonIcon icon={ exit } /> Sair
         </Link>        
       </div>
