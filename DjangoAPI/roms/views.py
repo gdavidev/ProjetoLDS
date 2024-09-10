@@ -46,23 +46,23 @@ class ROMListView(APIView):
 class ROMDetailView(APIView):
     def get(self, request):
         try:
-            rom_id = request.data.get('rom_id')
+            rom_id = request.GET.get('rom_id')
             rom = ROM.objects.get(id=rom_id)
-            for rom in roms:
-                image_base64 = None
-                if rom.image and default_storage.exists(rom.image.name):
-                    try:
-                        with rom.image.open('rb') as img_file:
-                            image_base64 = base64.b64encode(img_file.read()).decode('utf-8')
-                    except Exception as e:
-                        print(f"Erro encoding image: {e}")
-                data.append({
-                    'id': rom.id,
-                    'title': rom.title,
-                    'description': rom.description,
-                    'emulador': rom.emulador,
-                    'image_base64': image_base64,
-                })
+            image_base64 = None
+            data = []
+            if rom.image and default_storage.exists(rom.image.name):
+                try:
+                    with rom.image.open('rb') as img_file:
+                        image_base64 = base64.b64encode(img_file.read()).decode('utf-8')
+                except Exception as e:
+                    print(f"Erro encoding image: {e}")
+            data.append({
+                'id': rom.id,
+                'title': rom.title,
+                'description': rom.description,
+                'emulador': rom.emulador,
+                'image_base64': image_base64,
+            })
             return JsonResponse(data, safe=False)
         except ROM.DoesNotExist:
             raise NotFound()
@@ -140,6 +140,7 @@ class ROMDownload(generics.RetrieveAPIView):
 class mostplayed(APIView):
     def get(self, request):
         roms = ROM.objects.order_by('-qtd_download')[:4]
+        data = []
         for rom in roms:
             image_base64 = None
             if rom.image and default_storage.exists(rom.image.name):
