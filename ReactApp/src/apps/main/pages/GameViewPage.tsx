@@ -18,12 +18,10 @@ const GameViewPage: React.FC = () => {
   const navigate = useNavigate();
 
   const fetchGameDetails = async () => {
-    console.log("Fetching game details for gameId:", gameId);
     try {
       const response = await axios.get(`http://localhost:8080/api/roms/detail/`, {
         params: { rom_id: gameId },
       });
-      console.log("Response data:", response.data); 
       setGame(response.data[0]);
     } catch (error) {
       console.error('Erro ao buscar detalhes do jogo:', error);
