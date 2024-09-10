@@ -70,7 +70,7 @@ class ROMDetailView(APIView):
 class ROMSearch(APIView):
     def get(self, request):
         try:
-            rom_title = request.data.get('rom_title')
+            rom_title = request.GET.get('rom_title')
             rom = ROM.objects.filter(title__icontains=rom_title)
             serializer = ROMSerializer(roms, many=True)
             return Response(serializer.data)
@@ -181,12 +181,6 @@ class UserDetailView(APIView):
             user = self.get_object(user_id)
             serializer = UserSerializer(user)
             return Response(serializer.data)
-
-    def get_object(self, id):
-        try:
-            return User.objects.get(id=id)
-        except User.DoesNotExist:
-            raise NotFound()
 
 class UserRegister(APIView):            
     def post(self, request):
