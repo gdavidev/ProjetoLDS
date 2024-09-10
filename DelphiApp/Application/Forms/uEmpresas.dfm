@@ -13,7 +13,6 @@ object formEmpresas: TformEmpresas
   Font.Name = 'Segoe UI'
   Font.Style = []
   Position = poDesktopCenter
-  Visible = True
   OnResize = FormResize
   TextHeight = 15
   object pnlEmpresas: TPanel
@@ -33,26 +32,61 @@ object formEmpresas: TformEmpresas
       Width = 638
       Height = 240
       Align = alTop
+      BevelOuter = bvNone
       TabOrder = 0
       ExplicitTop = 0
       object pnlNintendo: TPanel
-        Left = 1
-        Top = 1
+        Left = 0
+        Top = 0
         Width = 320
-        Height = 238
+        Height = 240
         Align = alLeft
-        Caption = 'pnlNintendo'
+        BevelOuter = bvNone
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -12
+        Font.Name = 'Pretendo'
+        Font.Style = []
+        ParentFont = False
         TabOrder = 0
+        ExplicitTop = -1
+        object btnNintendo: TSpeedButton
+          Left = 80
+          Top = 90
+          Width = 153
+          Height = 57
+          Caption = 'Nintendo'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clRed
+          Font.Height = -12
+          Font.Name = 'Pretendo'
+          Font.Style = []
+          ParentFont = False
+        end
       end
       object pnlSega: TPanel
-        Left = 317
-        Top = 1
+        Left = 318
+        Top = 0
         Width = 320
-        Height = 238
+        Height = 240
         Align = alRight
-        Caption = 'pnlSega'
+        BevelOuter = bvNone
         TabOrder = 1
-        ExplicitLeft = 452
+        ExplicitLeft = 239
+        ExplicitTop = -8
+        object btnSega: TSpeedButton
+          Left = 112
+          Top = 90
+          Width = 97
+          Height = 57
+          Caption = 'Sega'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -12
+          Font.Name = 'Sage'
+          Font.Style = []
+          ParentFont = False
+        end
       end
     end
     object pnlEmpresasDown: TPanel
@@ -61,26 +95,57 @@ object formEmpresas: TformEmpresas
       Width = 638
       Height = 240
       Align = alBottom
+      BevelOuter = bvNone
       TabOrder = 1
       ExplicitTop = 159
       object pnlMicrosoft: TPanel
-        Left = 1
-        Top = 1
+        Left = 0
+        Top = 0
         Width = 320
-        Height = 238
+        Height = 240
         Align = alLeft
-        Caption = 'pnlMicrosoft'
+        BevelOuter = bvNone
         TabOrder = 0
+        ExplicitTop = 7
+        ExplicitHeight = 238
+        object btnMicrosoft: TSpeedButton
+          Left = 96
+          Top = 120
+          Width = 71
+          Height = 22
+          Caption = 'Microsoft'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clChartreuse
+          Font.Height = -12
+          Font.Name = 'Segoe Pro'
+          Font.Style = [fsBold]
+          ParentFont = False
+        end
       end
       object pnlSony: TPanel
-        Left = 317
-        Top = 1
+        Left = 318
+        Top = 0
         Width = 320
-        Height = 238
+        Height = 240
         Align = alRight
-        Caption = 'pnlSony'
+        BevelOuter = bvNone
         TabOrder = 1
         ExplicitLeft = 452
+        ExplicitTop = 1
+        ExplicitHeight = 238
+        object btnSony: TSpeedButton
+          Left = 120
+          Top = 128
+          Width = 81
+          Height = 22
+          Caption = 'Sony'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clNavy
+          Font.Height = -12
+          Font.Name = 'Clarendon'
+          Font.Style = []
+          ParentFont = False
+        end
       end
     end
   end

@@ -33,6 +33,8 @@ procedure TFormPrincipal.FormShow(Sender: TObject);
 begin
   FormAtivo := TformEmpresas.Create(Self);
   FormAtivo.Parent := pnlPrincipal;
+  FormAtivo.Show;
+  TformEmpresas(FormAtivo).FormResize(FormAtivo);
 end;
 
 end.
