@@ -40,7 +40,6 @@ class ROMListView(APIView):
                 'description': rom.description,
                 'emulador': rom.emulador,
                 'image_base64': image_base64,
-                'file': str(rom.file),
             })
         return JsonResponse(data, safe=False)
 
@@ -49,8 +48,22 @@ class ROMDetailView(APIView):
         try:
             rom_id = request.data.get('rom_id')
             rom = ROM.objects.get(id=rom_id)
-            serializer = ROMSerializer(rom)
-            return Response(serializer.data)
+            for rom in roms:
+                image_base64 = None
+                if rom.image and default_storage.exists(rom.image.name):
+                    try:
+                        with rom.image.open('rb') as img_file:
+                            image_base64 = base64.b64encode(img_file.read()).decode('utf-8')
+                    except Exception as e:
+                        print(f"Erro encoding image: {e}")
+                data.append({
+                    'id': rom.id,
+                    'title': rom.title,
+                    'description': rom.description,
+                    'emulador': rom.emulador,
+                    'image_base64': image_base64,
+                })
+            return JsonResponse(data, safe=False)
         except ROM.DoesNotExist:
             raise NotFound()
 
@@ -85,7 +98,7 @@ class ROMUpdate(APIView):
         payload = Token.decode_token(token)
         if payload is None:
             return Response({'error': 'Invalid token'}, status=status.HTTP_401_UNAUTHORIZED)
-        rom_id = payload['rom_id']
+        rom_id = request.data.get('rom_id')
         rom = ROM.objects.get(id=rom_id)
         serializer = ROMSerializer(rom, data=request.data)
         if serializer.is_valid():
@@ -127,8 +140,22 @@ class ROMDownload(generics.RetrieveAPIView):
 class mostplayed(APIView):
     def get(self, request):
         roms = ROM.objects.order_by('-qtd_download')[:4]
-        serializer = ROMSerializer(roms, many=True)
-        return Response(serializer.data)
+        for rom in roms:
+            image_base64 = None
+            if rom.image and default_storage.exists(rom.image.name):
+                try:
+                    with rom.image.open('rb') as img_file:
+                        image_base64 = base64.b64encode(img_file.read()).decode('utf-8')
+                except Exception as e:
+                    print(f"Erro encoding image: {e}")
+            data.append({
+                'id': rom.id,
+                'title': rom.title,
+                'description': rom.description,
+                'emulador': rom.emulador,
+                'image_base64': image_base64,
+            })
+        return JsonResponse(data, safe=False)
 
 #Views User
 
