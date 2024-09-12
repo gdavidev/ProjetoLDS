@@ -1,25 +1,17 @@
-export type GameCreateDTO = {
+export type GameCreateResponseDTO ={
+  id: number,
   title: string,
   description: string,
   emulador: string,
-  image: File,
-  file: File,
-}
-
-export type GameUpdateDTO = {
-  rom_id: number,
-  title?: string,
-  description?: string,
-  emulador?: string,
-  image?: File,
-  file?: File,
+  image_name: string,
+  file_name: string,
 }
 
 export type GameGetDTO = {
   description: string,
   id: number,
   emulador: string,
-  image: File,
-  file: File,
+  image_base64: string,
+  file: string,
   title: string,
 }
