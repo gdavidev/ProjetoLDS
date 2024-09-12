@@ -22,8 +22,8 @@ export default function LogInLayout(): React.ReactElement {
     },
     {      
       onSuccess: (user: CurrentUser) => {
-        console.log(user)
         mainContext.setCurrentUser?.(user)
+        window.location.replace('http://localhost:5173/app/')
       },
       onError: (err) => {
         console.log(err)

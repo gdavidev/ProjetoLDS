@@ -1,68 +1,79 @@
 import { createContext, Context, PropsWithChildren, useState, useEffect } from 'react'
 import Cookies from 'js-cookie'
 import CurrentUser from '../../../models/User'
+import EventHandler from '../../../libs/EventHandler';
 
 export type MainContextProps = {
   currentUser?: CurrentUser
-  setCurrentUser?: ((user: CurrentUser | undefined) => void)
+  setCurrentUser?: ((user: CurrentUser | undefined) => void),
+  onUserAuth: EventHandler<CurrentUser | undefined>
 };
-const defaultMainProps: MainContextProps = {
+const mainProps: MainContextProps = {
   currentUser: undefined,
   setCurrentUser: undefined,
+  onUserAuth: new EventHandler<CurrentUser | undefined>(),
 };
 export const MainContext: Context<MainContextProps> = 
-  createContext<MainContextProps>(defaultMainProps);
+  createContext<MainContextProps>(mainProps);
+
+type UserCookie = {
+  token: string,
+  userName: string,
+  email: string,
+  isAdmin: string,
+}
 
 export default function MainContextProvider({ children }: PropsWithChildren) {  
   const [ currentUser, setCurrentUser ] = useState<CurrentUser | undefined>(undefined);
-  
+
   useEffect(() => {
-    updateCurrentUserAndCookie(getUserFromCookieOrNull())
+    if (currentUser === undefined)
+      updateCurrentUserAndCookie(getUserFromCookieOrNull())
   }, [])
 
   function updateCurrentUserAndCookie(newUser: CurrentUser | undefined | null) {
     if (newUser) { 
       setCurrentUser(newUser);
-      createUserCookie(newUser)
+      createUserCookie(newUser);
+      mainProps.onUserAuth.trigger(newUser);  
     } else {
       setCurrentUser(undefined);
       dropUserCookie();
+      mainProps.onUserAuth.trigger(undefined);
     }
   }
   
-  defaultMainProps.setCurrentUser = updateCurrentUserAndCookie
-  defaultMainProps.currentUser = currentUser
+  mainProps.setCurrentUser = updateCurrentUserAndCookie
+  mainProps.currentUser = currentUser
 
   return (
-    <MainContext.Provider value={ defaultMainProps }>
+    <MainContext.Provider value={ mainProps }>
       { children }
     </MainContext.Provider>
   )
 }
 
 function createUserCookie(user: CurrentUser) {
-  const cookie = Cookies.withAttributes({ 
-    path: '',
-    expires: 0.04, // 4% of a day aka 15min
-  }) 
-  cookie.set('token', user.token!) 
-  cookie.set('userName', user.userName!)
-  cookie.set('email', user.email!)
-  cookie.set('isAdmin', String(user.isAdmin!))
+  const userCookieObject: UserCookie = {
+    token: user.token!,
+    userName: user.userName!,
+    email: user.email!,
+    isAdmin: String(user.isAdmin!),
+  }
+  Cookies.set('user', JSON.stringify(userCookieObject))
 }
 function getUserFromCookieOrNull(): CurrentUser | null {
-  const token: string | undefined = Cookies.get('token')
-  const userName: string | undefined = Cookies.get('userName')
-  const email: string | undefined = Cookies.get('email')
-  const isAdmin: string | undefined = Cookies.get('isAdmin')
-  if (token && userName && email && isAdmin !== undefined) {
-    return new CurrentUser(userName, email, '', token, (isAdmin === 'true'))
-  }
-  return null
+  const userCookieContent: string | undefined = Cookies.get('user')
+  if (userCookieContent === undefined) return null
+
+  const userCookieObject: UserCookie = JSON.parse(userCookieContent)
+  const token: string = userCookieObject.token
+  const userName: string = userCookieObject.userName
+  const email: string = userCookieObject.email
+  const isAdmin: string = userCookieObject.isAdmin
+
+  return new CurrentUser(userName, email, '', token, (isAdmin === 'true'))
 }
 function dropUserCookie() {
-  Cookies.remove('token', { path: '' }) 
-  Cookies.remove('userName', { path: '' })
-  Cookies.remove('email', { path: '' })
-  Cookies.remove('isAdmin', { path: '' })  
+  Cookies.remove('user') 
 }

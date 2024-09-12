@@ -9,11 +9,10 @@ type CardSwiperProps = {
 export default function CardSwiper(props: PropsWithChildren<CardSwiperProps>) {
   return (
     <div className={ props.containerClassName }>
-      <Swiper slidesPerView={5.5} spaceBetween={30} centeredSlides navigation
+      <Swiper slidesPerView={4.5} spaceBetween={30} centeredSlides navigation
           pagination={{ el: '#swiper-cards-pagination', }} loop simulateTouch={false}
-          slidesPerGroup={2} grabCursor={true} keyboard={{ enabled: true, }}
-          modules={[Navigation, Pagination]}>
-            
+          slidesPerGroup={1} grabCursor={true} keyboard={{ enabled: true, }}
+          modules={[Navigation, Pagination]}>            
         { 
           props.children &&
             React.Children.map(props.children, child =>
