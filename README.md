@@ -8,9 +8,9 @@
 ## A Stack
 
 - **Front:**
-  - Framework: React + Vite, Tailwind;
+  - Main Tech: Typescript on React with Vite and Tailwind;
   - Component Libraries: SwiperJS and MUI Components (Joy UI version).
-  - Tool Libraries: ReactQuery and Axios for HTTP Requests handling, universal-cookie.
+  - Tool Libraries: ReactQuery and Axios for HTTP Requests handling and js-cookie.
   - Testing: Jest and react-testing-library.
 - **Back API:** Python (Django)
 - **Back API Client:** Delphi
