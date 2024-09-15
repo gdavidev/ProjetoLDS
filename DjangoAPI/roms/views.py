@@ -40,6 +40,7 @@ class ROMListView(APIView):
                 'description': rom.description,
                 'emulador': rom.emulador,
                 'image_base64': image_base64,
+                'file_name': rom.file.name
             })
         return JsonResponse(data, safe=False)
 
