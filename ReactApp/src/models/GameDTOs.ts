@@ -12,6 +12,6 @@ export type GameGetDTO = {
   id: number,
   emulador: string,
   image_base64: string,
-  file: string,
+  file_name: string,
   title: string,
 }

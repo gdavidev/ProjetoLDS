@@ -7,6 +7,8 @@ import UserApiClient from "../../../../api/UserApiClient.ts";
 import { UserLoginDTO } from "../../../../models/UserDTOs.ts";
 import { MainContext, MainContextProps } from "../../../shared/context/MainContextProvider.tsx";
 import CurrentUser from "../../../../models/User.ts";
+import { mailOutline, eyeOutline } from "ionicons/icons"
+import { Link } from "react-router-dom";
 
 export default function LogInLayout(): React.ReactElement {  
   const emailInput: RefObject<HTMLInputElement> = useRef<HTMLInputElement>(null);
@@ -61,14 +63,20 @@ export default function LogInLayout(): React.ReactElement {
   return(
     <div className="flex flex-col gap-y-4 w-full mx-auto">
       <FormInputGroupMerge>
-        <TextInput ref={ emailInput } name="Email" />
-        <TextInput ref={ passInput } name="Senha" />
+        <TextInput ref={ emailInput } name="Email" ionIconPath={ mailOutline } />
+        <TextInput ref={ passInput } name="Senha" ionIconPath={ eyeOutline } />
       </FormInputGroupMerge>
 
       <button onClick={ submitData } 
           className="btn-r-md bg-primary hover:bg-primary-dark shadow-md shadow-slate-950">
         Entrar
       </button>
+      <span className="flex text-white justify-end gap-x-2">
+        Não tem uma conta?
+        <Link to="/app/sign-in" className="underline  hover:text-primary">
+          Registrar-se
+        </Link>
+      </span>
     </div>
   );
 }

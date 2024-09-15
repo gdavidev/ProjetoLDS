@@ -6,7 +6,7 @@
   /* NAVBAR */
   .navbar-item {
     @apply font-rubik font-bold box-border flex bg-layout-backgroud/80 m-0 w-32 
-      ease-in-out select-none hover:text-red-500 text-center transition duration-150
+      ease-in-out select-none hover:text-primary text-center transition duration-150
       border-none
   }
   .navbar-item > a {

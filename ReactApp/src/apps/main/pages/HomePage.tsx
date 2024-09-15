@@ -1,11 +1,7 @@
-import { useEffect, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import BannerSwiper from '../components/displayComponents/BannerSwiper';
 import CardSwiper from '../components/displayComponents/CardSwiper';
 import VGameCard from '../components/displayComponents/VGameCard';
-
-import 'swiper/css';
-import 'swiper/css/navigation';
-import 'swiper/css/pagination';
 import { GameGetDTO } from '../../../models/GameDTOs';
 import GameApiClient from '../../../api/GameApiClient';
 import donkeyKongBanner from '../assets/banners/donkeyKongBanner.png'
@@ -13,6 +9,10 @@ import pokemonFireRedBanner from '../assets/banners/pokemonFireRedBanner.jpg'
 import superMarioKartBanner from '../assets/banners/superMarioKartBanner.webp'
 import superMarioWorldBanner from '../assets/banners/superMarioWorldBanner.jpg'
 import { SwiperSlide } from 'swiper/react';
+import 'swiper/css/navigation';
+import 'swiper/css/pagination';
+import 'swiper/css';
+import { MainContext, MainContextProps } from '../../shared/context/MainContextProvider';
 
 const bannerList: JSX.Element[] = [
   <SwiperSlide key={0}>
@@ -21,7 +21,7 @@ const bannerList: JSX.Element[] = [
   <SwiperSlide key={1}>
     <img className='w-screen -mt-96' src={ pokemonFireRedBanner } />
   </SwiperSlide>,
-  <SwiperSlide key={1}>
+  <SwiperSlide key={2}>
     <img className='w-screen mt-[-800px]' src={ superMarioKartBanner } />
   </SwiperSlide>,
   <SwiperSlide key={3}>
@@ -30,11 +30,13 @@ const bannerList: JSX.Element[] = [
 ]
 
 export default function HomePage() {
+  const mainContext: MainContextProps = useContext<MainContextProps>(MainContext)
+  const { theme } = mainContext.tailwindConfig
   const defaultImageURL: string = "https://placehold.co/90x120"
-  const [ cardList, setCardList ] = useState<JSX.Element[]>([])  
+  const [ cardList, setCardList ] = useState<JSX.Element[]>([])
 
   useEffect(() => {
-    document.documentElement.style.setProperty("--swiper-theme-color", "rgb(220 38 38)")    
+    document.documentElement.style.setProperty("--swiper-theme-color", theme.colors.white);
     fillCardSwiper()
   }, []);
 

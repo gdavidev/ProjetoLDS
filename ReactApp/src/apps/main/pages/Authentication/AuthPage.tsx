@@ -3,6 +3,7 @@ import { Alert, ColorPaletteProp } from "@mui/joy";
 import { useLocation } from "react-router-dom";
 import SignInLayout from "./SignInLayout";
 import LogInLayout from "./LogInLayout";
+import logo from '/icons/logo.png'
 
 export enum AlertFeedbackType { ERROR, SUCCESS, PROGRESS, HIDDEN }
 export type AlertFeedbackData = {
@@ -29,7 +30,8 @@ export default function AuthPage(): React.ReactElement {
 
   return(
     <AuthContext.Provider value={ defaultAuthContextProps }>
-      <div className="flex flex-col gap-y-4 w-1/2 mx-auto">      
+      <div className="flex flex-col gap-y-4 w-1/2 mx-auto mt-0 justify-center items-center">
+        <img src={ logo } alt="logo" className="w-96" />    
         { 
           alertFeedbackData.type !== AlertFeedbackType.HIDDEN ?
             getAlert(alertFeedbackData) :
@@ -55,7 +57,7 @@ function getAlert(alertFeedbackData: AlertFeedbackData): React.ReactElement {
   }
 
   return (
-    <Alert color={ style } >
+    <Alert color={ style } sx={{width: '100%'}} >
       { alertFeedbackData.message }
     </Alert>
   )

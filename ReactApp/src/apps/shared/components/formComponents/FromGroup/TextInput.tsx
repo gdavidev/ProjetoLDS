@@ -1,9 +1,10 @@
-import { ChangeEventHandler, forwardRef, ReactNode, RefObject } from "react";
+import { IonIcon } from "@ionic/react";
+import { ChangeEventHandler, forwardRef } from "react";
 
 type TextInputProps = {
   name: string,
   value?: string,
-  iconEl?: ReactNode
+  ionIconPath?: string
   fontColor?: string,
   backGroundColor?: string,
   notValidMessage?: string,
@@ -12,18 +13,25 @@ type TextInputProps = {
 
 const TextInput = forwardRef((props: TextInputProps, ref: React.ForwardedRef<HTMLInputElement>) => {
   const formatedName: string = props.name.replace(" ", "-").toLowerCase()
+  const bgColor: string = props.backGroundColor || "bg-slate-200"
 
   return (
-    <input ref={ ref } id={ formatedName } name={ formatedName } 
-      placeholder={ props.name } type="text" defaultValue={ props.value }
-      className={ 
-        "px-3 py-2 front-lg focus:outline-none text-black"
-        + (props.backGroundColor !== 'undefined' ? " " + props.backGroundColor : "")
-        + (props.fontColor       !== 'undefined' ? " " + props.fontColor       : "")
-        + (props.notValidMessage !== 'undefined' && props.notValidMessage !== '' ? 
-            " " + "text-red-700"    : "text-black")        
-       }
-       onChange={ props.onChange }/>
+    <div className={ "flex items-center " + bgColor }>
+      <input ref={ ref } id={ formatedName } name={ formatedName } 
+        placeholder={ props.name } type="text" defaultValue={ props.value }
+        className={ 
+          "py-2 front-lg focus:outline-none text-black flex-grow " + bgColor        
+          + (props.fontColor       ? " " + props.fontColor  : "")
+          + (props.notValidMessage ? " text-red-700"      : " text-black")
+          + (props.ionIconPath     ? " ps-3"                : " px-3")
+          }
+          onChange={ props.onChange }/>
+        { 
+          props.ionIconPath ?
+            <IonIcon className="w-12" icon={ props.ionIconPath } /> :
+            ""
+        }
+    </div>
   );
 })
 export default TextInput

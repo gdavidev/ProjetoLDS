@@ -17,7 +17,7 @@
   }
 
   .input-text {
-    @apply bg-gray-100 text-slate-950 py-1.5 px-2 focus:outline-red-500 border-[1px]
+    @apply bg-gray-100 text-slate-950 py-1.5 px-2 focus:outline-primary border-[1px]
      border-gray-200 rounded-md box-border
   }
 }        

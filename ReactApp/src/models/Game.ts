@@ -24,7 +24,7 @@ export default class Game {
       dto.description,
       dto.emulador,
       dto.image_base64,
-      dto.file
+      dto.file_name
     )
   }
 }

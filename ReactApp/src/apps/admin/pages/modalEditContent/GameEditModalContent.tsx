@@ -1,4 +1,4 @@
-import { useRef, RefObject, useState, useContext, useLayoutEffect } from 'react';
+import { useRef, RefObject, useState, useContext, useLayoutEffect, useEffect } from 'react';
 import FormControl from '@mui/joy/FormControl';
 import FormLabel from '@mui/joy/FormLabel';
 import { Alert } from '@mui/joy';
@@ -20,16 +20,16 @@ type GameEditModalContentProps = {
 export default function GameEditModalContent(props: GameEditModalContentProps) {
   const mainContext: MainContextProps = useContext<MainContextProps>(MainContext)
   const [ errorMessage, setErrorMessage ] = useState<string | undefined>(undefined);  
-  const [ fileInputData, setFileInputData ] = useState<string>('');
-  const [ initialThumbnailPreview, setInitialThumbnailPreview] = useState<File | string | undefined>(undefined);
+  const [ fileInputData, setFileInputData ] = useState<string>('');  
   const nameInput: RefObject<HTMLInputElement> = useRef<HTMLInputElement>(null);
   const descInput: RefObject<HTMLInputElement> = useRef<HTMLInputElement>(null);
+  const emulatorInput: RefObject<HTMLInputElement> = useRef<HTMLInputElement>(null);
   const fileInput: RefObject<HTMLInputElement> = useRef<HTMLInputElement>(null);
   const thumbnailInput: RefObject<HTMLInputElement> = useRef<HTMLInputElement>(null);
-  const emulatorInput: RefObject<HTMLInputElement> = useRef<HTMLInputElement>(null);
+  const fileInputImagePreview: RefObject<any> = useRef<any>(null);
   const isActionEdit = props.game !== undefined;
   
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (isActionEdit)
       loadFormFromGameData()
   }, []);
@@ -45,11 +45,11 @@ export default function GameEditModalContent(props: GameEditModalContentProps) {
       emulatorInput.current.value = props.game?.emulator
     if(typeof props.game.file === 'string')
       setFileInputData(props.game.file)
-    if(props.game.thumbnail)
-      setInitialThumbnailPreview(props.game.thumbnail)
+    if(props.game.thumbnail && fileInputImagePreview.current)
+      fileInputImagePreview.current.setPreviewImage(props.game.thumbnail)
   }
 
-  function handleFormSubmit() {    
+  function handleFormSubmit() {
     setErrorMessage(getErrorOnValidateGameForm())
     if (errorMessage) 
       return
@@ -74,7 +74,7 @@ export default function GameEditModalContent(props: GameEditModalContentProps) {
             props.onChange(game);
           }
         },
-        onError: async (err: any) => { 
+        onError: async (err: any) => {
           console.log("err: " + JSON.stringify(err));
         },
       }
@@ -106,16 +106,16 @@ export default function GameEditModalContent(props: GameEditModalContentProps) {
     return undefined
   }
 
-  function getAlert(): JSX.Element | string {
+  function getAlert(): JSX.Element | undefined {
     if (errorMessage)
       return <Alert color="danger" >{ errorMessage }</Alert>
-    else if (isLoading)
+    if (isLoading)
       return <Alert color="warning" >Enviando...</Alert>
-    else if (isSuccess)
+    if (isSuccess)
       return <Alert color="success" >Enviado com sucesso!</Alert>
-    else if (isError)
+    if (isError)
       return <Alert color="danger" >{ mutateError.message }</Alert>
-    return ""
+    return undefined
   }
 
   return (
@@ -143,12 +143,12 @@ export default function GameEditModalContent(props: GameEditModalContentProps) {
                 { fileInputData }
             </span>
           </div>
-          <FileInput inputRef={ fileInput } onChange={ (e) => { setFileInputData(e.target.files?.item(0)?.name!) } }
-             buttonText='Upload File' />
+          <FileInput inputRef={ fileInput } buttonText='Upload File'
+              onChange={ (e) => { setFileInputData(e.target.files?.item(0)?.name!) } } />
         </div>
         <div className="flex flex-col gap-y-3">
-          <FileInputImagePreview targetInputRef={ thumbnailInput } 
-              initializeWith={ initialThumbnailPreview } className="min-w-full h-64" />
+          <FileInputImagePreview ref={ fileInputImagePreview }
+             targetInputRef={ thumbnailInput } className="min-w-full h-64" />
           <FileInput inputRef={ thumbnailInput } buttonText='Upload Thumbnail' accept="image/*" />
         </div>
       </div>

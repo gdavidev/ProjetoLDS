@@ -6,9 +6,12 @@ export default class EventHandler<T> {
   }
 
   subscribe(callback: (value?: T) => void) {
-    this.subscribers.push(callback)
+    if (!this.subscribers.includes(callback))
+      this.subscribers.push(callback)
   }
   trigger(newValue: T) {
-    this.subscribers.forEach(func => func(newValue))
+    this.subscribers.forEach(func => {
+      func(newValue)
+    })
   }
 }

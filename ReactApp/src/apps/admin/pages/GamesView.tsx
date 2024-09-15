@@ -3,7 +3,7 @@ import Box from '@mui/joy/Box';
 import Button from '@mui/joy/Button';
 import Game from '../../../models/Game';
 import { IonIcon } from '@ionic/react'
-import { add, createOutline, trashOutline } from 'ionicons/icons';
+import { add, createOutline, trashOutline, reloadOutline } from 'ionicons/icons';
 import TableDisplay from '../components/TableDisplay';
 import GameEditModalContent from './modalEditContent/GameEditModalContent';
 import { AdminContext, AdminContextProps } from '../AdminApp';
@@ -13,6 +13,7 @@ import { GameGetDTO } from '../../../models/GameDTOs';
 import { MainContext, MainContextProps } from '../../shared/context/MainContextProvider';
 import FileUtil from '../../../libs/FileUtil';
 import { useMutation } from 'react-query';
+import { IconButton } from '@mui/joy';
 
 export default function GamesView() {
   const mainContext: MainContextProps = useContext(MainContext)
@@ -96,10 +97,15 @@ export default function GamesView() {
     <div className="flex flex-col">
       <div className="flex justify-between items-center mx-5 text-white">
         <h2 className="font-rubik font-bold">Lista de Jogos</h2>
-        <button className='btn-r-md bg-primary hover:bg-primary-dark text-white'
-            onClick={ () => openGameEditModal() }>
-          <IonIcon icon={ add } /> Novo Jogo
-        </button>
+        <div className="flex gap-x-2 ">
+          <IconButton variant="solid" color="neutral" onClick={ fetchGameData } >
+            <IonIcon icon={ reloadOutline } />
+          </IconButton>
+          <button className='btn-r-md bg-primary hover:bg-primary-dark text-white'
+              onClick={ () => openGameEditModal() }>
+            <IonIcon icon={ add } /> Novo Jogo
+          </button>
+        </div>
       </div>
       <TableDisplay headerTemplateLabels={ templateHeader } 
           tableStyleObject={{width: '100%', borderSpacing: '0 3px'}}

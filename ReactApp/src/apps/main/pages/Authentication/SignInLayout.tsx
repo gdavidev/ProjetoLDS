@@ -2,10 +2,12 @@ import { useMutation } from "react-query";
 import Axios from "axios";
 import FormInputGroupMerge from "../../../shared/components/formComponents/FromGroup/FormInputGroupMerge.tsx"
 import TextInput from "../../../shared/components/formComponents/FromGroup/TextInput.tsx";
-import React, { FormEvent, useContext, useEffect, useState } from "react";
+import React, { RefObject, useContext, useEffect, useRef } from "react";
 import { AuthContext, AuthContextProps, AlertFeedbackType } from "./AuthPage.tsx";
+import { personOutline, mailOutline, eyeOutline } from "ionicons/icons"
+import { Link } from "react-router-dom";
 
-type userSignInData = {
+type UserSignInData = {
   email: string,
   username: string,
   password: string,
@@ -14,25 +16,14 @@ type userSignInData = {
 
 export default function SignInLayout(): React.ReactElement {
   const authContext: AuthContextProps = useContext(AuthContext);  
-  const [ userSignInData, setUserSignInData ] = useState<userSignInData>({
-    email: "",
-    username: "",
-    password: "",
-    passwordConfirm: "",
-  });
+  const emailInput: RefObject<HTMLInputElement> = useRef<HTMLInputElement>(null)
+  const userNameInput: RefObject<HTMLInputElement> = useRef<HTMLInputElement>(null)
+  const passInput: RefObject<HTMLInputElement> = useRef<HTMLInputElement>(null)
+  const confirmPassInput: RefObject<HTMLInputElement> = useRef<HTMLInputElement>(null)
   
-  const handleEmailChange = (newValue: string): void =>
-    setUserSignInData(data => ({...data, email: newValue}));
-  const handleUserNameChange = (newValue: string): void =>
-    setUserSignInData(data => ({...data, username: newValue}));
-  const handlePasswordChange = (newValue: string): void =>
-    setUserSignInData(data => ({...data, password: newValue}));
-  const handlePasswordConfirmChange = (newValue: string): void =>
-    setUserSignInData(data => ({...data, passwordConfirm: newValue}));
-
   const { isLoading, isSuccess, isError, error: mutationError, mutate } = useMutation(
     'ADD_USER',
-    async (newUserSignInData: userSignInData) => {
+    async (newUserSignInData: UserSignInData) => {
       return Axios.post('http://localhost:8080/api/register/', { 
         email: newUserSignInData.email,
         username: newUserSignInData.username,
@@ -54,8 +45,14 @@ export default function SignInLayout(): React.ReactElement {
       authContext.setAlertFeedbackData?.({ type: AlertFeedbackType.HIDDEN });
   }, [isLoading, isError, isSuccess])
   
-  function handleSubmit(e: FormEvent<HTMLFormElement>): void {
-    e.preventDefault();
+  function submitData(): void {
+    const userSignInData: UserSignInData = {
+      email: emailInput.current?.value!,
+      username: userNameInput.current?.value!,
+      password: passInput.current?.value!,
+      passwordConfirm: confirmPassInput.current?.value!
+    }
+
     let errorMessage: string = getErrorMessageIfNotValid(userSignInData);
     if (errorMessage !== '') {
       authContext.setAlertFeedbackData?.({ message: errorMessage, type: AlertFeedbackType.ERROR });
@@ -67,25 +64,31 @@ export default function SignInLayout(): React.ReactElement {
   }
 
   return(
-    <form onSubmit={ e => { handleSubmit(e) } }
-       className="flex flex-col gap-y-4 w-full mx-auto">      
+    <div className="flex flex-col gap-y-4 w-full mx-auto">      
       <FormInputGroupMerge>
-        <TextInput name="Email" onChange={ e => handleEmailChange(e.target.value) } />
-        <TextInput name="Usuário" onChange={ e => handleUserNameChange(e.target.value) } />
+        <TextInput ref={ emailInput } name="Email" ionIconPath={ mailOutline } />
+        <TextInput ref={ userNameInput } name="Usuário" ionIconPath={ personOutline } />
       </FormInputGroupMerge>
 
       <FormInputGroupMerge>
-        <TextInput name="Senha" onChange={ e => handlePasswordChange(e.target.value) } />
-        <TextInput name="Confirmar Senha" onChange={ e => handlePasswordConfirmChange(e.target.value) } />
+        <TextInput ref={ passInput } name="Senha" ionIconPath={ eyeOutline } />
+        <TextInput ref={ confirmPassInput } name="Confirmar Senha" ionIconPath={ eyeOutline } />
       </FormInputGroupMerge>
 
-      <input type="submit" value="Registrar"
+      <input type="submit" value="Registrar" onClick={ submitData }
         className="btn-r-md bg-primary hover:bg-primary-dark shadow-md shadow-slate-950" />
-    </form>
+
+      <span className="flex text-white justify-end gap-x-2">
+        Já tem uma conta?
+        <Link to="/app/log-in" className="underline  hover:text-primary">
+          Entrar
+        </Link>
+      </span>
+    </div>
   );
 }
 
-function getErrorMessageIfNotValid(userSignInData: userSignInData): string {
+function getErrorMessageIfNotValid(userSignInData: UserSignInData): string {
   if (userSignInData.email.trim() === '') 
     return "Por favor, insira um email.";
   if (userSignInData.username.trim() === '') 

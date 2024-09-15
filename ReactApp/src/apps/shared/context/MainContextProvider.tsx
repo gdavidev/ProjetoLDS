@@ -2,16 +2,21 @@ import { createContext, Context, PropsWithChildren, useState, useEffect } from '
 import Cookies from 'js-cookie'
 import CurrentUser from '../../../models/User'
 import EventHandler from '../../../libs/EventHandler';
+import type { Config } from 'tailwindcss'
+import resolveConfig from 'tailwindcss/resolveConfig'
+import tailwindConfig from '@tailwind-config'
 
 export type MainContextProps = {
   currentUser?: CurrentUser
   setCurrentUser?: ((user: CurrentUser | undefined) => void),
-  onUserAuth: EventHandler<CurrentUser | undefined>
+  onUserAuth: EventHandler<CurrentUser | undefined>,
+  tailwindConfig: Config & typeof tailwindConfig,
 };
 const mainProps: MainContextProps = {
   currentUser: undefined,
   setCurrentUser: undefined,
   onUserAuth: new EventHandler<CurrentUser | undefined>(),
+  tailwindConfig: resolveConfig<typeof tailwindConfig>(tailwindConfig),
 };
 export const MainContext: Context<MainContextProps> = 
   createContext<MainContextProps>(mainProps);
@@ -23,19 +28,18 @@ type UserCookie = {
   isAdmin: string,
 }
 
-export default function MainContextProvider({ children }: PropsWithChildren) {  
+export default function MainContextProvider({ children }: PropsWithChildren) {
   const [ currentUser, setCurrentUser ] = useState<CurrentUser | undefined>(undefined);
 
   useEffect(() => {
-    if (currentUser === undefined)
-      updateCurrentUserAndCookie(getUserFromCookieOrNull())
-  }, [])
+    updateCurrentUserAndCookie(getUserFromCookieOrNull())
+  }, []);
 
   function updateCurrentUserAndCookie(newUser: CurrentUser | undefined | null) {
     if (newUser) { 
       setCurrentUser(newUser);
       createUserCookie(newUser);
-      mainProps.onUserAuth.trigger(newUser);  
+      mainProps.onUserAuth.trigger(newUser);
     } else {
       setCurrentUser(undefined);
       dropUserCookie();

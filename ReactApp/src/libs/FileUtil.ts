@@ -1,5 +1,5 @@
 export default class FileUtil {
-  static async fileToBlob(file: File): Promise<Blob> {
+    static async fileToBlob(file: File): Promise<Blob> {
     return await file.arrayBuffer()
     .then((arrayBuffer) => {
       return new Blob([new Uint8Array(arrayBuffer)], { type: file.type })

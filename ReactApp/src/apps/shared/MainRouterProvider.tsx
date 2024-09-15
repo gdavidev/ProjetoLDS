@@ -10,8 +10,6 @@ import AdminApp from '../admin/AdminApp.tsx'
 import GameViewPage from '../main/pages/GameViewPage.tsx'
 /*Admin*/
 import GamesView from '../admin/pages/GamesView.tsx'
-import EmulatorsView from '../admin/pages/EmulatorsView.tsx'
-import UsersView from '../admin/pages/UsersView.tsx'
 
 const router = createBrowserRouter([
   { errorElement: <div>404 Page not Found</div> },
@@ -33,8 +31,6 @@ const router = createBrowserRouter([
     element: <AdminApp />,
     children: [
       { path: '/admin/view-games',      element: <GamesView />     },
-      { path: '/admin/view-emulators',  element: <EmulatorsView /> },
-      { path: '/admin/view-users',      element: <UsersView />     },
     ]      
   }
 ]);

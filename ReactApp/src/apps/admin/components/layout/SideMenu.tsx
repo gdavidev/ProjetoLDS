@@ -17,7 +17,7 @@ export default function SideMenu() {
           <h2 className="font-bold">{ context.currentUser?.userName || "User" }</h2>
           <span className="text-sm">Admin</span>
         </div>
-        <div className="flex flex-col h-full justify-between items-center gap-y-3 px-3">
+        <div className="flex flex-col h-full justify-between items-center gap-y-3 px-3 text-white">
           <div className="w-full">          
             <Link to="/admin/view-games" 
                 className="btn-r-md flex justify-start bg-primary hover:bg-primary-light gap-x-2 w-full">
