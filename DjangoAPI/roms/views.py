@@ -22,67 +22,73 @@ from .serializer import ROMSerializer, UserSerializer
 
 Token = Token()
 
+import base64
+import logging
+
+from django.core.files.storage import default_storage
+from django.http import JsonResponse, Http404
+from rest_framework import status, generics
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework.exceptions import NotFound
+
+from .models import ROM
+from .serializer import ROMSerializer
+from .Classes.token import Token
+
+logger = logging.getLogger(__name__)
+
+def encode_image_to_base64(image):
+    try:
+        with image.open('rb') as img_file:
+            return base64.b64encode(img_file.read()).decode('utf-8')
+    except Exception as e:
+        logger.error(f"Error encoding image: {e}")
+        return None
+
 class ROMListView(APIView):
     def get(self, request):
         roms = ROM.objects.all()
-        data = []
-        for rom in roms:
-            image_base64 = None
-            if rom.image and default_storage.exists(rom.image.name):
-                try:
-                    with rom.image.open('rb') as img_file:
-                        image_base64 = base64.b64encode(img_file.read()).decode('utf-8')
-                except Exception as e:
-                    print(f"Erro encoding image: {e}")
-            data.append({
+        data = [
+            {
                 'id': rom.id,
                 'title': rom.title,
                 'description': rom.description,
                 'emulador': rom.emulador,
-                'image_base64': image_base64,
-            })
+                'image_base64': encode_image_to_base64(rom.image) if rom.image and default_storage.exists(rom.image.name) else None,
+            }
+            for rom in roms
+        ]
         return JsonResponse(data, safe=False)
 
 class ROMDetailView(APIView):
     def get(self, request):
+        rom_id = request.GET.get('rom_id')
         try:
-            rom_id = request.GET.get('rom_id')
             rom = ROM.objects.get(id=rom_id)
-            image_base64 = None
-            data = []
-            if rom.image and default_storage.exists(rom.image.name):
-                try:
-                    with rom.image.open('rb') as img_file:
-                        image_base64 = base64.b64encode(img_file.read()).decode('utf-8')
-                except Exception as e:
-                    print(f"Erro encoding image: {e}")
-            data.append({
-                'id': rom.id,
-                'title': rom.title,
-                'description': rom.description,
-                'emulador': rom.emulador,
-                'image_base64': image_base64,
-            })
-            return JsonResponse(data, safe=False)
         except ROM.DoesNotExist:
             raise NotFound()
+
+        data = {
+            'id': rom.id,
+            'title': rom.title,
+            'description': rom.description,
+            'emulador': rom.emulador,
+            'image_base64': encode_image_to_base64(rom.image) if rom.image and default_storage.exists(rom.image.name) else None,
+        }
+        return JsonResponse(data, safe=False)
 
 class ROMSearch(APIView):
     def get(self, request):
-        try:
-            rom_title = request.GET.get('rom_title')
-            rom = ROM.objects.filter(title__icontains=rom_title)
-            serializer = ROMSerializer(roms, many=True)
-            return Response(serializer.data)
-        except ROM.DoesNotExist:
-            raise NotFound()
+        rom_title = request.GET.get('rom_title')
+        roms = ROM.objects.filter(title__icontains=rom_title)
+        serializer = ROMSerializer(roms, many=True)
+        return Response(serializer.data)
 
 class ROMCreate(APIView):
     def post(self, request):
-        token = request.headers.get('Authorization').split(' ')[1]
-        print (token)
+        token = request.headers.get('Authorization', '').split(' ')[1]
         payload = Token.decode_token(token)
-        print(payload)
         if payload is None:
             return Response({'error': 'Invalid token'}, status=status.HTTP_401_UNAUTHORIZED)
 
@@ -92,28 +98,19 @@ class ROMCreate(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class ROMUpdate(APIView):
-    def put(self, request):
-        token = request.headers.get('Authorization').split(' ')[1]
-        payload = Token.decode_token(token)
-        if payload is None:
-            return Response({'error': 'Invalid token'}, status=status.HTTP_401_UNAUTHORIZED)
-        rom_id = request.data.get('rom_id')
-        rom = ROM.objects.get(id=rom_id)
-        serializer = ROMSerializer(rom, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 class ROMDelete(APIView):
     def delete(self, request):
-        token = request.headers.get('Authorization').split(' ')[1]
+        token = request.headers.get('Authorization', '').split(' ')[1]
         payload = Token.decode_token(token)
         if payload is None:
             return Response({'error': 'Invalid token'}, status=status.HTTP_401_UNAUTHORIZED)
-        rom_id = payload['rom_id']
-        rom = ROM.objects.get(id=rom_id)
+
+        rom_id = payload.get('rom_id')
+        try:
+            rom = ROM.objects.get(id=rom_id)
+        except ROM.DoesNotExist:
+            raise NotFound()
+
         rom.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -133,29 +130,24 @@ class ROMDownload(generics.RetrieveAPIView):
             except FileNotFoundError:
                 raise Http404("File not found.")
             except Exception as e:
+                logger.error(f"Error during file download: {e}")
                 raise Http404("An error occurred.")
         else:
             raise Http404("No file associated with this object.")
 
-class mostplayed(APIView):
+class MostPlayed(APIView):
     def get(self, request):
         roms = ROM.objects.order_by('-qtd_download')[:4]
-        data = []
-        for rom in roms:
-            image_base64 = None
-            if rom.image and default_storage.exists(rom.image.name):
-                try:
-                    with rom.image.open('rb') as img_file:
-                        image_base64 = base64.b64encode(img_file.read()).decode('utf-8')
-                except Exception as e:
-                    print(f"Erro encoding image: {e}")
-            data.append({
+        data = [
+            {
                 'id': rom.id,
                 'title': rom.title,
                 'description': rom.description,
                 'emulador': rom.emulador,
-                'image_base64': image_base64,
-            })
+                'image_base64': encode_image_to_base64(rom.image) if rom.image and default_storage.exists(rom.image.name) else None,
+            }
+            for rom in roms
+        ]
         return JsonResponse(data, safe=False)
 
 #Views User
