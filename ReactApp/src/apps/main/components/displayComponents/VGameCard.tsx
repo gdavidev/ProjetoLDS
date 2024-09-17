@@ -1,16 +1,18 @@
-interface IVGameCardProps {
+type VGameCardProps = {
   name?: string,
+  emulador?: string,
   img?: string
 }
 
-export default function VGameCard(props: IVGameCardProps) {
+export default function VGameCard(props: VGameCardProps) {
   return (
-    <div className="flex flex-col w-full h-70 select-none">
-      <div className="overflow-hidden">
-        <img className="w-full" src={ props.img } alt="" />
+    <div className="flex flex-col min-w-48 min-h-72 select-none rounded-lg overflow-hidden">
+      <div className="overflow-x-hidden grow flex items-center bg-black">
+        <img className="h-72" src={ props.img } alt="" />
       </div>
-      <div className="flex justify-between align-middle bg-red-600 px-2 py-1">
+      <div className="flex flex-col flex-none justify-between align-middle bg-primary px-2 py-1">
         <h3 className="font-bold text-white">{ props.name }</h3>
+        <span className="text-white text-sm">{ props.emulador }</span>
       </div>
     </div>
   );  

@@ -1,20 +1,42 @@
-import { useEffect, useState } from 'react'
-import BannerSwiper from '../components/displayComponents/BannerSwiper';
-import CardSwiper from '../components/displayComponents/CardSwiper';
-import VGameCard from '../components/displayComponents/VGameCard';
-
-import 'swiper/css';
+import React, { useContext, useEffect, useState } from 'react'
+import { MainContext, MainContextProps } from '@shared/context/MainContextProvider';
+import BannerSwiper from '@apps/main/components/displayComponents/BannerSwiper';
+import CardSwiper from '@apps/main/components/displayComponents/CardSwiper';
+import VGameCard from '@apps/main/components/displayComponents/VGameCard';
+import { GameGetDTO } from '@models/GameDTOs';
+import GameApiClient from '@api/GameApiClient';
+import donkeyKongBanner from '@apps/main/assets/banners/donkeyKongBanner.png'
+import pokemonFireRedBanner from '@apps/main/assets/banners/pokemonFireRedBanner.jpg'
+import superMarioKartBanner from '@apps/main/assets/banners/superMarioKartBanner.webp'
+import superMarioWorldBanner from '@apps/main/assets/banners/superMarioWorldBanner.jpg'
+import { SwiperSlide } from 'swiper/react';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
-import { GameGetDTO } from '../../../models/GameDTOs';
-import GameApiClient from '../../../api/GameApiClient';
+import 'swiper/css';
+
+const bannerList: React.ReactElement[] = [
+  <SwiperSlide key={0}>
+    <img className='w-screen' src={ donkeyKongBanner } />
+  </SwiperSlide>,
+  <SwiperSlide key={1}>
+    <img className='w-screen -mt-96' src={ pokemonFireRedBanner } />
+  </SwiperSlide>,
+  <SwiperSlide key={2}>
+    <img className='w-screen mt-[-800px]' src={ superMarioKartBanner } />
+  </SwiperSlide>,
+  <SwiperSlide key={3}>
+    <img className='w-screen -mt-96' src={ superMarioWorldBanner } />
+  </SwiperSlide>
+]
 
 export default function HomePage() {
+  const mainContext: MainContextProps = useContext<MainContextProps>(MainContext)
+  const { theme } = mainContext.tailwindConfig
   const defaultImageURL: string = "https://placehold.co/90x120"
-  const [ cardList, setCardList ] = useState<JSX.Element[]>([])  
+  const [ cardList, setCardList ] = useState<JSX.Element[]>([])
 
   useEffect(() => {
-    document.documentElement.style.setProperty("--swiper-theme-color", "rgb(220 38 38)")    
+    document.documentElement.style.setProperty("--swiper-theme-color", theme.colors.white);
     fillCardSwiper()
   }, []);
 
@@ -26,14 +48,19 @@ export default function HomePage() {
     const gameList: GameGetDTO[] = await fetchGameData()
     const gameCardList: JSX.Element[] =
       gameList.map((game: GameGetDTO, index: number) => 
-        <VGameCard key={ index } name={ game.title } img={ defaultImageURL } />
+        <VGameCard key={ index } name={ game.title } emulador={ game.emulador }
+          img={ game.image_base64 ? 
+            'data:image/jpeg;base64,' +  game.image_base64 :
+             defaultImageURL } />
       )
     setCardList(gameCardList)
   }
 
   return (
     <>
-      <BannerSwiper containerClassName="mb-16" />
+      <BannerSwiper containerClassName="relative -top-16 h-[70vh] mb-16">
+        { bannerList }
+      </BannerSwiper>
       <CardSwiper containerClassName="mb-16">
         { cardList }
       </CardSwiper>

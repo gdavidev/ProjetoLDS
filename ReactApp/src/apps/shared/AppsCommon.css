@@ -7,6 +7,7 @@
   .btn {
     @apply font-rubik flex items-center font-bold px-5 py-1.5 hover:scale-[105%] 
       active:scale-[98%] transition duration-150 ease-in-out cursor-pointer select-none
+      justify-center
   }  
   .btn-r-full {
     @apply btn rounded-full 
@@ -16,7 +17,7 @@
   }
 
   .input-text {
-    @apply bg-gray-100 text-slate-950 py-1.5 px-2 focus:outline-red-500 border-[1px]
+    @apply bg-gray-100 text-slate-950 py-1.5 px-2 focus:outline-primary border-[1px]
      border-gray-200 rounded-md box-border
   }
 }        

@@ -1,15 +1,16 @@
-import { useRef, RefObject, useState, useEffect, useContext } from 'react';
+import { useRef, RefObject, useState, useContext, useEffect } from 'react';
 import FormControl from '@mui/joy/FormControl';
 import FormLabel from '@mui/joy/FormLabel';
 import { Alert } from '@mui/joy';
-import FileInput from '../../../shared/components/formComponents/FileInput';
-import FileInputImagePreview from '../../../shared/components/formComponents/FileInputImagePreview';
-import GameApiClient from '../../../../api/GameApiClient';
+import FileInput from '@shared/components/formComponents/FileInput';
+import FileInputImagePreview from '@shared/components/formComponents/FileInputImagePreview';
+import GameApiClient from '@api/GameApiClient';
 import { IonIcon } from '@ionic/react'
 import { document } from 'ionicons/icons'
-import Game from '../../../../models/Game';
+import Game from '@models/Game';
 import { useMutation } from 'react-query';
-import { MainContext, MainContextProps } from '../../../shared/context/MainContextProvider';
+import { MainContext, MainContextProps } from '@shared/context/MainContextProvider';
+import { GameCreateResponseDTO } from '@models/GameDTOs';
 
 type GameEditModalContentProps = {
   game?: Game,
@@ -19,15 +20,19 @@ type GameEditModalContentProps = {
 export default function GameEditModalContent(props: GameEditModalContentProps) {
   const mainContext: MainContextProps = useContext<MainContextProps>(MainContext)
   const [ errorMessage, setErrorMessage ] = useState<string | undefined>(undefined);  
-  const [ fileInputData, setFileInputData ] = useState<FileList | null>();
+  const [ fileInputData, setFileInputData ] = useState<string>('');  
   const nameInput: RefObject<HTMLInputElement> = useRef<HTMLInputElement>(null);
   const descInput: RefObject<HTMLInputElement> = useRef<HTMLInputElement>(null);
+  const emulatorInput: RefObject<HTMLInputElement> = useRef<HTMLInputElement>(null);
   const fileInput: RefObject<HTMLInputElement> = useRef<HTMLInputElement>(null);
   const thumbnailInput: RefObject<HTMLInputElement> = useRef<HTMLInputElement>(null);
-  const emulatorInput: RefObject<HTMLInputElement> = useRef<HTMLInputElement>(null);
-  let newGame: Game | undefined = undefined;
+  const fileInputImagePreview: RefObject<any> = useRef<any>(null);
+  const isActionEdit = props.game !== undefined;
   
-  useEffect(loadFormFromGameData, []);
+  useEffect(() => {
+    if (isActionEdit)
+      loadFormFromGameData()
+  }, []);
 
   function loadFormFromGameData() {
     if (!props.game) return
@@ -38,18 +43,17 @@ export default function GameEditModalContent(props: GameEditModalContentProps) {
       descInput.current.value = props.game.desc
     if(emulatorInput.current)
       emulatorInput.current.value = props.game?.emulator
-    // if(fileInput.current && fileInput.current.files)
-    //   fileInput.current.files[0] = props.game?.file!
-    // if(thumbnailInput.current && thumbnailInput.current.files)
-    //   thumbnailInput.current.files[0] = props.game?.thumbnail!    
+    if(typeof props.game.file === 'string')
+      setFileInputData(props.game.file)
+    if(props.game.thumbnail && fileInputImagePreview.current)
+      fileInputImagePreview.current.setPreviewImage(props.game.thumbnail)
   }
 
   function handleFormSubmit() {
-    let errorMessage: string = getErrorOnValidateGameForm();
-    if (errorMessage !== "") {
-      setErrorMessage(errorMessage)
+    setErrorMessage(getErrorOnValidateGameForm())
+    if (errorMessage) 
       return
-    }
+
     submitGame();
   }
 
@@ -57,55 +61,61 @@ export default function GameEditModalContent(props: GameEditModalContentProps) {
     useMutation('query-games',
       async (game: Game) => {
         const gameApiClient: GameApiClient = new GameApiClient();
-        gameApiClient.setBearerToken(mainContext.currentUser?.token!)
-        return await gameApiClient.create(game)
-      }, 
+        gameApiClient.setToken(mainContext.currentUser?.token!)
+        return await gameApiClient.store<GameCreateResponseDTO>(game)
+      },
       {
-        onSuccess: async (response) => {
+        onSuccess: async (response: GameCreateResponseDTO, game: Game) => {
           console.log("success: " + JSON.stringify(response));
-          if (props.onChange && newGame)
-            props.onChange(newGame);
+          if (props.onChange) {
+            if (thumbnailInput.current && thumbnailInput.current.files)
+              game.thumbnail = thumbnailInput.current.files[0]
+            game.id = response.id
+            props.onChange(game);
+          }
         },
-        onError: async (err: any) => { 
+        onError: async (err: any) => {
           console.log("err: " + JSON.stringify(err));
-        }
+        },
       }
     )
 
   async function submitGame(): Promise<void> {    
     const gameFiles: FileList | null = fileInput.current ? fileInput.current.files : null    
-    const gameThumbnailFiles: FileList | null = thumbnailInput.current ? thumbnailInput.current.files : null    
+    const gameThumbnailFiles: FileList | null = thumbnailInput.current ? thumbnailInput.current.files : null
 
-    newGame = new Game(
+    const newGame: Game = new Game(
       props.game ? props.game.id : 0,
       nameInput.current ? nameInput.current.value : "",
       descInput.current ? descInput.current.value : "",
       emulatorInput.current ? emulatorInput.current.value : "",
       gameThumbnailFiles ? gameThumbnailFiles[0] : undefined,
-      gameFiles ? gameFiles[0] : undefined      
+      gameFiles ? gameFiles[0] : undefined,
     )
     mutate(newGame);
   }
   
-  function getErrorOnValidateGameForm(): string {
+  function getErrorOnValidateGameForm(): string | undefined {
     if (nameInput.current?.value === "") return "Campo nome vazío."
     if (descInput.current?.value === "") return "Campo descrição vazío."
     if (emulatorInput.current?.value === "") return "Campo emulador vazío."
-    if (!(thumbnailInput.current?.files?.length! > 0)) return "Nenhuma thumbnail enviada."
-    if (!(fileInput.current?.files?.length! > 0)) return "Nenhuma rom enviada." 
-    return ""
+    if (!isActionEdit) {
+      if (!(thumbnailInput.current?.files?.length! > 0)) return "Nenhuma thumbnail enviada."
+      if (!(fileInput.current?.files?.length! > 0)) return "Nenhuma rom enviada." 
+    }
+    return undefined
   }
 
-  function getAlert(): JSX.Element | string {
+  function getAlert(): JSX.Element | undefined {
     if (errorMessage)
       return <Alert color="danger" >{ errorMessage }</Alert>
-    else if (isLoading)
+    if (isLoading)
       return <Alert color="warning" >Enviando...</Alert>
-    else if (isSuccess)
+    if (isSuccess)
       return <Alert color="success" >Enviado com sucesso!</Alert>
-    else if (isError)
+    if (isError)
       return <Alert color="danger" >{ mutateError.message }</Alert>
-    return ""
+    return undefined
   }
 
   return (
@@ -127,15 +137,18 @@ export default function GameEditModalContent(props: GameEditModalContentProps) {
               <input type='text' className='input-text' ref={ emulatorInput } />
             </FormControl>
           </div>
-          <span className="truncate flex items-center gap-x-2">
-              <IonIcon icon={ document } />
-              { fileInputData ? fileInputData[0].name : "" }
-          </span>
-          <FileInput inputRef={ fileInput } onChange={ (e) => { setFileInputData(e.target.files) } }
-             buttonText='Upload File' />        
+          <div className='flex justify-start items-center gap-x-2'>
+            <IonIcon className='min-h-4 min-w-4' icon={ document } />
+            <span className="truncate">
+                { fileInputData }
+            </span>
+          </div>
+          <FileInput inputRef={ fileInput } buttonText='Upload File'
+              onChange={ (e) => { setFileInputData(e.target.files?.item(0)?.name!) } } />
         </div>
         <div className="flex flex-col gap-y-3">
-          <FileInputImagePreview targetInputRef={ thumbnailInput } className="min-w-full h-64" />
+          <FileInputImagePreview ref={ fileInputImagePreview }
+             targetInputRef={ thumbnailInput } className="min-w-full h-64" />
           <FileInput inputRef={ thumbnailInput } buttonText='Upload Thumbnail' accept="image/*" />
         </div>
       </div>

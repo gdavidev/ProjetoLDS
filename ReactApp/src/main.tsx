@@ -1,8 +1,8 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { QueryClient, QueryClientProvider } from "react-query";
-import MainContextProvider from './apps/shared/context/MainContextProvider.tsx'
-import MainRouterProvider from './apps/shared/MainRouterProvider.tsx';
+import MainContextProvider from '@shared/context/MainContextProvider.tsx'
+import MainRouterProvider from '@shared/MainRouterProvider.tsx';
 
 const queryClient: QueryClient = new QueryClient();
 

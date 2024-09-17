@@ -1,27 +1,29 @@
+import { IonIcon } from '@ionic/react'
+import { openOutline } from 'ionicons/icons'
+
 type HGameCardProps = {
   name?: string,
   desc?: string,
   img?: string,
+  emulador?: string,
   filePath?: string
 }
 
 export function HGameCard(props: HGameCardProps) {
-  let defaultProps = {...props};
-  defaultProps.name      = defaultProps.name      || "Example"
-  defaultProps.desc      = defaultProps.desc      || "Lorem ipsum dolor, sit amet consectetur adipisicing elit. A delectus ea pariatur sapiente vel, nulla quia totam, recusandae aut cupiditate nihil dolor commodi repellendus explicabo repellat perferendis. Sunt, mollitia rem!"
-  defaultProps.img       = defaultProps.img       || "https://placehold.co/90x120"
-  defaultProps.filePath  = defaultProps.filePath  || "./file"
-
   return (
-    <div className="flex bg-slate-600 text-white p-3 align-middle gap-x-2">
-      <div className="overflow-hidden w-40 h-40">
-        <img className="h-full" src={ defaultProps.img } alt={ defaultProps.name } />
+    <div className="flex rounded-2xl bg-white text-black p-3 align-middle gap-x-2">
+      <div className="overflow-hidden w-40 h-40 rounded-xl">
+        <img className="h-full" src={ props.img } alt={ props.name } />
       </div>
-      <div className="flex flex-col">
-        <h3 className="font-black text-3xl">{ defaultProps.name }</h3>
-        <p className="h-full">{ defaultProps.desc }</p>
-        <a href={ defaultProps.filePath } 
-          className="btn-r-md w-fit self-end bg-green-500 hover:bg-green-600">Play
+      <div className="flex flex-col w-full">
+        <div className="flex justify-between w-full">
+          <h3 className="font-black text-3xl">{ props.name }</h3>
+          <span className="text-xl">{ props.emulador }</span>
+        </div>
+        <span className="h-full">{ props.desc }</span>
+        <a className="btn-r-full text-white w-36 gap-x-2 self-end bg-primary hover:bg-primary-dark"
+            href={ props.filePath }>
+          <IonIcon icon={ openOutline } /><span>JOGAR</span>
         </a>
       </div>    
     </div>

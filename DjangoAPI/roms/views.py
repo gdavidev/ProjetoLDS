@@ -104,14 +104,8 @@ class ROMDelete(APIView):
         payload = Token.decode_token(token)
         if payload is None:
             return Response({'error': 'Invalid token'}, status=status.HTTP_401_UNAUTHORIZED)
-
-        rom_id = payload.get('rom_id')
-        try:
-            rom = ROM.objects.get(id=rom_id)
-        except ROM.DoesNotExist:
-            raise NotFound()
-
-        rom.delete()
+        rom_id = request.data.get('rom_id')
+        ROM.objects.filter(id=rom_id).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 class ROMDownload(generics.RetrieveAPIView):
