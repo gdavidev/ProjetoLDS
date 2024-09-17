@@ -1,4 +1,4 @@
-import { GameGetDTO } from "./GameDTOs";
+import { GameGetDTO } from "@models/GameDTOs";
 
 export default class Game {
   id: number;

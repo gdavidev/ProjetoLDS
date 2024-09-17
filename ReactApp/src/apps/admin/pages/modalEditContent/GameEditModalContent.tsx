@@ -1,16 +1,16 @@
-import { useRef, RefObject, useState, useContext, useLayoutEffect, useEffect } from 'react';
+import { useRef, RefObject, useState, useContext, useEffect } from 'react';
 import FormControl from '@mui/joy/FormControl';
 import FormLabel from '@mui/joy/FormLabel';
 import { Alert } from '@mui/joy';
-import FileInput from '../../../shared/components/formComponents/FileInput';
-import FileInputImagePreview from '../../../shared/components/formComponents/FileInputImagePreview';
-import GameApiClient from '../../../../api/GameApiClient';
+import FileInput from '@shared/components/formComponents/FileInput';
+import FileInputImagePreview from '@shared/components/formComponents/FileInputImagePreview';
+import GameApiClient from '@api/GameApiClient';
 import { IonIcon } from '@ionic/react'
 import { document } from 'ionicons/icons'
-import Game from '../../../../models/Game';
+import Game from '@models/Game';
 import { useMutation } from 'react-query';
-import { MainContext, MainContextProps } from '../../../shared/context/MainContextProvider';
-import { GameCreateResponseDTO } from '../../../../models/GameDTOs';
+import { MainContext, MainContextProps } from '@shared/context/MainContextProvider';
+import { GameCreateResponseDTO } from '@models/GameDTOs';
 
 type GameEditModalContentProps = {
   game?: Game,

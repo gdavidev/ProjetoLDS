@@ -17,8 +17,8 @@ const TextInput = forwardRef((props: TextInputProps, ref: React.ForwardedRef<HTM
 
   return (
     <div className={ "flex items-center " + bgColor }>
-      <input ref={ ref } id={ formatedName } name={ formatedName } 
-        placeholder={ props.name } type="text" defaultValue={ props.value }
+      <input ref={ ref } id={ formatedName } name={ formatedName } aria-label={ props.name }
+        placeholder={ props.name } type="text" defaultValue={ props.value } role="input"
         className={ 
           "py-2 front-lg focus:outline-none text-black flex-grow " + bgColor        
           + (props.fontColor       ? " " + props.fontColor  : "")

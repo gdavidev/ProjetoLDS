@@ -8,8 +8,8 @@ export default function App() {
   const currentPath: string = useLocation().pathname
   let backgroundClass: string = '';
   switch (currentPath) {
-    case '/app/sign-in':
-    case '/app/log-in':
+    case '/sign-in':
+    case '/log-in':
       backgroundClass = ' bg-cover bg-login-page'
       break;    
     default:

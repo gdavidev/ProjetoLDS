@@ -1,9 +1,9 @@
 import { useMutation } from "react-query";
 import Axios from "axios";
-import FormInputGroupMerge from "../../../shared/components/formComponents/FromGroup/FormInputGroupMerge.tsx"
-import TextInput from "../../../shared/components/formComponents/FromGroup/TextInput.tsx";
-import React, { RefObject, useContext, useEffect, useRef } from "react";
-import { AuthContext, AuthContextProps, AlertFeedbackType } from "./AuthPage.tsx";
+import FormInputGroupMerge from "@shared/components/formComponents/FromGroup/FormInputGroupMerge.tsx"
+import TextInput from "@shared/components/formComponents/FromGroup/TextInput.tsx";
+import React, { PropsWithoutRef, RefObject, useEffect, useRef } from "react";
+import { AlertFeedbackData, AlertFeedbackType } from "./AuthPage.tsx";
 import { personOutline, mailOutline, eyeOutline } from "ionicons/icons"
 import { Link } from "react-router-dom";
 
@@ -14,8 +14,11 @@ type UserSignInData = {
   passwordConfirm: string,
 }
 
-export default function SignInLayout(): React.ReactElement {
-  const authContext: AuthContextProps = useContext(AuthContext);  
+type SignInLayoutProps = {
+  onStateUpdate?: (alertData: AlertFeedbackData) => void
+}
+
+export default function SignInLayout(props: PropsWithoutRef<SignInLayoutProps>): React.ReactElement {
   const emailInput: RefObject<HTMLInputElement> = useRef<HTMLInputElement>(null)
   const userNameInput: RefObject<HTMLInputElement> = useRef<HTMLInputElement>(null)
   const passInput: RefObject<HTMLInputElement> = useRef<HTMLInputElement>(null)
@@ -36,13 +39,13 @@ export default function SignInLayout(): React.ReactElement {
 
   useEffect(() => {
     if (isLoading)
-      authContext.setAlertFeedbackData?.({ message: "Enviando...", type: AlertFeedbackType.PROGRESS });
+      props.onStateUpdate?.({ message: "Enviando...", type: AlertFeedbackType.PROGRESS });
     else if (isError) 
-      authContext.setAlertFeedbackData?.({ message: "Erro: " + mutationError, type: AlertFeedbackType.ERROR });
+      props.onStateUpdate?.({ message: "Erro: " + mutationError, type: AlertFeedbackType.ERROR });
     else if (isSuccess)
-      authContext.setAlertFeedbackData?.({ message: "Registrado com sucesso!", type: AlertFeedbackType.SUCCESS });
+      props.onStateUpdate?.({ message: "Registrado com sucesso!", type: AlertFeedbackType.SUCCESS });
     else
-      authContext.setAlertFeedbackData?.({ type: AlertFeedbackType.HIDDEN });
+      props.onStateUpdate?.({ type: AlertFeedbackType.HIDDEN });
   }, [isLoading, isError, isSuccess])
   
   function submitData(): void {
@@ -55,10 +58,10 @@ export default function SignInLayout(): React.ReactElement {
 
     let errorMessage: string = getErrorMessageIfNotValid(userSignInData);
     if (errorMessage !== '') {
-      authContext.setAlertFeedbackData?.({ message: errorMessage, type: AlertFeedbackType.ERROR });
+      props.onStateUpdate?.({ message: errorMessage, type: AlertFeedbackType.ERROR });
       return;
     }
-    authContext.setAlertFeedbackData?.({ message: '', type: AlertFeedbackType.HIDDEN });
+    props.onStateUpdate?.({ message: '', type: AlertFeedbackType.HIDDEN });
   
     mutate(userSignInData);
   }
@@ -80,7 +83,7 @@ export default function SignInLayout(): React.ReactElement {
 
       <span className="flex text-white justify-end gap-x-2">
         Já tem uma conta?
-        <Link to="/app/log-in" className="underline  hover:text-primary">
+        <Link to="/log-in" className="underline  hover:text-primary">
           Entrar
         </Link>
       </span>

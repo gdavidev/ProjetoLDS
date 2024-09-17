@@ -1,20 +1,20 @@
-import { useContext, useEffect, useState } from 'react'
-import BannerSwiper from '../components/displayComponents/BannerSwiper';
-import CardSwiper from '../components/displayComponents/CardSwiper';
-import VGameCard from '../components/displayComponents/VGameCard';
-import { GameGetDTO } from '../../../models/GameDTOs';
-import GameApiClient from '../../../api/GameApiClient';
-import donkeyKongBanner from '../assets/banners/donkeyKongBanner.png'
-import pokemonFireRedBanner from '../assets/banners/pokemonFireRedBanner.jpg'
-import superMarioKartBanner from '../assets/banners/superMarioKartBanner.webp'
-import superMarioWorldBanner from '../assets/banners/superMarioWorldBanner.jpg'
+import React, { useContext, useEffect, useState } from 'react'
+import { MainContext, MainContextProps } from '@shared/context/MainContextProvider';
+import BannerSwiper from '@apps/main/components/displayComponents/BannerSwiper';
+import CardSwiper from '@apps/main/components/displayComponents/CardSwiper';
+import VGameCard from '@apps/main/components/displayComponents/VGameCard';
+import { GameGetDTO } from '@models/GameDTOs';
+import GameApiClient from '@api/GameApiClient';
+import donkeyKongBanner from '@apps/main/assets/banners/donkeyKongBanner.png'
+import pokemonFireRedBanner from '@apps/main/assets/banners/pokemonFireRedBanner.jpg'
+import superMarioKartBanner from '@apps/main/assets/banners/superMarioKartBanner.webp'
+import superMarioWorldBanner from '@apps/main/assets/banners/superMarioWorldBanner.jpg'
 import { SwiperSlide } from 'swiper/react';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import 'swiper/css';
-import { MainContext, MainContextProps } from '../../shared/context/MainContextProvider';
 
-const bannerList: JSX.Element[] = [
+const bannerList: React.ReactElement[] = [
   <SwiperSlide key={0}>
     <img className='w-screen' src={ donkeyKongBanner } />
   </SwiperSlide>,

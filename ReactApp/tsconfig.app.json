@@ -18,6 +18,15 @@
     "noEmit": true,
     "jsx": "react-jsx",
     "allowJs": true,
+    "paths": {
+      "@/*": ["./src/*"],
+      "@tailwind-config": ["./tailwind-config.js"],
+      "@models/*": ["./src/models/*"],
+      "@shared/*": ["./src/apps/shared/*"],
+      "@api/*": ["./src/api/*"],
+      "@libs/*": ["./src/libs/*"],
+      "@apps/*": ["./src/apps/*"],
+    },
 
     /* Linting */
     "strict": true,

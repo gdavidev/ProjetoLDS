@@ -1,7 +1,7 @@
 import { useContext } from "react"
 import { Link } from "react-router-dom"
 
-import { MainContext, MainContextProps } from "../../../shared/context/MainContextProvider"
+import { MainContext, MainContextProps } from "@shared/context/MainContextProvider"
 import { IonIcon } from '@ionic/react'
 import { home, exit } from 'ionicons/icons';
 
@@ -24,7 +24,7 @@ export default function SideMenu() {
               <IonIcon icon={ home } /> Games
             </Link>                 
           </div>
-          <Link to="/app/" 
+          <Link to="/" 
               className="btn-r-md flex justify-start bg-primary hover:bg-primary-light gap-x-2 w-full">
             <IonIcon icon={ exit } /> Sair
           </Link>        

@@ -1,20 +1,23 @@
-import React, { RefObject, useContext, useEffect, useRef } from "react";
-import { AuthContext, AuthContextProps, AlertFeedbackType } from "./AuthPage.tsx";
-import FormInputGroupMerge from "../../../shared/components/formComponents/FromGroup/FormInputGroupMerge.tsx"
-import TextInput from "../../../shared/components/formComponents/FromGroup/TextInput.tsx";
+import React, { PropsWithRef, RefObject, useContext, useEffect, useRef } from "react";
+import { AlertFeedbackData, AlertFeedbackType } from "./AuthPage.tsx";
+import FormInputGroupMerge from "@shared/components/formComponents/FromGroup/FormInputGroupMerge.tsx"
+import TextInput from "@shared/components/formComponents/FromGroup/TextInput.tsx";
 import { useMutation } from "react-query";
-import UserApiClient from "../../../../api/UserApiClient.ts";
-import { UserLoginDTO } from "../../../../models/UserDTOs.ts";
-import { MainContext, MainContextProps } from "../../../shared/context/MainContextProvider.tsx";
-import CurrentUser from "../../../../models/User.ts";
+import UserApiClient from "@api/UserApiClient.ts";
+import { UserLoginDTO } from "@models/UserDTOs.ts";
+import { MainContext, MainContextProps } from "@shared/context/MainContextProvider.tsx";
+import CurrentUser from "@models/User.ts";
 import { mailOutline, eyeOutline } from "ionicons/icons"
 import { Link } from "react-router-dom";
 
-export default function LogInLayout(): React.ReactElement {  
+type LogInLayoutProps = {
+  onStateUpdate?: (alertData: AlertFeedbackData) => void
+}
+
+export default function LogInLayout(props: PropsWithRef<LogInLayoutProps>): React.ReactElement {  
   const emailInput: RefObject<HTMLInputElement> = useRef<HTMLInputElement>(null);
   const passInput: RefObject<HTMLInputElement> = useRef<HTMLInputElement>(null);
   const mainContext: MainContextProps = useContext(MainContext)
-  const authContext: AuthContextProps = useContext(AuthContext);
 
   const { isLoading, isSuccess, isError, error: mutationError, mutate } = useMutation(
     'LOGIN_USER',
@@ -25,7 +28,7 @@ export default function LogInLayout(): React.ReactElement {
     {      
       onSuccess: (user: CurrentUser) => {
         mainContext.setCurrentUser?.(user)
-        window.location.replace('http://localhost:5173/app/')
+        window.location.replace('http://localhost:5173/')
       },
       onError: (err) => {
         console.log(err)
@@ -35,13 +38,13 @@ export default function LogInLayout(): React.ReactElement {
 
   useEffect(() => {
     if (isLoading)
-      authContext.setAlertFeedbackData?.({ message: "Enviando...", type: AlertFeedbackType.PROGRESS });
+      props.onStateUpdate?.({ message: "Enviando...", type: AlertFeedbackType.PROGRESS });
     else if (isError) 
-      authContext.setAlertFeedbackData?.({ message: "Erro: " + mutationError, type: AlertFeedbackType.ERROR });
+      props.onStateUpdate?.({ message: "Erro: " + mutationError, type: AlertFeedbackType.ERROR });
     else if (isSuccess)
-      authContext.setAlertFeedbackData?.({ message: "Logado com sucesso!", type: AlertFeedbackType.SUCCESS });
+      props.onStateUpdate?.({ message: "Logado com sucesso!", type: AlertFeedbackType.SUCCESS });
     else
-      authContext.setAlertFeedbackData?.({ type: AlertFeedbackType.HIDDEN });
+      props.onStateUpdate?.({ type: AlertFeedbackType.HIDDEN });
   }, [isLoading, isError, isSuccess])
 
   function submitData(): void {
@@ -52,10 +55,10 @@ export default function LogInLayout(): React.ReactElement {
 
     let errorMessage: string = getErrorMessageIfNotValid(userDTO);
     if (errorMessage !== '') {
-      authContext.setAlertFeedbackData?.({ message: errorMessage, type: AlertFeedbackType.ERROR });
+      props.onStateUpdate?.({ message: errorMessage, type: AlertFeedbackType.ERROR });
       return;
     }
-    authContext.setAlertFeedbackData?.({ message: '', type: AlertFeedbackType.HIDDEN });
+    props.onStateUpdate?.({ message: '', type: AlertFeedbackType.HIDDEN });
 
     mutate(userDTO);
   }
@@ -73,7 +76,7 @@ export default function LogInLayout(): React.ReactElement {
       </button>
       <span className="flex text-white justify-end gap-x-2">
         Não tem uma conta?
-        <Link to="/app/sign-in" className="underline  hover:text-primary">
+        <Link to="/sign-in" className="underline  hover:text-primary">
           Registrar-se
         </Link>
       </span>
