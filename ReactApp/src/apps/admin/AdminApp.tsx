@@ -1,6 +1,6 @@
-import ModalPopup, { ModalPopupData } from "../shared/components/ModalPopup"
+import ModalPopup, { ModalPopupData } from "@shared/components/ModalPopup"
 import { Outlet } from "react-router-dom"
-import SideMenu from "./components/layout/SideMenu"
+import SideMenu from "@apps/admin/components/layout/SideMenu"
 import { createContext } from "react"
 
 export type AdminContextProps = {

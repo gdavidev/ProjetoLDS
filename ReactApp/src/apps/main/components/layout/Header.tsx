@@ -3,11 +3,11 @@ import Menu from '@mui/joy/Menu';
 import MenuButton from '@mui/joy/MenuButton';
 import MenuItem from '@mui/joy/MenuItem';
 import Dropdown from '@mui/joy/Dropdown';
-import SearchBar from "../../../shared/components/formComponents/SearchBar";
+import SearchBar from "@shared/components/formComponents/SearchBar";
 import { Link, useLocation } from "react-router-dom";
 import Navbar from "./Navbar";
-import { MainContext, MainContextProps } from "../../../shared/context/MainContextProvider";
-import CurrentUser from "../../../../models/User";
+import { MainContext, MainContextProps } from "@shared/context/MainContextProvider";
+import CurrentUser from "@models/User";
 import { IonIcon } from "@ionic/react";
 import { caretDown, person } from "ionicons/icons";
 import logo from '/icons/logo.png'

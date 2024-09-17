@@ -1,6 +1,5 @@
 import { useContext } from "react"
 import { Link } from "react-router-dom"
-
 import { MainContext, MainContextProps } from "@shared/context/MainContextProvider"
 import { IonIcon } from '@ionic/react'
 import { home, exit } from 'ionicons/icons';

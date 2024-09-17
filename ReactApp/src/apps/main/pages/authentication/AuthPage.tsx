@@ -1,7 +1,7 @@
 import React, { useState, PropsWithoutRef } from "react";
 import { Alert, ColorPaletteProp } from "@mui/joy";
-import SignInLayout from "./SignInLayout";
-import LogInLayout from "./LogInLayout";
+import SignInLayout from "@apps/main/pages/authentication/SignInLayout";
+import LogInLayout from "@apps/main/pages/authentication/LogInLayout";
 import logo from '/icons/logo.png'
 
 export enum AlertFeedbackType { ERROR, SUCCESS, PROGRESS, HIDDEN }

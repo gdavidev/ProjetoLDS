@@ -1,6 +1,6 @@
 import Axios from 'axios';
-import CurrentUser from "../models/User";
-import { UserLoginDTO, UserLoginResponseDTO } from '../models/UserDTOs';
+import CurrentUser from "@models/User";
+import { UserLoginDTO, UserLoginResponseDTO } from '@models/UserDTOs';
 
 export default class UserApiClient {
   private readonly hostIp: string = "http://localhost:8080/";

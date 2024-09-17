@@ -1,8 +1,8 @@
 import { Outlet, useLocation } from 'react-router-dom'
-import Footer from './components/layout/Footer'
-import Header from './components/layout/Header'
-import './MainApp.css';
-import './../shared/AppsCommon.css';
+import Footer from '@apps/main/components/layout/Footer'
+import Header from '@apps/main/components/layout/Header'
+import '@apps/main/MainApp.css';
+import '@shared/AppsCommon.css';
 
 export default function App() {
   const currentPath: string = useLocation().pathname

@@ -11,7 +11,7 @@ import GameViewPage from '@apps/main/pages/GameViewPage.tsx'
 /*Admin*/
 import GamesView from '@apps/admin/pages/GamesView.tsx'
 /*Misc*/
-import ErrorPage from './pages/ErrorPage.tsx'
+import ErrorPage from '@shared/pages/ErrorPage.tsx'
 
 const router = createBrowserRouter([
   { errorElement: <ErrorPage code={ 404 } /> },
