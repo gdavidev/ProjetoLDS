@@ -1,25 +1,25 @@
-import React, { PropsWithRef, RefObject, useContext, useEffect, useRef } from "react";
-import { AlertFeedbackData, AlertFeedbackType } from "./AuthPage.tsx";
+import React, { PropsWithRef, RefObject, useEffect, useRef } from "react";
+import { AlertInfo, AlertType } from "./AuthPage.tsx";
 import FormInputGroupMerge from "@shared/components/formComponents/FromGroup/FormInputGroupMerge.tsx"
 import TextInput from "@shared/components/formComponents/FromGroup/TextInput.tsx";
 import { useMutation } from "react-query";
 import UserApiClient from "@api/UserApiClient.ts";
 import { UserLoginDTO } from "@models/UserDTOs.ts";
-import { MainContext, MainContextProps } from "@shared/context/MainContextProvider.tsx";
 import CurrentUser from "@models/User.ts";
 import { mailOutline, eyeOutline } from "ionicons/icons"
 import { Link } from "react-router-dom";
 
 type LogInLayoutProps = {
-  onStateUpdate?: (alertData: AlertFeedbackData) => void
+  onSuccess?: (user: CurrentUser) => void,
+  onError?: (alertData: AlertInfo) => void
+  onStateChanged?: (alertData: AlertInfo) => void
 }
 
 export default function LogInLayout(props: PropsWithRef<LogInLayoutProps>): React.ReactElement {  
   const emailInput: RefObject<HTMLInputElement> = useRef<HTMLInputElement>(null);
-  const passInput: RefObject<HTMLInputElement> = useRef<HTMLInputElement>(null);
-  const mainContext: MainContextProps = useContext(MainContext)
+  const passInput: RefObject<HTMLInputElement> = useRef<HTMLInputElement>(null);  
 
-  const { isLoading, isSuccess, isError, error: mutationError, mutate } = useMutation(
+  const { isLoading, isError, error: mutationError, mutate } = useMutation(
     'LOGIN_USER',
     async (dto: UserLoginDTO) => {
       const userApiClient: UserApiClient = new UserApiClient()
@@ -27,25 +27,20 @@ export default function LogInLayout(props: PropsWithRef<LogInLayoutProps>): Reac
     },
     {      
       onSuccess: (user: CurrentUser) => {
-        mainContext.setCurrentUser?.(user)
-        window.location.replace('http://localhost:5173/')
+        props.onSuccess?.(user)
       },
       onError: (err) => {
-        console.log(err)
+        props.onError?.({ message: JSON.stringify(err), type: AlertType.ERROR })
       }
     }
   )
 
   useEffect(() => {
     if (isLoading)
-      props.onStateUpdate?.({ message: "Enviando...", type: AlertFeedbackType.PROGRESS });
-    else if (isError) 
-      props.onStateUpdate?.({ message: "Erro: " + mutationError, type: AlertFeedbackType.ERROR });
-    else if (isSuccess)
-      props.onStateUpdate?.({ message: "Logado com sucesso!", type: AlertFeedbackType.SUCCESS });
-    else
-      props.onStateUpdate?.({ type: AlertFeedbackType.HIDDEN });
-  }, [isLoading, isError, isSuccess])
+      props.onStateChanged?.({ message: "Enviando...", type: AlertType.PROGRESS });
+    else if (isError)
+      props.onError?.({ message: "Erro: " + mutationError, type: AlertType.ERROR });
+  }, [isLoading, isError]);
 
   function submitData(): void {
     const userDTO: UserLoginDTO = {
@@ -55,10 +50,9 @@ export default function LogInLayout(props: PropsWithRef<LogInLayoutProps>): Reac
 
     let errorMessage: string = getErrorMessageIfNotValid(userDTO);
     if (errorMessage !== '') {
-      props.onStateUpdate?.({ message: errorMessage, type: AlertFeedbackType.ERROR });
+      props.onError?.({ message: errorMessage, type: AlertType.ERROR });
       return;
     }
-    props.onStateUpdate?.({ message: '', type: AlertFeedbackType.HIDDEN });
 
     mutate(userDTO);
   }
@@ -70,7 +64,7 @@ export default function LogInLayout(props: PropsWithRef<LogInLayoutProps>): Reac
         <TextInput ref={ passInput } name="Senha" ionIconPath={ eyeOutline } />
       </FormInputGroupMerge>
 
-      <button onClick={ submitData } 
+      <button onClick={ submitData }
           className="btn-r-md bg-primary hover:bg-primary-dark shadow-md shadow-slate-950">
         Entrar
       </button>

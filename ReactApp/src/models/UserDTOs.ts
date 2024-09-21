@@ -2,7 +2,7 @@ export type UserRegisterDTO = {
   username: string,
 	email: string,
 	password: string,
-	imagem_perfil: File | undefined,
+	imagem_perfil?: File | undefined,
 }
 
 export type UserLoginDTO = {
