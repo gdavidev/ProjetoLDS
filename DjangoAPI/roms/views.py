@@ -108,13 +108,11 @@ class ROMDelete(APIView):
         ROM.objects.filter(id=rom_id).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-class ROMDownload(generics.RetrieveAPIView):
-    queryset = ROM.objects.all()
-    serializer_class = ROMSerializer
-
-    def get(self, request, *args, **kwargs):
-        obj = self.get_object()
-        file_path = obj.file.path
+class ROMDownload(APIView):
+    def get(self, request, emulator_name, game_name):
+        
+        obj = get_object_or_404(ROM, emulator__name=emulator_name, title=game_name)
+        file_path = obj.file
         if file_path:
             try:
                 response = FileResponse(open(file_path, 'rb'), as_attachment=True)
@@ -122,12 +120,12 @@ class ROMDownload(generics.RetrieveAPIView):
                 obj.save()
                 return response
             except FileNotFoundError:
-                raise Http404("File not found.")
+                raise Http404("Arquivo não encontrado.")
             except Exception as e:
-                logger.error(f"Error during file download: {e}")
-                raise Http404("An error occurred.")
+                logger.error(f"Erro no download do jogo: {e}")
+                raise Http404("ocorreu um erro")
         else:
-            raise Http404("No file associated with this object.")
+            raise Http404("Nenhum arquivo vinculado com o jogo.")
 
 class MostPlayed(APIView):
     def get(self, request):
