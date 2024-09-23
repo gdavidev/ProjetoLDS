@@ -23,9 +23,49 @@ class ROM(models.Model):
     title = models.CharField(max_length=125)
     description = models.TextField()
     emulador = models.CharField(max_length=125)
+    id_categoria = models.ForeignKey('Categoria_Jogo', on_delete=models.CASCADE)
     image = models.ImageField(upload_to='img/' , blank=True, null=True)
     file = models.FileField(upload_to='roms/', blank=True, null=True)
     qtd_download = models.IntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    
+
+class Categoria_Jogo(models.Model):
+    nome = models.CharField(max_length=125)
+
+#mensagens privadas
+class Conversa(models.Model):
+    mensagem = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+class ParticipantesCoversa(models.Model):
+    id_conversa = models.ForeignKey('Conversa', on_delete=models.CASCADE)
+    id_user = models.ForeignKey('User', on_delete=models.CASCADE
+
+class Mensagem(models.Model):
+    id_conversa = models.ForeignKey('Conversa', on_delete=models.CASCADE)
+    id_user = models.ForeignKey('User', on_delete=models.CASCADE)
+    mensagem = models.TextField()
+    lida = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+#forum
+class Topico(models.Model):
+    titulo = models.CharField(max_length=125)
+    descricao = models.TextField()
+    id_categoria = models.ForeignKey('Categoria_Forum', on_delete=models.CASCADE)
+    id_user = models.ForeignKey('User', on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+class Postagem(models.Model):
+    titulo = models.CharField(max_length=125)
+    descricao = models.TextField()
+    id_topico = models.ForeignKey('Topico', on_delete=models.CASCADE)
+    id_user = models.ForeignKey('User', on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+class Categoria_Forum(models.Model):
+    nome = models.CharField(max_length=125)
