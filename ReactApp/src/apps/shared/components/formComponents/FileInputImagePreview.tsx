@@ -1,5 +1,5 @@
 import { useEffect, useState, RefObject, ForwardedRef, forwardRef, useImperativeHandle } from 'react';
-import FileUtil from '../../../../libs/FileUtil';
+import FileUtil from '@libs/FileUtil';
 
 type FileInputImagePreviewProps = {
   targetInputRef: RefObject<HTMLInputElement>

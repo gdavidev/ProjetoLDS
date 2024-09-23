@@ -1,4 +1,4 @@
-import Game from "../models/Game";
+import Game from "@models/Game";
 import Axios from 'axios'
 
 export default class GameApiClient {

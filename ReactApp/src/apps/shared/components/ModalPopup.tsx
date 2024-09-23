@@ -4,7 +4,7 @@ import ModalDialog from '@mui/joy/ModalDialog';
 import DialogTitle from '@mui/joy/DialogTitle';
 import DialogContent from '@mui/joy/DialogContent';
 import ModalClose from '@mui/joy/ModalClose';
-import { AdminContext, AdminContextProps } from '../../admin/AdminApp';
+import { AdminContext, AdminContextProps } from '@apps/admin/AdminApp';
 
 export type ModalPopupData = {
   title?: string,

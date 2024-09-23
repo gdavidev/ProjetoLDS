@@ -1,17 +1,17 @@
 import React, { useContext, useEffect, useState } from 'react';
 import Box from '@mui/joy/Box';
 import Button from '@mui/joy/Button';
-import Game from '../../../models/Game';
+import Game from '@models/Game';
 import { IonIcon } from '@ionic/react'
 import { add, createOutline, trashOutline, reloadOutline } from 'ionicons/icons';
 import TableDisplay from '../components/TableDisplay';
 import GameEditModalContent from './modalEditContent/GameEditModalContent';
 import { AdminContext, AdminContextProps } from '../AdminApp';
-import { ModalPopupData } from '../../shared/components/ModalPopup';
-import GameApiClient from '../../../api/GameApiClient';
-import { GameGetDTO } from '../../../models/GameDTOs';
-import { MainContext, MainContextProps } from '../../shared/context/MainContextProvider';
-import FileUtil from '../../../libs/FileUtil';
+import { ModalPopupData } from '@shared/components/ModalPopup';
+import GameApiClient from '@api/GameApiClient';
+import { GameGetDTO } from '@models/GameDTOs';
+import { MainContext, MainContextProps } from '@shared/context/MainContextProvider';
+import FileUtil from '@libs/FileUtil';
 import { useMutation } from 'react-query';
 import { IconButton } from '@mui/joy';
 

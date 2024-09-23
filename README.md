@@ -15,8 +15,3 @@
 - **Back API:** Python (Django)
 - **Back API Client:** Delphi
 - **Database:** PostgreSQL
-
-## Como contribuir:
-
-- Quando Alterar o banco de dados:
-  - Manter script de geração das tabelas no arquivo .sql

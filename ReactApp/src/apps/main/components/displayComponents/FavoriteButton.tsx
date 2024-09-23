@@ -1,5 +1,5 @@
 import { useState } from "react";
-import starIcon from '../../assets/icons/star.png'
+import starIcon from '@apps/main/assets/icons/star.png'
 
 type FavoriteButtonProps = {
   checked: boolean,

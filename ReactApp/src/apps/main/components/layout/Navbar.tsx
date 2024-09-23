@@ -2,8 +2,8 @@ import { Link, useLocation } from "react-router-dom";
 
 export default function Navbar() {
   const currentPath: string = useLocation().pathname
-  const pathToHome: string = "/app/"
-  const pathToGames: string = "/app/games"
+  const pathToHome: string = "/"
+  const pathToGames: string = "/games"
 
   return (
     <nav className="flex justify-center mt-1">
