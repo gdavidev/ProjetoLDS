@@ -35,13 +35,12 @@ class Categoria_Jogo(models.Model):
 
 #mensagens privadas
 class Conversa(models.Model):
-    mensagem = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
 class ParticipantesCoversa(models.Model):
     id_conversa = models.ForeignKey('Conversa', on_delete=models.CASCADE)
-    id_user = models.ForeignKey('User', on_delete=models.CASCADE
+    id_user = models.ForeignKey('User', on_delete=models.CASCADE)
 
 class Mensagem(models.Model):
     id_conversa = models.ForeignKey('Conversa', on_delete=models.CASCADE)
