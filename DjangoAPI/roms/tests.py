@@ -25,11 +25,11 @@ class ROMTests(APITestCase):
             'emulador': 'nes',
         }
 
-#    def test_create_rom(self):
-#        url = reverse('rom-list')
-#        response = self.client.post(url, self.rom_data, format='json')
-#        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-#        self.assertEqual(ROM.objects.count(), 2)
+    def test_create_rom(self):
+        url = reverse('rom-list')
+        response = self.client.post(url, self.rom_data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(ROM.objects.count(), 2)
 
     def test_get_roms(self):
         url = reverse('rom-list')
