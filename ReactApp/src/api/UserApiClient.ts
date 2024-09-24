@@ -1,6 +1,6 @@
 import Axios from 'axios';
 import CurrentUser from "@models/User";
-import { UserLoginDTO, UserLoginResponseDTO } from '@models/UserDTOs';
+import { UserLoginDTO, UserLoginResponseDTO, UserRegisterDTO } from '@models/UserDTOs';
 
 export default class UserApiClient {
   private readonly hostIp: string = "http://localhost:8080/";
@@ -12,10 +12,9 @@ export default class UserApiClient {
     delete: 'api/users/delete/',
   }
 
-  // TODO: get DTO type as generic
-  async register(user: CurrentUser): Promise<string> {
+  async register(dto: UserRegisterDTO): Promise<string> {
     const targetUrl: string = this.hostIp + this.endpoints.register
-    const response = await Axios.post(targetUrl, user.toRegisterDTO())
+    const response = await Axios.post(targetUrl, dto)
     return response.data;
   }
     
