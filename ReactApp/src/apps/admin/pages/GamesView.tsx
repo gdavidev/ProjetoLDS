@@ -5,9 +5,7 @@ import Game from '@models/Game';
 import { IonIcon } from '@ionic/react'
 import { add, createOutline, trashOutline, reloadOutline } from 'ionicons/icons';
 import TableDisplay from '../components/TableDisplay';
-import GameEditModalContent from './modalEditContent/GameEditModalContent';
-import { AdminContext, AdminContextProps } from '../AdminApp';
-import { ModalPopupData } from '@shared/components/ModalPopup';
+import GameEditModal from './modal/GameEditModal';
 import GameApiClient from '@api/GameApiClient';
 import { GameGetDTO } from '@models/GameDTOs';
 import { MainContext, MainContextProps } from '@shared/context/MainContextProvider';
@@ -16,9 +14,10 @@ import { useMutation } from 'react-query';
 import { IconButton } from '@mui/joy';
 
 export default function GamesView() {
-  const mainContext: MainContextProps = useContext(MainContext)
-  const adminContext: AdminContextProps = useContext(AdminContext)
-  const [ gameList, setGameList ] = useState<Game[]>([]);
+  const mainContext: MainContextProps = useContext(MainContext);
+  const [ gameModalGame   , setGameModalGame   ] = useState<Game>(new Game());
+  const [ isGameModalOpen , setIsGameModalOpen ] = useState<boolean>(false);
+  const [ gameList        , setGameList        ] = useState<Game[]>([]);
   useEffect(() => {
     fetchGameData();
   }, [])
@@ -27,7 +26,8 @@ export default function GamesView() {
     const gameApiClient: GameApiClient = new GameApiClient()
     gameApiClient.getAll<GameGetDTO>()
       .then(data => {
-        const resultGameList: Game[] = data.map(gameDTO => Game.fromGetDTO(gameDTO));
+        let resultGameList: Game[] = data.map(gameDTO => Game.fromGetDTO(gameDTO));
+        resultGameList.sort((prev: Game, curr: Game) => prev.id - curr.id)
         setGameList(resultGameList);
       });
   }
@@ -44,25 +44,15 @@ export default function GamesView() {
     }
   );
 
-  function openGameEditModal(game?: Game) {    
-    let modalData: ModalPopupData
-    if (game) {
-      modalData = {
-        title: "Editar Jogo",
-        modalContentEl: <GameEditModalContent game={ game }
-          onChange={ (newGame: Game) => updateGameOnGameList(newGame) } />,
-      }
-    } else {
-      modalData = {
-        title: "Adicionar Jogo",
-        modalContentEl: <GameEditModalContent 
-          onChange={ (newGame: Game) => appendGameOnGameList(newGame) } />,
-      }
-    }
-    adminContext.setModalData?.(modalData)
-    adminContext.setModalIsOpen?.(true)
+  function addGame() {
+    setGameModalGame(new Game());
+    setIsGameModalOpen(true);
   }
-
+  function editGame(game: Game) {
+    setGameModalGame(game);
+    setIsGameModalOpen(true);
+  }
+      
   const appendGameOnGameList = (newGame: Game): void => {
     setGameList(gd => [...gd, newGame])
   }
@@ -94,37 +84,41 @@ export default function GamesView() {
   ]
 
   return (
-    <div className="flex flex-col">
-      <div className="flex justify-between items-center mx-5 text-white">
-        <h2 className="font-rubik font-bold">Lista de Jogos</h2>
-        <div className="flex gap-x-2 ">
-          <IconButton variant="solid" color="neutral" onClick={ fetchGameData } >
-            <IonIcon icon={ reloadOutline } />
-          </IconButton>
-          <button className='btn-r-md bg-primary hover:bg-primary-dark text-white'
-              onClick={ () => openGameEditModal() }>
-            <IonIcon icon={ add } /> Novo Jogo
-          </button>
+    <>
+      <div className="flex flex-col">
+        <div className="flex justify-between items-center mx-5 text-white">
+          <h2 className="font-rubik font-bold">Lista de Jogos</h2>
+          <div className="flex gap-x-2 ">
+            <IconButton variant="solid" color="neutral" onClick={ fetchGameData } >
+              <IonIcon icon={ reloadOutline } />
+            </IconButton>
+            <button className='btn-r-md bg-primary hover:bg-primary-dark text-white'
+                onClick={ addGame }>
+              <IonIcon icon={ add } /> Novo Jogo
+            </button>
+          </div>
         </div>
+        <TableDisplay headerTemplateLabels={ templateHeader } 
+            tableStyleObject={{width: '100%', borderSpacing: '0 3px'}}
+            tableHeaderClassName='text-white font-rubik font-bold'>
+          { 
+            gameList.map((game: Game, index: number) => {
+                return ( 
+                  <GameDataTableRow key={index} game={ game }
+                    rowClassName="bg-primary-light text-white"
+                    cellClassName='first:rounded-s-md last:rounded-e-md'
+                    actions={{
+                      edit: editGame, 
+                      delete: (game: Game) => deleteGame(game.id)
+                    }} />
+                )
+              })            
+          }
+        </TableDisplay>
       </div>
-      <TableDisplay headerTemplateLabels={ templateHeader } 
-          tableStyleObject={{width: '100%', borderSpacing: '0 3px'}}
-          tableHeaderClassName='text-white font-rubik font-bold'>
-        { 
-          gameList.map((game: Game, index: number) => {
-              return ( 
-                <GameDataTableRow key={index} game={ game }
-                  rowClassName="bg-primary-light text-white"
-                  cellClassName='first:rounded-s-md last:rounded-e-md'
-                  actions={{
-                    edit: openGameEditModal, 
-                    delete: (game: Game) => deleteGame(game.id)
-                  }} />
-              )
-            })            
-        }
-      </TableDisplay>
-    </div>
+      <GameEditModal game={ gameModalGame } isOpen={ isGameModalOpen } onClose={ () => { setIsGameModalOpen(false) } }
+          onChange={ gameModalGame.id === 0 ? appendGameOnGameList : updateGameOnGameList } />
+    </>
   );
 }
 
@@ -138,20 +132,20 @@ type GameDataTableRowProps = {
   }
 }
 
-function GameDataTableRow(props: GameDataTableRowProps): React.ReactElement {
-  let thumbnailEl: React.ReactElement<HTMLImageElement> | undefined
-  if (typeof props.game.thumbnail === 'string') {
-    thumbnailEl = <img className='max-w-16 min-h-16 bg-slate-600'
-      src={ 'data:image/jpeg;base64,' + props.game.thumbnail } />
-  } else if (props.game.thumbnail instanceof File) {
-    thumbnailEl = <img className='max-w-16 min-h-16 bg-slate-600'
-      src={ FileUtil.uploadedFileToURL(props.game.thumbnail) } />
+function GameDataTableRow(props: GameDataTableRowProps): React.ReactElement {  
+  let source: string
+  if (props.game.thumbnailBase64) {
+    source = 'data:image/jpeg;base64,' + props.game.thumbnailBase64
+  } else if (props.game.thumbnail) {
+    source = FileUtil.uploadedFileToURL(props.game.thumbnail);    
+  } else {
+    source = "https://placehold.co/16"
   }
 
   return (
     <tr className={ props.rowClassName }>
       <td className={ props.cellClassName }>         
-        { thumbnailEl ? thumbnailEl : '' }
+      <img className='max-w-16 min-h-16 bg-slate-600' src={ source } />
       </td>
       <td className={ props.cellClassName }>
         { props.game.id   }

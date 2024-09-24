@@ -1,51 +1,40 @@
-import { useContext, useState } from 'react';
+import { PropsWithChildren } from 'react';
 import Modal from '@mui/joy/Modal';
 import ModalDialog from '@mui/joy/ModalDialog';
 import DialogTitle from '@mui/joy/DialogTitle';
 import DialogContent from '@mui/joy/DialogContent';
 import ModalClose from '@mui/joy/ModalClose';
-import { AdminContext, AdminContextProps } from '@apps/admin/AdminApp';
 
-export type ModalPopupData = {
+export type ModalPopupProps = {
   title?: string,
-  topDescription?: string,
-  bottomDescription?: string,
-  modalContentEl?: JSX.Element | JSX.Element[],
-  modalClassName?: string
+  topText?: string,
+  bottomText?: string,
+  className?: string,
+  isOpen: boolean,
+  onClose?: () => void,
 }
 
-export default function ModalPopup() {
-  const adminContext: AdminContextProps = useContext(AdminContext)
-  const [ isOpen, setIsOpen ] = useState<boolean>(false);
-  const [ modalData, setModalData] = useState<ModalPopupData | undefined>(undefined);
-  adminContext.setModalIsOpen = setIsOpen
-  adminContext.setModalData = setModalData
-
+export default function ModalPopup(props: PropsWithChildren<ModalPopupProps>) {
   return (
     <>      
-      <Modal className={ modalData?.modalClassName } open={ isOpen }
-          onClose={ () => setIsOpen(false) }>
+      <Modal className={ props.className } open={ props.isOpen }
+          onClose={ props.onClose } >
         <ModalDialog>
           <ModalClose variant="plain" sx={{ m: 1 }} />
-          <DialogTitle>{ modalData?.title || "Warning" }</DialogTitle>
+          <DialogTitle>{ props.title || "Warning" }</DialogTitle>
           { 
-            modalData?.topDescription ? 
-              <DialogContent>{ modalData?.topDescription }</DialogContent> :
+            props.topText ? 
+              <DialogContent>{ props.topText }</DialogContent> :
               <></>
           }
-          { modalData?.modalContentEl }
+          { props.children }
           { 
-            modalData?.bottomDescription ? 
-              <DialogContent>{ modalData?.bottomDescription }</DialogContent> :
+            props.bottomText ? 
+              <DialogContent>{ props.bottomText }</DialogContent> :
               <></>
           }          
         </ModalDialog>
       </Modal>
     </>
   )
-}
-
-/* <Button variant="solid" color="danger" onClick={ () => setIsOpen(true) }  
-    className={ props.buttonClassName }>
-  { props.buttonContentEl }
-</Button> */
+};

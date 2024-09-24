@@ -5,7 +5,10 @@ export default class Game {
   name: string;
   desc: string;
   emulator: string;
-  thumbnail?: File | string;
+  thumbnail?: File;
+  thumbnailName?: string;
+  thumbnailBase64?: string
+  fileName?: string
   file?: File | string;
   
   constructor(id?: number, name?: string, desc?: string, emulator?: string, thumbnail?: File | string, file?: File | string) {
@@ -13,8 +16,23 @@ export default class Game {
     this.name      = name     || '';
     this.desc      = desc     || '';
     this.emulator  = emulator || '';
-    this.thumbnail = thumbnail;
-    this.file      = file;
+
+    if (file) {
+      if (typeof file === 'string') {
+        this.fileName = file;
+      } else {
+        this.file = file;
+        this.fileName = file.name;
+      }
+    }
+    if (thumbnail) {      
+      if (typeof thumbnail === 'string') {
+        this.thumbnailBase64 = thumbnail;
+      } else {
+        this.thumbnail = thumbnail;
+        this.thumbnailName = thumbnail?.name;
+      }
+    }
   }
   
   static fromGetDTO(dto: GameGetDTO): Game {
