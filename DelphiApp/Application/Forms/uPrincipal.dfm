@@ -20,9 +20,5 @@ object FormPrincipal: TFormPrincipal
     Height = 441
     Align = alClient
     TabOrder = 0
-    ExplicitLeft = 136
-    ExplicitTop = 184
-    ExplicitWidth = 185
-    ExplicitHeight = 41
   end
 end
