@@ -18,13 +18,17 @@ class User(models.Model):
         from django.contrib.auth.hashers import check_password
         return check_password(password, self.password)
 
+class Emulador(models.Model):
+    nome = models.CharField(max_length=125)
+
 class Categoria_Jogo(models.Model):
     nome = models.CharField(max_length=125)
 
 class ROM(models.Model):
     title = models.CharField(max_length=125)
     description = models.TextField()
-    emulador = models.CharField(max_length=125, default='Default Emulator')
+    id_categoria = models.ForeignKey('Categoria_Jogo', on_delete=models.CASCADE)
+    id_emulador = models.ForeignKey('Emulador', on_delete=models.CASCADE)
     image = models.ImageField(upload_to='img/' , blank=True, null=True)
     file = models.FileField(upload_to='roms/', blank=True, null=True)
     qtd_download = models.IntegerField(default=0)
