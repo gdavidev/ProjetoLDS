@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import ROM, User
+from .models import ROM, User, Conversa, ParticipantesCoversa, Mensagem
 
 
 
@@ -35,3 +35,43 @@ class UserSerializer(serializers.ModelSerializer):
         user.set_password(validated_data['password'])
         user.save()
         return user
+
+#gerencia criacao e listagem de mensagens
+class MensagemSerializer(serializers.ModelSerializer):
+    id_user = serializers.ReadOnlyField(source='id_user.username')
+
+    class Meta:
+        model = Mensagem
+        fields = ['id', 'id_conversa', 'id_user', 'mensagem', 'lida', 'created_at']
+
+class ParticipantesConversaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ParticipantesCoversa
+        fields = ['id', 'id_conversa', 'id_user']
+
+class ConversaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Conversa
+        fields = ['id', 'created_at', 'updated_at']
+
+class ConversaDetailSerializer(serializers.ModelSerializer):
+    mensagens = MensagemSerializer(many=True, read_only=True, source='mensagem_set')
+
+    class Meta:
+        model = Conversa
+        fields = ['id', 'mensagens', 'created_at', 'updated_at']
+
+#Forum serializers
+class PostagemSerializer(serializers.ModelSerializer):
+    id_user = serializers.ReadOnlyField(source='id_user.username')
+
+    class Meta:
+        model = Postagem
+        fields = ['id', 'titulo', 'descricao', 'id_topico', 'id_user', 'created_at', 'updated_at']
+
+class TopicoDetailSerializer(serializers.ModelSerializer):
+    postagens = PostagemSerializer(many=True, read_only=True, source='postagem_set')
+
+    class Meta:
+        model = Topico
+        fields = ['id', 'titulo', 'descricao', 'id_categoria', 'id_user', 'postagens', 'created_at', 'updated_at']
