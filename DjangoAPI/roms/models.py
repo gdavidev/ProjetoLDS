@@ -18,20 +18,18 @@ class User(models.Model):
         from django.contrib.auth.hashers import check_password
         return check_password(password, self.password)
 
+class Categoria_Jogo(models.Model):
+    nome = models.CharField(max_length=125)
 
 class ROM(models.Model):
     title = models.CharField(max_length=125)
     description = models.TextField()
-    emulador = models.CharField(max_length=125)
-    id_categoria = models.ForeignKey('Categoria_Jogo', on_delete=models.CASCADE)
+    emulador = models.CharField(max_length=125, default='Default Emulator')
     image = models.ImageField(upload_to='img/' , blank=True, null=True)
     file = models.FileField(upload_to='roms/', blank=True, null=True)
     qtd_download = models.IntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
-class Categoria_Jogo(models.Model):
-    nome = models.CharField(max_length=125)
 
 #mensagens privadas
 class Conversa(models.Model):

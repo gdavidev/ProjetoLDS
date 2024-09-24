@@ -1,7 +1,7 @@
 from django.urls import reverse
 from rest_framework.test import APITestCase
 from rest_framework import status
-from .models import ROM
+from .models import ROM, User, Categoria_Jogo
 from .serializer import ROMSerializer
 from django.contrib.auth import get_user_model
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -12,19 +12,21 @@ class ROMTests(APITestCase):
 
     def setUp(self):
         # Create a test user
-        self.user = User.objects.create_user(username='user', email='usuario@usuario.com', password='senha')
+        self.user = User.objects.create_user(username='user', email='leonardolcp@live.com', password='senha')
         self.client.force_authenticate(user=self.user)
+        self.categoria_jogo = Categoria_Jogo.objects.create(nome='Ação')
         self.rom = ROM.objects.create(
             title='Test ROM',
             description='A test ROM',
             emulador='nes',
+            id_categoria='1',
         )
         self.rom_data = {
             'title': 'Test ROM 2',
             'description': 'A test ROM 2',
             'emulador': 'nes',
+            'id_categoria': '1',
         }
-
     def test_create_rom(self):
         url = reverse('rom-list')
         response = self.client.post(url, self.rom_data, format='json')
@@ -73,3 +75,13 @@ class ROMTests(APITestCase):
         self.assertEqual(self.rom.title, self.rom_data['title'])
         self.assertEqual(self.rom.description, self.rom_data['description'])
         self.assertEqual(self.rom.emulador, self.rom_data['emulador'])
+
+    def test_forgot_password(self):
+        url = reverse('forgot-password')
+        response = self.client.post(url, email='leonardolcp@live.com', format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_login(self):
+        url = reverse('token')
+        response = self.client.post(url, email='leonardolcp@live.com', password='senha', format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)

@@ -16,11 +16,10 @@ import base64
 import jwt
 from datetime import datetime, timedelta
 
+from .Classes.Auth import Auth
 from .Classes.token import Token
 from .models import ROM, User
 from .serializer import ROMSerializer, UserSerializer
-
-Token = Token()
 
 import base64
 import logging
@@ -33,10 +32,12 @@ from rest_framework.views import APIView
 from rest_framework.exceptions import NotFound
 
 from .models import ROM
-from .serializer import ROMSerializer
 from .Classes.token import Token
 
 logger = logging.getLogger(__name__)
+
+Auth = Auth()
+Token = Token()
 
 def encode_image_to_base64(image):
     try:
@@ -96,6 +97,21 @@ class ROMCreate(APIView):
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class ROMUpdate(APIView):
+    def put(self, request):
+        token = request.headers.get('Authorization', '').split(' ')[1]
+        payload = Token.decode_token(token)
+        if payload is None:
+            return Response({'error': 'Invalid token'}, status=status.HTTP_401_UNAUTHORIZED)
+
+        rom_id = request.data.get('rom_id')
+        rom = ROM.objects.get(id=rom_id)
+        serializer = ROMSerializer(rom, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class ROMDelete(APIView):
@@ -253,31 +269,14 @@ class UserRemoveWishlist(APIView):
         return Response(serializer.data)
 
 #autenticacao
-        
-class Login(generics.GenericAPIView):
-    serializer_class = UserSerializer
-
-    def post(self, request, *args, **kwargs):
+class Login(APIView):
+    def post(self, request):
         email = request.data.get('email')
         password = request.data.get('password')
-        print(email, password)
 
-        try:
-            user = User.objects.get(email=email)
-            if not check_password(password, user.password):
-                return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
-
-            print(user)
-
-            token = Token.create_token(user.id, datetime.utcnow() + timedelta(minutes=15))
-            refresh_token = Token.create_token(user.id, datetime.utcnow() + timedelta(days=7))
-
-            response = Response({'token': token, 'user': UserSerializer(user).data})
-            response.set_cookie(key='refresh_token', value=refresh_token, httponly=True)
-            return response
-
-        except User.DoesNotExist:
-            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+        response = Auth.login(email, password)
+        return response
+        
 
 class RefreshToken(APIView):
     def get(self, request):
@@ -295,4 +294,8 @@ class RefreshToken(APIView):
         except jwt.InvalidTokenError:
             return Response({'error': 'Invalid refresh token'}, status=status.HTTP_401_UNAUTHORIZED)
 
-
+class ForgotPassword(APIView):
+    def post(self, request):
+        email = request.data.get('email')
+        response = Auth.forgot_password(email)
+        return response

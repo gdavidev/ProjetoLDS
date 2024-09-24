@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import ROM, User, Conversa, ParticipantesCoversa, Mensagem
+from .models import ROM, User, Conversa, ParticipantesCoversa, Mensagem, Postagem, Topico
 
 
 
