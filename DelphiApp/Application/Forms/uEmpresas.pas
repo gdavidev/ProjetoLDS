@@ -10,7 +10,7 @@ uses
 
 type
   TformEmpresas = class(TForm)
-    pnlEmpresas: TPanel;
+    pnlPrincipal: TPanel;
     pnlEmpresasUp: TPanel;
     pnlEmpresasDown: TPanel;
     pnlNintendo: TPanel;
@@ -22,6 +22,8 @@ type
     btnMicrosoft: TSpeedButton;
     btnSony: TSpeedButton;
     procedure FormResize(Sender: TObject);
+    procedure btnNintendoClick(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
   private
     { Private declarations }
 
@@ -35,13 +37,16 @@ var
 
 implementation
 
+uses
+  uPrincipal, uNintendo;
+
 {$R *.dfm}
 
 procedure TformEmpresas.ArrumaTela;
 begin
   // Paineis
-  pnlEmpresasUp.Height := (Round(pnlEmpresas.Height / 2) + 1);
-  pnlEmpresasDown.Height := (Round(pnlEmpresas.Height / 2) + 1);
+  pnlEmpresasUp.Height := (Round(pnlPrincipal.Height / 2) + 1);
+  pnlEmpresasDown.Height := (Round(pnlPrincipal.Height / 2) + 1);
   pnlNintendo.Width := (Round(pnlEmpresasUp.Width / 2) + 1);
   pnlSega.Width := (Round(pnlEmpresasUp.Width / 2) + 1);
   pnlMicrosoft.Width := (Round(pnlEmpresasDown.Width / 2) + 1);
@@ -74,6 +79,17 @@ begin
   btnSony.Top := 10;
   btnSony.Left := 10;
   btnSony.Font.Size := Round(btnNintendo.Width / 15);
+end;
+
+procedure TformEmpresas.btnNintendoClick(Sender: TObject);
+begin
+  TFormPrincipal(Owner).TrocaForm('Nintendo');
+end;
+
+procedure TformEmpresas.FormCreate(Sender: TObject);
+begin
+  if TDirectory.Exists(Diretorio) then
+
 end;
 
 procedure TformEmpresas.FormResize(Sender: TObject);

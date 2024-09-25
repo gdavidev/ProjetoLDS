@@ -2,16 +2,17 @@ program EmuHub;
 
 uses
   Vcl.Forms,
-  uPrincipal in 'Forms\uPrincipal.pas' {FormPrincipal},
+  uPrincipal in 'Forms\uPrincipal.pas' {formPrincipal},
   uEmpresas in 'Forms\uEmpresas.pas' {formEmpresas},
-  Emuladores in 'Forms\Emuladores.pas' {Form1};
+  uNintendo in 'Forms\uNintendo.pas' {formNintendo},
+  uGBA in 'Forms\uGBA.pas' {formGBA},
+  uLibrary in 'uLibrary.pas';
 
 {$R *.res}
 
 begin
   Application.Initialize;
   Application.MainFormOnTaskbar := True;
-  Application.CreateForm(TFormPrincipal, FormPrincipal);
-  Application.CreateForm(TForm1, Form1);
+  Application.CreateForm(TformPrincipal, formPrincipal);
   Application.Run;
 end.

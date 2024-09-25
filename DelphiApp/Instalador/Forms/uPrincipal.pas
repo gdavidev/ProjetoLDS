@@ -57,6 +57,7 @@ begin
       try
         // Define o valor da cadeia padrão
         Reg.WriteString('', 'EmuHub');
+        Reg.WriteString('Diretorio',  Diretorio + '\EmuHub\');
 
         // Define o valor da cadeia URL Protocol
         Reg.WriteString('URL Protocol', '');

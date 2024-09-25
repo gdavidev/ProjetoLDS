@@ -1,9 +1,9 @@
-object FormPrincipal: TFormPrincipal
+object formPrincipal: TformPrincipal
   Left = 0
   Top = 0
   Caption = 'EmuHub'
-  ClientHeight = 441
-  ClientWidth = 624
+  ClientHeight = 516
+  ClientWidth = 708
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -16,9 +16,11 @@ object FormPrincipal: TFormPrincipal
   object pnlPrincipal: TPanel
     Left = 0
     Top = 0
-    Width = 624
-    Height = 441
+    Width = 708
+    Height = 516
     Align = alClient
     TabOrder = 0
+    ExplicitWidth = 622
+    ExplicitHeight = 433
   end
 end

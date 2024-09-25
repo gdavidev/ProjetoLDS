@@ -7,34 +7,49 @@ uses
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls;
 
 type
-  TFormPrincipal = class(TForm)
+  TformPrincipal = class(TForm)
     pnlPrincipal: TPanel;
     procedure FormShow(Sender: TObject);
   private
     { Private declarations }
+    FormAtivo: Tform;
   public
     { Public declarations }
+    procedure TrocaForm(para: String);
   end;
 
 var
-  FormPrincipal: TFormPrincipal;
+  formPrincipal: TformPrincipal;
 
 implementation
 
 uses
-uEmpresas;
-
-var
-FormAtivo: Tform;
+  uEmpresas, uNintendo, uGBA;
 
 {$R *.dfm}
 
-procedure TFormPrincipal.FormShow(Sender: TObject);
+procedure TformPrincipal.FormShow(Sender: TObject);
 begin
-  FormAtivo := TformEmpresas.Create(Self);
+  TrocaForm('Empresas');
+end;
+
+procedure TformPrincipal.TrocaForm(para: String);
+begin
+  FreeAndNil(FormAtivo);
+
+  if para = 'Empresas' then
+    FormAtivo := TformEmpresas.Create(Self)
+  else if para = 'Nintendo' then
+    FormAtivo := TformNintendo.Create(Self)
+  else if para = 'GBA' then
+    FormAtivo := TformGBA.Create(Self);
+
   FormAtivo.Parent := pnlPrincipal;
   FormAtivo.Show;
-  TformEmpresas(FormAtivo).FormResize(FormAtivo);
+
+  // Verifica se o FormAtivo é do tipo TformEmpresas antes de redimensionar
+  if FormAtivo is TformEmpresas then
+    TformEmpresas(FormAtivo).FormResize(FormAtivo);
 end;
 
 end.
