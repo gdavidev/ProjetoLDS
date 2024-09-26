@@ -11,6 +11,7 @@ object formPrincipal: TformPrincipal
   Font.Name = 'Segoe UI'
   Font.Style = []
   Position = poDesktopCenter
+  OnCreate = FormCreate
   OnShow = FormShow
   TextHeight = 15
   object pnlPrincipal: TPanel
@@ -20,7 +21,7 @@ object formPrincipal: TformPrincipal
     Height = 516
     Align = alClient
     TabOrder = 0
-    ExplicitWidth = 622
-    ExplicitHeight = 433
+    ExplicitWidth = 706
+    ExplicitHeight = 508
   end
 end

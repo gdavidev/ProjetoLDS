@@ -38,7 +38,10 @@ var
 implementation
 
 uses
-  uPrincipal, uNintendo;
+  uPrincipal, uNintendo, uLibrary, System.IOUtils;
+
+var
+  DiretorioPadrao: String;
 
 {$R *.dfm}
 
@@ -88,8 +91,18 @@ end;
 
 procedure TformEmpresas.FormCreate(Sender: TObject);
 begin
-  if TDirectory.Exists(Diretorio) then
+  DiretorioPadrao := PegaDiretorio;
+  if TDirectory.Exists(DiretorioPadrao + '\Nintendo') then
+    btnNintendo.Enabled := True;
 
+  if TDirectory.Exists(DiretorioPadrao + '\Sega') then
+    btnSega.Enabled := True;
+
+  if TDirectory.Exists(DiretorioPadrao + '\Sony') then
+    btnSony.Enabled := True;
+
+  if TDirectory.Exists(DiretorioPadrao + '\Microsoft') then
+    btnMicrosoft.Enabled := True;
 end;
 
 procedure TformEmpresas.FormResize(Sender: TObject);

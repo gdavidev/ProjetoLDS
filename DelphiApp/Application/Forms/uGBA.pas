@@ -21,7 +21,6 @@ type
   private
     { Private declarations }
     procedure CarregaRoms;
-    procedure PegaDiretorio;
     procedure BotaoClick(Sender: TObject);
   public
     { Public declarations }
@@ -33,42 +32,13 @@ var
 implementation
 
 uses
-  uPrincipal, System.IOUtils, System.Win.Registry,
+  uPrincipal, System.IOUtils, System.Win.Registry, uLibrary,
    System.Generics.Collections, ShellAPI, Vcl.Imaging.pngimage, Vcl.Buttons;
 
 var
   DiretorioPadrao: String;
 
 {$R *.dfm}
-
-procedure TformGBA.PegaDiretorio;
-var
-  Reg: TRegistry;
-begin
-  // Cria a instância do TRegistry
-  Reg := TRegistry.Create(KEY_READ);
-  try
-    // Define o root onde a chave está (HKEY_CURRENT_USER, HKEY_LOCAL_MACHINE, etc.)
-    Reg.RootKey := HKEY_CLASSES_ROOT;
-
-    // Abre a chave onde o valor está armazenado
-    if Reg.OpenKeyReadOnly('\EmuHub') then
-    begin
-      // Verifica se o valor existe
-      if Reg.ValueExists('Diretorio') then
-      begin
-        // Lê o valor
-        DiretorioPadrao := Reg.ReadString('Diretorio');
-      end;
-
-      // Fecha a chave após ler o valor
-      Reg.CloseKey;
-    end;
-  finally
-    // Libera o recurso TRegistry
-    Reg.Free;
-  end;
-end;
 
 procedure TformGBA.CarregaRoms;
 var
@@ -81,7 +51,7 @@ var
   PNGImage: TPNGImage; // Para imagens PNG
   Bitmap: TBitmap; // Para bitmap
 begin
-  Diretorio := DiretorioPadrao + 'GBA\Roms';
+  Diretorio := DiretorioPadrao + 'Nintendo\GBA\Roms';
 
   if not TDirectory.Exists(Diretorio) then
   begin
@@ -153,15 +123,15 @@ var
   Comando: string;
 begin
   Botao := Sender as TSpeedButton;
-  Comando := 'start /b ' + DiretorioPadrao + 'GBA\mGBA.exe -f ' +
-  '"' + DiretorioPadrao + 'GBA\Roms\' + Botao.Caption + '.gba"';
+  Comando := 'start /b ' + DiretorioPadrao + 'Nintendo\GBA\mGBA.exe -f ' +
+  '"' + DiretorioPadrao + 'Nintendo\GBA\Roms\' + Botao.Caption + '.gba"';
   // Executa o comando no CMD
   ShellExecute(0, 'open', 'cmd.exe', PChar('/C ' + Comando), nil, SW_SHOWNORMAL);
 end;
 
 procedure TformGBA.FormCreate(Sender: TObject);
 begin
-  PegaDiretorio;
+  DiretorioPadrao := PegaDiretorio;
   CarregaRoms;
 end;
 

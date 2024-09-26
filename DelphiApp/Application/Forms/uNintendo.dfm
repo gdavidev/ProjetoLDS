@@ -12,6 +12,7 @@ object formNintendo: TformNintendo
   Font.Height = -12
   Font.Name = 'Segoe UI'
   Font.Style = []
+  OnCreate = FormCreate
   TextHeight = 15
   object pnlPrincipal: TPanel
     Left = 0
@@ -25,13 +26,12 @@ object formNintendo: TformNintendo
       Top = 1
       Width = 721
       Height = 451
-      VertScrollBar.Position = 393
       Align = alClient
       TabOrder = 0
       UseWheelForScrolling = True
       object btnGBA: TSpeedButton
         Left = 0
-        Top = -103
+        Top = 290
         Width = 700
         Height = 145
         Align = alTop
@@ -39,6 +39,7 @@ object formNintendo: TformNintendo
         ImageIndex = 2
         ImageName = 'gba'
         Images = vImgListIcones
+        Enabled = False
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
         Font.Height = -29
@@ -52,7 +53,7 @@ object formNintendo: TformNintendo
       end
       object btnGBC: TSpeedButton
         Left = 0
-        Top = -248
+        Top = 145
         Width = 700
         Height = 145
         Align = alTop
@@ -74,7 +75,7 @@ object formNintendo: TformNintendo
       end
       object btnGB: TSpeedButton
         Left = 0
-        Top = -393
+        Top = 0
         Width = 700
         Height = 145
         Align = alTop
@@ -95,7 +96,7 @@ object formNintendo: TformNintendo
       end
       object btnDS: TSpeedButton
         Left = 0
-        Top = 622
+        Top = 1015
         Width = 700
         Height = 145
         Align = alTop
@@ -117,7 +118,7 @@ object formNintendo: TformNintendo
       end
       object btnGC: TSpeedButton
         Left = 0
-        Top = 477
+        Top = 870
         Width = 700
         Height = 145
         Align = alTop
@@ -139,7 +140,7 @@ object formNintendo: TformNintendo
       end
       object btnN64: TSpeedButton
         Left = 0
-        Top = 332
+        Top = 725
         Width = 700
         Height = 145
         Align = alTop
@@ -161,7 +162,7 @@ object formNintendo: TformNintendo
       end
       object btnSNES: TSpeedButton
         Left = 0
-        Top = 187
+        Top = 580
         Width = 700
         Height = 145
         Align = alTop
@@ -183,7 +184,7 @@ object formNintendo: TformNintendo
       end
       object btnNES: TSpeedButton
         Left = 0
-        Top = 42
+        Top = 435
         Width = 700
         Height = 145
         Align = alTop
