@@ -24,8 +24,16 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = "l@q(Ght65$e!@-iu*po_lk((14W&%^oiez#ybb^18vt&b-k6b2-enzzk_@5c*(i"
-
 JWT_ALGORITHM = 'HS256'
+FRONTEND_URL = 'localhost:5173'
+
+# SECURITY EMAIL
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_USE_TLS = True
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'autenticacao.emuhub@gmail.com'
+EMAIL_HOST_PASSWORD = 'emuhub123'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True

@@ -275,27 +275,29 @@ class Login(APIView):
         password = request.data.get('password')
 
         response = Auth.login(email, password)
-        return response
-        
+        return response      
 
 class RefreshToken(APIView):
     def get(self, request):
         refresh_token = request.COOKIES.get('refresh_token')
-        if refresh_token is None:
-            return Response({'error': 'Refresh token not provided'}, status=status.HTTP_401_UNAUTHORIZED)
-        try:
-            payload = jwt.decode(refresh_token, settings.SECRET_KEY, algorithms=['HS256'])
-            user = User.objects.get(id=payload['id'])
-            token = Token.create_token(user.id, datetime.utcnow() + timedelta(minutes=15))
-            serializer = UserSerializer(user)
-            return Response({'token': token, 'user': serializer.data})
-        except jwt.ExpiredSignatureError:
-            return Response({'error': 'Refresh token expired'}, status=status.HTTP_401_UNAUTHORIZED)
-        except jwt.InvalidTokenError:
-            return Response({'error': 'Invalid refresh token'}, status=status.HTTP_401_UNAUTHORIZED)
+        response = Auth.refresh_token(refresh_token)
+        return response
 
 class ForgotPassword(APIView):
     def post(self, request):
         email = request.data.get('email')
-        response = Auth.forgot_password(email)
+        response = Auth.send_ForgotPassword_email('email')
+        return response
+
+class ResetPassword(APIView):
+    def post(self, request):
+        token = request.headers.get('Authorization').split(' ')[1]
+        password = request.data.get('password')
+        response = Auth.reset_password(token, password)
+        return response
+
+class ProtectedRoute(APIView):
+    def get(self, request):
+        token = request.headers.get('Authorization').split(' ')[1]
+        response = Auth.protected_route(token)
         return response
