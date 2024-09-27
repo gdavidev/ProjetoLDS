@@ -8,13 +8,14 @@ class Token:
     def __init__(self):
         pass
     
-    def create_token(self, user_id, expire):    
+    def create_token(self, user_id, admin, expire):    
 
         if not isinstance(expire, datetime):
             raise ValueError("Expire must be a datetime instance")
 
         payload = {
             'user_id': user_id,  
+            'admin': admin,
             'exp': expire,      
             'iat': datetime.utcnow()  
         }

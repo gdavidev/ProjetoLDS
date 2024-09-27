@@ -16,6 +16,7 @@ import base64
 import jwt
 from datetime import datetime, timedelta
 
+from .Classes.Roms import Roms
 from .Classes.Auth import Auth
 from .Classes.token import Token
 from .models import ROM, User
@@ -38,45 +39,17 @@ logger = logging.getLogger(__name__)
 
 Auth = Auth()
 Token = Token()
-
-def encode_image_to_base64(image):
-    try:
-        with image.open('rb') as img_file:
-            return base64.b64encode(img_file.read()).decode('utf-8')
-    except Exception as e:
-        logger.error(f"Error encoding image: {e}")
-        return None
+Roms = Roms()
 
 class ROMListView(APIView):
     def get(self, request):
-        roms = ROM.objects.all()
-        data = [
-            {
-                'id': rom.id,
-                'title': rom.title,
-                'description': rom.description,
-                'emulador': rom.emulador,
-                'image_base64': encode_image_to_base64(rom.image) if rom.image and default_storage.exists(rom.image.name) else None,
-            }
-            for rom in roms
-        ]
+        data = Roms.get_roms()
         return JsonResponse(data, safe=False)
 
 class ROMDetailView(APIView):
     def get(self, request):
         rom_id = request.GET.get('rom_id')
-        try:
-            rom = ROM.objects.get(id=rom_id)
-        except ROM.DoesNotExist:
-            raise NotFound()
-
-        data = {
-            'id': rom.id,
-            'title': rom.title,
-            'description': rom.description,
-            'emulador': rom.emulador,
-            'image_base64': encode_image_to_base64(rom.image) if rom.image and default_storage.exists(rom.image.name) else None,
-        }
+        data = Roms.rom_detail(rom_id)
         return JsonResponse(data, safe=False)
 
 class ROMSearch(APIView):
@@ -92,7 +65,8 @@ class ROMCreate(APIView):
         payload = Token.decode_token(token)
         if payload is None:
             return Response({'error': 'Invalid token'}, status=status.HTTP_401_UNAUTHORIZED)
-
+        if payload.get('admin') == False:
+            return Response({'error': 'Unauthorized'}, status=status.HTTP_403_FORBIDDEN)
         serializer = ROMSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -105,7 +79,8 @@ class ROMUpdate(APIView):
         payload = Token.decode_token(token)
         if payload is None:
             return Response({'error': 'Invalid token'}, status=status.HTTP_401_UNAUTHORIZED)
-
+        if payload.get('admin') == False:
+            return Response({'error': 'Unauthorized'}, status=status.HTTP_403_FORBIDDEN)
         rom_id = request.data.get('rom_id')
         rom = ROM.objects.get(id=rom_id)
         serializer = ROMSerializer(rom, data=request.data)
@@ -120,9 +95,14 @@ class ROMDelete(APIView):
         payload = Token.decode_token(token)
         if payload is None:
             return Response({'error': 'Invalid token'}, status=status.HTTP_401_UNAUTHORIZED)
-        rom_id = request.data.get('rom_id')
-        ROM.objects.filter(id=rom_id).delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        if payload.get('admin') == False:
+            return Response({'error': 'Unauthorized'}, status=status.HTTP_403_FORBIDDEN)
+        try:
+            rom_id = request.data.get('rom_id')
+            ROM.objects.filter(id=rom_id).delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except ROM.DoesNotExist:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
 
 class ROMDownload(APIView):
     def get(self, request, emulator_name, game_name):
@@ -139,36 +119,28 @@ class ROMDownload(APIView):
                 raise Http404("Arquivo não encontrado.")
             except Exception as e:
                 logger.error(f"Erro no download do jogo: {e}")
-                raise Http404("ocorreu um erro")
+                raise Http500("Erro interno no servidor.")
         else:
             raise Http404("Nenhum arquivo vinculado com o jogo.")
 
 class MostPlayed(APIView):
     def get(self, request):
-        roms = ROM.objects.order_by('-qtd_download')[:4]
-        data = [
-            {
-                'id': rom.id,
-                'title': rom.title,
-                'description': rom.description,
-                'emulador': rom.emulador,
-                'image_base64': encode_image_to_base64(rom.image) if rom.image and default_storage.exists(rom.image.name) else None,
-            }
-            for rom in roms
-        ]
+        data = Roms.most_played()
         return JsonResponse(data, safe=False)
 
 #Views User
-
 class UserListView(APIView):
     def get(self, request):
         token = request.headers.get('Authorization').split(' ')[1]
         payload = Token.decode_token(token)
         if payload is None:
             return Response({'error': 'Invalid token'}, status=status.HTTP_401_UNAUTHORIZED)
-        users = User.objects.all()
-        serializer = UserSerializer(users, many=True)
-        return Response(serializer.data)
+        if payload['admin']:
+            users = User.objects.all()
+            serializer = UserSerializer(users, many=True)
+            return Response(serializer.data)
+        else:
+            return Response({'error': 'Acesso negado'}, status=status.HTTP_403_FORBIDDEN)
 
 class UserDetailView(APIView):
     def get(self, request):

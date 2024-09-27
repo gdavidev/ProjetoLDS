@@ -21,15 +21,15 @@ class Auth:
             if not check_password(password, user.password):
                 return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
-            token = self.Token.create_token(user.id, datetime.utcnow() + timedelta(minutes=15))
-            refresh_token = self.Token.create_token(user.id, datetime.utcnow() + timedelta(days=7))
+            token = self.Token.create_token(user.id, user.admin, datetime.utcnow() + timedelta(minutes=15))
+            refresh_token = self.Token.create_token(user.id, user.admin, datetime.utcnow() + timedelta(days=7))
 
             response = Response({'token': token, 'user': UserSerializer(user).data})
             response.set_cookie(key='refresh_token', value=refresh_token, httponly=True)
             return response
 
         except User.DoesNotExist:
-            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'error': 'User not found'}, status=status.HTTP_400_BAD_REQUEST)
 
     def refresh_token(self, refresh_token):
         if refresh_token is None:
@@ -37,7 +37,7 @@ class Auth:
         try:
             payload = jwt.decode(refresh_token, settings.SECRET_KEY, algorithms=['HS256'])
             user = User.objects.get(id=payload['id'])
-            token = Token.create_token(user.id, datetime.utcnow() + timedelta(minutes=15))
+            token = Token.create_token(user.id, user.admin, datetime.utcnow() + timedelta(minutes=15))
             serializer = UserSerializer(user)
             return Response({'token': token, 'user': serializer.data})
         except jwt.ExpiredSignatureError:
@@ -55,7 +55,7 @@ class Auth:
             send_mail(subject, message, settings.EMAIL_HOST_USER, [email])
             return Response({'message': 'Password reset email sent successfully'})
         except User.DoesNotExist:
-            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'error': 'User not found'}, status=status.HTTP_400_BAD_REQUEST)
 
     def reset_password(self, token, password):
         try:
