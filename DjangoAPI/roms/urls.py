@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import ROMDelete, ROMCreate, ROMListView, ROMUpdate, ROMDownload, UserRegister, UserViewWishlist, UserAddWishlist, UserDelete, UserListView, UserRemoveWishlist, UserUpdate, RefreshToken, Login, MostPlayed ,ROMDetailView, UserDetailView, ROMSearch, ForgotPassword
+from .views import ROMDelete, ROMCreate, ROMListView, ROMUpdate, ROMDownload, UserRegister, UserViewWishlist, UserAddWishlist, UserDelete, UserListView, UserRemoveWishlist, UserUpdate, RefreshToken, Login, MostPlayed ,ROMDetailView, UserDetailView, ROMSearch, ForgotPassword, ResetPassword, ProtectedRoute
 from django.conf.urls.static import static
 from django.conf import settings
 
@@ -22,5 +22,7 @@ urlpatterns = [
     path("users/wishlist/remove/", UserRemoveWishlist.as_view(), name="user-remove-wishlist"),
     path("token/refresh/", RefreshToken.as_view(), name="token-refresh"),
     path("token/", Login.as_view(), name="token"),
-    path("forgot-password/" , ForgotPassword.as_view(), name="forgot-password")
+    path("forgot-password/" , ForgotPassword.as_view(), name="forgot-password"),
+    path("reset-password/", ResetPassword.as_view(), name="reset-password"),
+    path("protected/", ProtectedRoute.as_view(), name="protected")
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
