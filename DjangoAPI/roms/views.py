@@ -43,7 +43,18 @@ Roms = Roms()
 
 class ROMListView(APIView):
     def get(self, request):
-        data = Roms.get_roms()
+        roms = ROM.objects.all()
+        data = [
+            {
+                'id': rom.id,
+                'title': rom.title,
+                'description': rom.description,
+                'emulador': rom.emulador,
+                'image_base64': encode_image_to_base64(rom.image) if rom.image and default_storage.exists(rom.image.name) else None,
+            }
+            for rom in roms
+        ]
+        print(data)
         return JsonResponse(data, safe=False)
 
 class ROMDetailView(APIView):

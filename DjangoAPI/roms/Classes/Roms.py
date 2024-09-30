@@ -6,17 +6,17 @@ from ..serializer import ROMSerializer
 import base64
 
 
-class Roms (self):
+class Roms:
     def __init__(self):
         pass
 
-    def encode_image_to_base64(image):
-    try:
-        with image.open('rb') as img_file:
-            return base64.b64encode(img_file.read()).decode('utf-8')
-    except Exception as e:
-        logger.error(f"Error encoding image: {e}")
-        return None
+    def encode_image_to_base64(self, image):
+        try:
+            with image.open('rb') as img_file:
+                return base64.b64encode(img_file.read()).decode('utf-8')
+        except Exception as e:
+            logger.error(f"Error encoding image: {e}")
+            return None
 
     def get_roms(self):
         roms = ROM.objects.all()
@@ -30,6 +30,7 @@ class Roms (self):
             }
             for rom in roms
         ]
+        print(data)
         return data
 
     def rom_detail(self, id_rom):
@@ -46,7 +47,7 @@ class Roms (self):
             'image_base64': encode_image_to_base64(rom.image) if rom.image and default_storage.exists(rom.image.name) else None,
         }
 
-    def most_played()
+    def most_played(self):
         roms = ROM.objects.order_by('-qtd_download')[:4]
         data = [
             {
