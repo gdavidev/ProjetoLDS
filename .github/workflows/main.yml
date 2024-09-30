@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - developing
+      - sprint_1
 
 jobs:
   build-and-deploy:
@@ -18,19 +19,16 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      - name: Copiar a pasta DjangoAPI para a instância Oracle
+      - name: Copiar a pasta DjangoAPI
         run: |
           scp -r -o StrictHostKeyChecking=no ./DjangoAPI ${{ secrets.ORACLE_USER }}@${{ secrets.ORACLE_HOST }}:/app
-
-      # Deploy na instância Oracle usando Docker Compose
-      - name: Deploy com Docker Compose na instância Oracle
+          
+      - name: Deploy na instância Oracle
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.ORACLE_USER }}@${{ secrets.ORACLE_HOST }} << 'EOF'
           cd /app/DjangoAPI
 
-          # Derrubar containers antigos (se houver)
           docker-compose down
 
-          # Subir novos containers com o docker-compose
           docker-compose up -d --build
           EOF
