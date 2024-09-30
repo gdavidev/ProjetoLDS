@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - developing
-      - sprint_1
 
 jobs:
   build-and-deploy:
@@ -17,18 +16,18 @@ jobs:
       - name: Configurar SSH
         uses: webfactory/ssh-agent@v0.8.1
         with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+          ssh-private-key: ${{ secrets.DEV_SSH_PRIVATE_KEY }}
 
       - name: Copiar a pasta DjangoAPI
         run: |
-          scp -r -o StrictHostKeyChecking=no ./DjangoAPI ${{ secrets.ORACLE_USER }}@${{ secrets.ORACLE_HOST }}:/app
+          scp -r -o StrictHostKeyChecking=no ./DjangoAPI ${{ secrets.DEV_ORACLE_USER }}@${{ secrets.DEV_ORACLE_HOST }}:/app
           
       - name: Deploy na instância Oracle
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.ORACLE_USER }}@${{ secrets.ORACLE_HOST }} << 'EOF'
+          ssh -o StrictHostKeyChecking=no ${{ secrets.DEV_ORACLE_USER }}@${{ secrets.DEV_ORACLE_HOST }} << 'EOF'
           cd /app/DjangoAPI
 
           docker-compose down
 
-          docker-compose up -d --build
+          docker-compose up --build -d
           EOF
