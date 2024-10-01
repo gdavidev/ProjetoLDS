@@ -20,11 +20,11 @@ jobs:
 
       - name: Copiar a pasta DjangoAPI
         run: |
-          scp -r -o StrictHostKeyChecking=no ./DjangoAPI ${{ secrets.DEV_ORACLE_USER }}@${{ secrets.DEV_ORACLE_HOST }}:/app
+          scp -r -o StrictHostKeyChecking=no ./DjangoAPI ${{ secrets.DEV_LIGHTSAIL_USER }}@${{ secrets.DEV_LIGHTSAIL_HOST }}:/app
           
       - name: Deploy na instância Oracle
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.DEV_ORACLE_USER }}@${{ secrets.DEV_ORACLE_HOST }} << 'EOF'
+          ssh -o StrictHostKeyChecking=no ${{ secrets.DEV_LIGHTSAIL_USER }}@${{ secrets.DEV_LIGHTSAIL_HOST }} << 'EOF'
           cd /app/DjangoAPI
 
           docker-compose down
