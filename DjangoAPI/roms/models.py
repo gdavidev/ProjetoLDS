@@ -20,6 +20,7 @@ class User(models.Model):
 
 class Emulador(models.Model):
     nome = models.CharField(max_length=125)
+    console = models.CharField(max_length=125)
 
 class Categoria_Jogo(models.Model):
     nome = models.CharField(max_length=125)
@@ -27,8 +28,8 @@ class Categoria_Jogo(models.Model):
 class ROM(models.Model):
     title = models.CharField(max_length=125)
     description = models.TextField()
-    id_categoria = models.ForeignKey('Categoria_Jogo', on_delete=models.CASCADE)
-    id_emulador = models.ForeignKey('Emulador', on_delete=models.CASCADE)
+    categoria = models.ForeignKey('Categoria_Jogo', on_delete=models.CASCADE)
+    emulador = models.ForeignKey('Emulador', on_delete=models.CASCADE)
     image = models.ImageField(upload_to='img/' , blank=True, null=True)
     file = models.FileField(upload_to='roms/', blank=True, null=True)
     qtd_download = models.IntegerField(default=0)
