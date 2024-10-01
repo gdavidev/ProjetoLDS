@@ -1,0 +1,33 @@
+name: CI/CD Pipeline - Deploy na Oracle Cloud
+
+on:
+  push:
+    branches:
+      - developing
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v3
+
+      - name: Configurar SSH
+        uses: webfactory/ssh-agent@v0.8.1
+        with:
+          ssh-private-key: ${{ secrets.DEV_SSH_PRIVATE_KEY }}
+
+      - name: Copiar a pasta DjangoAPI
+        run: |
+          scp -r -o StrictHostKeyChecking=no ./DjangoAPI ${{ secrets.DEV_ORACLE_USER }}@${{ secrets.DEV_ORACLE_HOST }}:/app
+          
+      - name: Deploy na instância Oracle
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.DEV_ORACLE_USER }}@${{ secrets.DEV_ORACLE_HOST }} << 'EOF'
+          cd /app/DjangoAPI
+
+          docker-compose down
+
+          docker-compose up --build -d
+          EOF
