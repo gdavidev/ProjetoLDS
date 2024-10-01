@@ -6,7 +6,8 @@ uses
   uEmpresas in 'Forms\uEmpresas.pas' {formEmpresas},
   uNintendo in 'Forms\uNintendo.pas' {formNintendo},
   uGBA in 'Forms\uGBA.pas' {formGBA},
-  uLibrary in 'uLibrary.pas';
+  uLibrary in 'uLibrary.pas',
+  uDownload in 'TesteFuncionalidade\uDownload.pas' {Form1};
 
 {$R *.res}
 
