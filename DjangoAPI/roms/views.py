@@ -29,7 +29,7 @@ from django.core.files.storage import default_storage
 from django.http import JsonResponse, Http404
 from rest_framework import status, generics
 from rest_framework.response import Response
-from rest_framework.views import APIView
+from adrf.views import APIView
 from rest_framework.exceptions import NotFound
 
 from .models import ROM
@@ -44,6 +44,7 @@ Roms = Roms()
 class ROMListView(APIView):
     def get(self, request):
         data = Roms.get_roms()
+        print(data)
         return JsonResponse(data, safe=False)
 
 class ROMDetailView(APIView):

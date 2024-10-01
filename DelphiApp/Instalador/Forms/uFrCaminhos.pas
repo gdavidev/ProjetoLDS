@@ -40,7 +40,7 @@ procedure TfrCaminhos.btnDiretorioClick(Sender: TObject);
 var
   Diretorio: String;
 begin
-  SelectDirectory('Selecione a pasta para instalação', 'C:\', Diretorio);
+  SelectDirectory('Selecione a pasta para instalação', 'C:', Diretorio);
   editCaminho.Text := Diretorio + '\EmuHub\';
 end;
 
