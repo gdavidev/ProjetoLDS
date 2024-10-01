@@ -4,6 +4,7 @@ from django.http import JsonResponse, Http404
 from django.core.exceptions import ObjectDoesNotExist
 from ..serializer import ROMSerializer
 import base64
+import asyncio
 
 
 class Roms():
@@ -20,12 +21,13 @@ class Roms():
 
     def get_roms(self):
         roms = ROM.objects.all()
+        data = []
         for rom in roms:
             categoria = Categoria_Jogo.objects.get(id=rom.categoria_id)
             emulador = Emulador.objects.get(id=rom.emulador_id)
-            data = []
             jogo = self.create_data(rom.id, rom.title, rom.description, emulador.nome, categoria.nome, encode_image_to_base64(rom.image))
             data.append(jogo)
+        print(data)
         return data
 
     def rom_detail(self, id_rom):
@@ -41,14 +43,15 @@ class Roms():
 
     def most_played(self):
         roms = ROM.objects.order_by('-qtd_download')[:4]
+        data = []
+
         try:
             for rom in roms:
                 categoria = Categoria_Jogo.objects.get(id=rom.categoria_id)
                 emulador = Emulador.objects.get(id=rom.emulador_id)
-                data = []
                 jogo = self.create_data(rom.id, rom.title, rom.description, emulador.nome, categoria.nome, encode_image_to_base64(rom.image))
                 data.append(jogo)
-                return data
+            return data
         except ROM.DoesNotExist:
             raise NotFound()
     
