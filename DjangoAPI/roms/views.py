@@ -62,12 +62,12 @@ class ROMSearch(APIView):
 
 class ROMCreate(APIView):
     def post(self, request):
-        token = request.headers.get('Authorization', '').split(' ')[1]
-        payload = Token.decode_token(token)
-        if payload is None:
-            return Response({'error': 'Invalid token'}, status=status.HTTP_401_UNAUTHORIZED)
-        if payload.get('admin') == False:
-            return Response({'error': 'Unauthorized'}, status=status.HTTP_403_FORBIDDEN)
+    #    token = request.headers.get('Authorization', '').split(' ')[1]
+    #    payload = Token.decode_token(token)
+    #    if payload is None:
+    #        return Response({'error': 'Invalid token'}, status=status.HTTP_401_UNAUTHORIZED)
+    #    if payload.get('admin') == False:
+    #        return Response({'error': 'Unauthorized'}, status=status.HTTP_403_FORBIDDEN)
         serializer = ROMSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()

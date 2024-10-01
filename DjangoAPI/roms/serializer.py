@@ -4,12 +4,10 @@ from .models import ROM, User, Conversa, ParticipantesCoversa, Mensagem, Postage
 
 #rom serializer
 class ROMSerializer(serializers.ModelSerializer):
-    categoria = serializers.ReadOnlyField(source='id_categoria.nome')
-    emulador = serializers.ReadOnlyField(source='id_emulador.nome')
 
     class Meta:
         model = ROM
-        fields = ['id', 'title', 'description', 'emulador', 'categoria', 'image', 'file']
+        fields = ['title', 'description', 'categoria', 'emulador', 'image', 'file']
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
