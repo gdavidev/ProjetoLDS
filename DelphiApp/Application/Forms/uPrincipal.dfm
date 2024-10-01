@@ -1,21 +1,27 @@
-object Form1: TForm1
+object formPrincipal: TformPrincipal
   Left = 0
   Top = 0
-  Caption = 'Form1'
-  ClientHeight = 441
-  ClientWidth = 624
+  Caption = 'EmuHub'
+  ClientHeight = 516
+  ClientWidth = 708
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -12
   Font.Name = 'Segoe UI'
   Font.Style = []
+  Position = poDesktopCenter
+  OnCreate = FormCreate
+  OnShow = FormShow
   TextHeight = 15
-  object Label1: TLabel
-    Left = 224
-    Top = 208
-    Width = 116
-    Height = 15
-    Caption = 'Retro Menu aae=eehe'
+  object pnlPrincipal: TPanel
+    Left = 0
+    Top = 0
+    Width = 708
+    Height = 516
+    Align = alClient
+    TabOrder = 0
+    ExplicitWidth = 706
+    ExplicitHeight = 508
   end
 end
