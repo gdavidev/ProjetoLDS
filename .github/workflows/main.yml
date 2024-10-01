@@ -27,7 +27,7 @@ jobs:
       - name: Deploy na instância Oracle
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.DEV_LIGHTSAIL_USER }}@${{ secrets.DEV_LIGHTSAIL_HOST }} << 'EOF'
-          cd /app/DjangoAPI
+          cd /home/ubuntu/app/DjangoAPI
 
           docker-compose down
 
