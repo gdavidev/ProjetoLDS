@@ -106,7 +106,7 @@ class ROMDelete(APIView):
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
 class ROMDownload(APIView):
-    def get(self, request, emuladorname, game_name):
+    def get(self, request, emulador_name, game_name):
         
         emulador = Emulador.objects.get(nome=emulador_name)
         obj = ROM.objects.get(emulador=emulador, nome=game_name)
