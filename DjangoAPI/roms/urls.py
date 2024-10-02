@@ -24,6 +24,6 @@ urlpatterns = [
     path("token/", Login.as_view(), name="token"),
     path("forgot-password/" , ForgotPassword.as_view(), name="forgot-password"),
     path("reset-password/", ResetPassword.as_view(), name="reset-password"),
-    path("protected/", ProtectedRoute.as_view(), name="protected")
+    path("protected/", ProtectedRoute.as_view(), name="protected"),
     path("emuladores/", Emuladores.as_view(), name="emuladores")
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
