@@ -110,7 +110,9 @@ class ROMDownload(APIView):
         
         emulador = Emulador.objects.get(nome=emulador_name)
         obj = ROM.objects.get(emulador_id=emulador.id, title=game_name)
-        file_path = obj.file
+        file_path = obj.file.path
+        print(file_path)
+        
         if file_path:
             try:
                 response = FileResponse(open(file_path, 'rb'), as_attachment=True)
@@ -121,6 +123,7 @@ class ROMDownload(APIView):
                 return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         else:
             return Response({'error': 'File not found'}, status=status.HTTP_400_BAD_REQUEST)
+
 
 class MostPlayed(APIView):
     def get(self, request):
