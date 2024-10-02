@@ -109,7 +109,7 @@ class ROMDownload(APIView):
     def get(self, request, emulador_name, game_name):
         
         emulador = Emulador.objects.get(nome=emulador_name)
-        obj = ROM.objects.get(emulador=emulador, nome=game_name)
+        obj = ROM.objects.get(emulador_id=emulador.id, title=game_name)
         file_path = obj.file
         if file_path:
             try:
