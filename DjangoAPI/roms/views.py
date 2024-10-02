@@ -19,7 +19,7 @@ from datetime import datetime, timedelta
 from .Classes.Roms import Roms
 from .Classes.Auth import Auth
 from .Classes.token import Token
-from .models import ROM, User
+from .models import ROM, User, Emulador, Categoria_Jogo
 from .serializer import ROMSerializer, UserSerializer
 
 import base64
