@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from rest_framework import generics
-from django.http import HttpResponse, FileResponse, Http404, JsonResponse, Http500
+from django.http import HttpResponse, FileResponse, Http404, JsonResponse
 from rest_framework.response import Response
 from rest_framework.exceptions import NotFound
 from django.conf import settings
