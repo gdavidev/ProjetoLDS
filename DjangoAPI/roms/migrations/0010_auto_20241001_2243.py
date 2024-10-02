@@ -18,7 +18,7 @@ def add_emuladores(apps, schema_editor):
     ]
 
     for emulador in emuladores:
-        emulador_Jogo.objects.create(nome=emulador)
+        Emulador.objects.create(nome=emulador)
 
 class Migration(migrations.Migration):
 
