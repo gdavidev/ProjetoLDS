@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from rest_framework import generics
-from django.http import HttpResponse, FileResponse, Http404, JsonResponse
+from django.http import HttpResponse, FileResponse, Http404, JsonResponse, Http500
 from rest_framework.response import Response
 from rest_framework.exceptions import NotFound
 from django.conf import settings
@@ -117,13 +117,10 @@ class ROMDownload(APIView):
                 obj.qtd_download += 1
                 obj.save()
                 return response
-            except FileNotFoundError:
-                raise Http404("Arquivo não encontrado.")
             except Exception as e:
-                logger.error(f"Erro no download do jogo: {e}")
-                raise Http500("Erro interno no servidor.")
+                return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         else:
-            raise Http404("Nenhum arquivo vinculado com o jogo.")
+            return Response({'error': 'File not found'}, status=status.HTTP_400_BAD_REQUEST)
 
 class MostPlayed(APIView):
     def get(self, request):
