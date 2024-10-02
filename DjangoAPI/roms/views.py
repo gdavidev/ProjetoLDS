@@ -20,7 +20,7 @@ from .Classes.Roms import Roms
 from .Classes.Auth import Auth
 from .Classes.token import Token
 from .models import ROM, User, Emulador, Categoria_Jogo
-from .serializer import ROMSerializer, UserSerializer, EmuladorSerializer, Categoria_Jogo
+from .serializer import ROMSerializer, UserSerializer, EmuladorSerializer, CategoriaJogoSerializer
 
 import base64
 import logging
@@ -287,5 +287,6 @@ class Emuladores(APIView):
 class Categorias(APIView):
     def get(self, request):
         categorias = Categoria_Jogo.objects.all()
-        serializer = Categoria_Jogo(categorias, many=True)
+        print(categorias)
+        serializer = CategoriaJogoSerializer(categorias, many=True)
         return Response(serializer.data)
