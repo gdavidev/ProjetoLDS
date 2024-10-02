@@ -15,7 +15,7 @@ def add_emuladores(apps, schema_editor):
         {'emulador': 'ps2', 'console': 'PlayStation 2'},
         {'emulador': 'dc', 'console': 'Dreamcast'},
         {'emulador': 'md', 'console': 'Sega Mega Drive'},
-    ]'
+    ]
 
     for emulador in emuladores:
         emulador_Jogo.objects.create(nome=emulador)
