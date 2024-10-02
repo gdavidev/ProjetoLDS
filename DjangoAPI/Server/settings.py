@@ -53,6 +53,8 @@ INSTALLED_APPS = [
     "roms"
 ]
 
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '52.45.165.140']
+
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
