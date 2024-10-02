@@ -3,18 +3,18 @@ from django.db import migrations
 def add_emuladores(apps, schema_editor):
     Emulador = apps.get_model('roms', 'Emulador')
     emuladores = [
-        {'emulador': 'snes', 'console': 'Super Nintendo'},
-        {'emulador': 'nes', 'console': 'Nintendo Entertainment System'},
-        {'emulador': 'gb', 'console': 'Game Boy'},
-        {'emulador': 'gbc', 'console': 'Game Boy Color'},
-        {'emulador': 'gba', 'console': 'Game Boy Advance'},
-        {'emulador': 'n64', 'console': 'Nintendo 64'},
-        {'emulador': 'ds', 'console': 'Nintendo DS'},
-        {'emauldor': 'gc', 'console': 'GameCube'},
-        {'emulador': 'ps1', 'console': 'PlayStation'},
-        {'emulador': 'ps2', 'console': 'PlayStation 2'},
-        {'emulador': 'dc', 'console': 'Dreamcast'},
-        {'emulador': 'md', 'console': 'Sega Mega Drive'},
+        {'nome': 'snes', 'console': 'Super Nintendo'},
+        {'nome': 'nes', 'console': 'Nintendo Entertainment System'},
+        {'nome': 'gb', 'console': 'Game Boy'},
+        {'nome': 'gbc', 'console': 'Game Boy Color'},
+        {'nome': 'gba', 'console': 'Game Boy Advance'},
+        {'nome': 'n64', 'console': 'Nintendo 64'},
+        {'nome': 'ds', 'console': 'Nintendo DS'},
+        {'nome': 'gc', 'console': 'GameCube'},
+        {'nome': 'ps1', 'console': 'PlayStation'},
+        {'nome': 'ps2', 'console': 'PlayStation 2'},
+        {'nome': 'dc', 'console': 'Dreamcast'},
+        {'nome': 'md', 'console': 'Sega Mega Drive'},
     ]
 
     for emulador in emuladores:
