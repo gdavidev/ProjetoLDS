@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import ROMDelete, ROMCreate, ROMListView, ROMUpdate, ROMDownload, UserRegister, UserViewWishlist, UserAddWishlist, UserDelete, UserListView, UserRemoveWishlist, UserUpdate, RefreshToken, Login, MostPlayed ,ROMDetailView, UserDetailView, ROMSearch, ForgotPassword, ResetPassword, ProtectedRoute, Emuladores
+from .views import ROMDelete, ROMCreate, ROMListView, ROMUpdate, ROMDownload, UserRegister, UserViewWishlist, UserAddWishlist, UserDelete, UserListView, UserRemoveWishlist, UserUpdate, RefreshToken, Login, MostPlayed ,ROMDetailView, UserDetailView, ROMSearch, ForgotPassword, ResetPassword, ProtectedRoute, Emuladores, Categorias
 from django.conf.urls.static import static
 from django.conf import settings
 
@@ -25,5 +25,6 @@ urlpatterns = [
     path("forgot-password/" , ForgotPassword.as_view(), name="forgot-password"),
     path("reset-password/", ResetPassword.as_view(), name="reset-password"),
     path("protected/", ProtectedRoute.as_view(), name="protected"),
-    path("emuladores/", Emuladores.as_view(), name="emuladores")
+    path("emuladores/", Emuladores.as_view(), name="emuladores"),
+    path("categorias/", Categorias.as_view(), name="categorias")
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import ROM, User, Conversa, ParticipantesCoversa, Mensagem, Postagem, Topico, Emulador
+from .models import ROM, User, Conversa, ParticipantesCoversa, Mensagem, Postagem, Topico, Emulador, Categoria_Jogo
 
 
 #rom serializer
@@ -40,7 +40,12 @@ class UserSerializer(serializers.ModelSerializer):
 class EmuladorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Emulador
-        fields = ['nome', 'console']
+        fields = ['id', 'nome', 'console']
+
+class CategoriaJogoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Categoria_Jogo
+        fields = ['id', 'nome']
 
 #gerencia criacao e listagem de mensagens
 class MensagemSerializer(serializers.ModelSerializer):

@@ -20,7 +20,7 @@ from .Classes.Roms import Roms
 from .Classes.Auth import Auth
 from .Classes.token import Token
 from .models import ROM, User, Emulador, Categoria_Jogo
-from .serializer import ROMSerializer, UserSerializer, EmuladorSerializer
+from .serializer import ROMSerializer, UserSerializer, EmuladorSerializer, Categoria_Jogo
 
 import base64
 import logging
@@ -276,8 +276,16 @@ class ProtectedRoute(APIView):
         response = Auth.protected_route(token)
         return response
 
+
+#emuladores e categorias
 class Emuladores(APIView):
     def get(self, request):
         emuladores = Emulador.objects.all()
         serializer = EmuladorSerializer(emuladores, many=True)
+        return Response(serializer.data)
+
+class Categorias(APIView):
+    def get(self, request):
+        categorias = Categoria_Jogo.objects.all()
+        serializer = Categoria_Jogo(categorias, many=True)
         return Response(serializer.data)
