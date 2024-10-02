@@ -37,6 +37,11 @@ class UserSerializer(serializers.ModelSerializer):
         user.save()
         return user
 
+class EmuladorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Emulador
+        fields = ['nome', 'console']
+
 #gerencia criacao e listagem de mensagens
 class MensagemSerializer(serializers.ModelSerializer):
     id_user = serializers.ReadOnlyField(source='id_user.username')
