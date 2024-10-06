@@ -51,7 +51,7 @@ class Auth:
     def send_ForgotPassword_email(self, email):
         try:
             user = User.objects.get(email=email)
-            if user:
+            try:
                 token = self.Token.create_token(user.id, datetime.utcnow() + timedelta(minutes=15))
                 reset_link = f"{settings.FRONTEND_URL}/reset-password?token={token}"
                 subject = "Reset your password"
@@ -70,8 +70,8 @@ class Auth:
                 smtp_server.quit()
 
                 return Response({'message': 'Password reset email sent successfully'})
-            else:
-                return Response({'error': 'User not found'}, status=status.HTTP_400_BAD_REQUEST)
+            except Exception as e:
+                return Response({'error': str(e)}, status=status.HTTP_500_BAD_REQUEST)
         except User.DoesNotExist:
             return Response({'error': 'User not found'}, status=status.HTTP_400_BAD_REQUEST)
 
