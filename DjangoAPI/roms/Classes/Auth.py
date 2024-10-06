@@ -49,30 +49,31 @@ class Auth:
             return Response({'error': 'Invalid refresh token'}, status=status.HTTP_401_UNAUTHORIZED)
 
     def send_ForgotPassword_email(self, email):
-        user = User.objects.get(email=email)
-        if not user:
-            return Response({'error': 'User not found'}, status=status.HTTP_400_BAD_REQUEST)
         try:
-            token = self.Token.create_token(user.id, datetime.utcnow() + timedelta(minutes=15))
-            reset_link = f"{settings.FRONTEND_URL}/reset-password?token={token}"
-            subject = "Reset your password"
-            message = f'Olá,<br><br>Clique no link abaixo para alterar a senha:<br><br><a href="{reset_link}"">Clique aqui</a>'
-            
-            msg = MIMEMultipart()
-            msg['From'] = settings.EMAIL_HOST_USER
-            msg['To'] = email
-            msg['Subject'] = subject
-            msg.attach(MIMEText(message, 'html'))
+            user = User.objects.get(email=email)
+            if user:
+                token = self.Token.create_token(user.id, datetime.utcnow() + timedelta(minutes=15))
+                reset_link = f"{settings.FRONTEND_URL}/reset-password?token={token}"
+                subject = "Reset your password"
+                message = f'Olá,<br><br>Clique no link abaixo para alterar a senha:<br><br><a href="{reset_link}"">Clique aqui</a>'
+                
+                msg = MIMEMultipart()
+                msg['From'] = settings.EMAIL_HOST_USER
+                msg['To'] = email
+                msg['Subject'] = subject
+                msg.attach(MIMEText(message, 'html'))
 
-            smtp_server = smtplib.SMTP(settings.EMAIL_HOST, settings.EMAIL_PORT)
-            smtp_server.starttls()
-            smtp_server.login(settings.EMAIL_HOST_USER, settings.EMAIL_HOST_PASSWORD)
-            smtp_server.sendmail(settings.EMAIL_HOST_USER, email, msg.as_string())
-            smtp_server.quit()
-            
-            return Response({'message': 'Password reset email sent successfully'})
-        except Exception as e:
-            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                smtp_server = smtplib.SMTP(settings.EMAIL_HOST, settings.EMAIL_PORT)
+                smtp_server.starttls()
+                smtp_server.login(settings.EMAIL_HOST_USER, settings.EMAIL_HOST_PASSWORD)
+                smtp_server.sendmail(settings.EMAIL_HOST_USER, email, msg.as_string())
+                smtp_server.quit()
+
+                return Response({'message': 'Password reset email sent successfully'})
+            else:
+                return Response({'error': 'User not found'}, status=status.HTTP_400_BAD_REQUEST)
+        except User.DoesNotExist:
+            return Response({'error': 'User not found'}, status=status.HTTP_400_BAD_REQUEST)
 
     def reset_password(self, token, password):
         try:
