@@ -50,10 +50,10 @@ class Auth:
 
     def send_ForgotPassword_email(self, email):
         try:
+            print(email)
             user = User.objects.get(email=email)
         except User.DoesNotExist:
             return Response({'error': 'User not found'}, status=status.HTTP_400_BAD_REQUEST)
-
         try:
             token = self.Token.create_token(user.id, datetime.utcnow() + timedelta(minutes=15))
 

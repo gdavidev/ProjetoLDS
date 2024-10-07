@@ -260,6 +260,7 @@ class RefreshToken(APIView):
 class ForgotPassword(APIView):
     def post(self, request):
         email = request.data.get('email')
+        print(email)
         response = Auth.send_ForgotPassword_email('email')
         return response
 
