@@ -215,7 +215,7 @@ class UserAddWishlist(APIView):
     def post(self, request):
         token = request.headers.get('Authorization').split(' ')[1]
         rom_id = request.data.get('rom_id')
-        response = Wishlist.add_wishlist(rom_id, token)
+        response = Wishlist.add_to_wishlist(rom_id, token)
         return response
 
 class UserRemoveWishlist(APIView):
