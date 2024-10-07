@@ -141,8 +141,7 @@ class UserListView(APIView):
             return Response({'error': 'Invalid token'}, status=status.HTTP_401_UNAUTHORIZED)
         if payload['admin']:
             users = User.objects.all()
-            serializer = UserSerializer(users, many=T__str__(self):
-        return f"{self.name} - {self.description} - {self.price} - {self.image}"rue)
+            serializer = UserSerializer(users, many=True)
             return Response(serializer.data)
         else:
             return Response({'error': 'Acesso negado'}, status=status.HTTP_403_FORBIDDEN)
