@@ -10,11 +10,17 @@ import { MainContext, MainContextProps } from "@shared/context/MainContextProvid
 import CurrentUser from "@models/User";
 import { IonIcon } from "@ionic/react";
 import { caretDown, person } from "ionicons/icons";
-import logo from '/icons/logo.png'
+import logo from '/icons/logo.png';
 
 export default function Header() {
   const mainContext: MainContextProps = useContext(MainContext)
-  const [ currentUser, setCurrentUser ] = useState<CurrentUser | undefined>(undefined);
+  const [ currentUser , setCurrentUser  ] = useState<CurrentUser | undefined>(undefined);
+  const [ downloadLink, setDownloadLink ] = useState<string>('https://github.com/gdavidev/ProjetoLDS/raw/refs/heads/main/DelphiApp/Instalador/Win32/Debug/EmuHubInstaller.exe');
+
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'development') // Link para o download da nightly
+      setDownloadLink('https://github.com/gdavidev/ProjetoLDS/raw/refs/heads/sprint_1/DelphiApp/Instalador/Win32/Debug/EmuHubInstaller.exe')
+  }, []);
 
   useEffect(() => {
     if (mainContext.currentUser)
@@ -30,9 +36,10 @@ export default function Header() {
           <img src={ logo } className="w-40 h-12 sm:visible invisible" alt="logo" />
         </Link>        
         <SearchBar className="fixed flex inset-x-1/2 w-60 -translate-x-1/2" />        
-        <div className="flex gap-x-2">
-          <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" target="_blank"
-             className="btn-r-full bg-white hover:bg-slate-300 text-primary">Download App</a>
+        <div className="flex gap-x-2">          
+          <a href={ downloadLink } className="btn-r-full bg-white hover:bg-slate-300 text-primary">
+             Download App
+          </a>
           { 
             currentUser && currentUser.isAuth() ?
               <LoggedUserDropdown user={ currentUser } /> :
