@@ -25,7 +25,7 @@ class Roms():
         for rom in roms:
             categoria = Categoria_Jogo.objects.get(id=rom.categoria_id)
             emulador = Emulador.objects.get(id=rom.emulador_id)
-            jogo = self.create_data(rom.id, rom.title, rom.description, rom.emulador_id, rom.categoria_id, self.encode_image_to_base64(rom.image))
+            jogo = self.create_data(rom.id, rom.title, rom.description, rom.emulador_id, rom.categoria_id, self.encode_image_to_base64(rom.image), rom.file)
             data.append(jogo)
         print(data)
         return data
@@ -35,7 +35,7 @@ class Roms():
             rom = ROM.objects.get(id=rom_id)
             categoria = Categoria_Jogo.objects.get(id=rom.categoria_id)
             emulador = Emulador.objects.get(id=rom.emulador_id)
-            data = self.create_data(rom.id, rom.title, rom.description, rom.emulador_id, rom.categoria_id, self.encode_image_to_base64(rom.image))
+            data = self.create_data(rom.id, rom.title, rom.description, rom.emulador_id, rom.categoria_id, self.encode_image_to_base64(rom.image), rom.file)
             return data
         except ROM.DoesNotExist:
             raise NotFound()
@@ -49,13 +49,13 @@ class Roms():
             for rom in roms:
                 categoria = Categoria_Jogo.objects.get(id=rom.categoria_id)
                 emulador = Emulador.objects.get(id=rom.emulador_id)
-                jogo = self.create_data(rom.id, rom.title, rom.description, rom.emulador_id, rom.categoria_id, self.encode_image_to_base64(rom.image))
+                jogo = self.create_data(rom.id, rom.title, rom.description, rom.emulador_id, rom.categoria_id, self.encode_image_to_base64(rom.image), rom.file)
                 data.append(jogo)
             return data
         except ROM.DoesNotExist:
             raise NotFound()
     
-    def create_data(self, id_rom, title, description, emulador, categoria, image_base64):
+    def create_data(self, id_rom, title, description, emulador, categoria, image_base64, file):
         rom = {
             'id': id_rom,
             'title': title,
@@ -63,5 +63,6 @@ class Roms():
             'emulador': emulador,
             'categoria': categoria,
             'image_base64': image_base64,
+            'file': file,
         }
         return rom

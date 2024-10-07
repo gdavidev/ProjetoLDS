@@ -110,4 +110,11 @@ class Auth:
         except jwt.ExpiredSignatureError:
             return Response({'error': 'Token expired'}, status=status.HTTP_401_UNAUTHORIZED)
         except jwt.InvalidTokenError:
-            return Response({'error': 'Invalid token'}, status=status.HTTP_401_UNAUTHORIZED)
+            return Response({'error': 'Invalid token'}, status=status.HTTP_401_UNAUTHORIZED)try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        email: str = payload.get("sub")
+        if email is None:
+            raise credentials_exception
+        token_data = TokenData(email=email)
+    except JWTError:
+        raise credentials_exception
