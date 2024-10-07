@@ -34,7 +34,7 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_USE_TLS = True
 EMAIL_PORT = 587
 EMAIL_HOST_USER = 'autenticacao.emuhub@gmail.com'
-EMAIL_HOST_PASSWORD = 'emuhub123'
+EMAIL_HOST_PASSWORD = 'ppbw veft derj pluu'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
