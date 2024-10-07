@@ -72,8 +72,8 @@ class ROMCreate(APIView):
     #        return Response({'error': 'Unauthorized'}, status=status.HTTP_403_FORBIDDEN)
         serializer = ROMSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()__str__(self):
-        return f"{self.name} - {self.description} - {self.price} - {self.image}"
+            serializer.save()
+        return Response(serializer.data)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
