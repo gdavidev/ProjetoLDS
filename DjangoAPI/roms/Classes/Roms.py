@@ -25,7 +25,7 @@ class Roms():
         for rom in roms:
             categoria = Categoria_Jogo.objects.get(id=rom.categoria_id)
             emulador = Emulador.objects.get(id=rom.emulador_id)
-            jogo = self.create_data(rom.id, rom.title, rom.description, emulador.nome, categoria.nome, self.encode_image_to_base64(rom.image))
+            jogo = self.create_data(rom.id, rom.title, rom.description, rom.emulador_id, rom.categoria_id, self.encode_image_to_base64(rom.image))
             data.append(jogo)
         print(data)
         return data
@@ -35,7 +35,7 @@ class Roms():
             rom = ROM.objects.get(id=rom_id)
             categoria = Categoria_Jogo.objects.get(id=rom.categoria_id)
             emulador = Emulador.objects.get(id=rom.emulador_id)
-            data = self.create_data(rom.id, rom.title, rom.description, emulador.nome, categoria.nome, self.encode_image_to_base64(rom.image))
+            data = self.create_data(rom.id, rom.title, rom.description, rom.emulador_id, rom.categoria_id, self.encode_image_to_base64(rom.image))
             return data
         except ROM.DoesNotExist:
             raise NotFound()
@@ -49,7 +49,7 @@ class Roms():
             for rom in roms:
                 categoria = Categoria_Jogo.objects.get(id=rom.categoria_id)
                 emulador = Emulador.objects.get(id=rom.emulador_id)
-                jogo = self.create_data(rom.id, rom.title, rom.description, emulador.nome, categoria.nome, self.encode_image_to_base64(rom.image))
+                jogo = self.create_data(rom.id, rom.title, rom.description, rom.emulador_id, rom.categoria_id, self.encode_image_to_base64(rom.image))
                 data.append(jogo)
             return data
         except ROM.DoesNotExist:
