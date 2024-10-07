@@ -16,6 +16,7 @@ import base64
 import jwt
 from datetime import datetime, timedelta
 
+from .Classes.wishlist import Wishlist
 from .Classes.Roms import Roms
 from .Classes.Auth import Auth
 from .Classes.token import Token
@@ -40,6 +41,7 @@ logger = logging.getLogger(__name__)
 Auth = Auth()
 Token = Token()
 Roms = Roms()
+Wishlist = Wishlist()
 
 class ROMListView(APIView):
     def get(self, request):
@@ -70,7 +72,8 @@ class ROMCreate(APIView):
     #        return Response({'error': 'Unauthorized'}, status=status.HTTP_403_FORBIDDEN)
         serializer = ROMSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()
+            serializer.save()__str__(self):
+        return f"{self.name} - {self.description} - {self.price} - {self.image}"
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -139,7 +142,8 @@ class UserListView(APIView):
             return Response({'error': 'Invalid token'}, status=status.HTTP_401_UNAUTHORIZED)
         if payload['admin']:
             users = User.objects.all()
-            serializer = UserSerializer(users, many=True)
+            serializer = UserSerializer(users, many=T__str__(self):
+        return f"{self.name} - {self.description} - {self.price} - {self.image}"rue)
             return Response(serializer.data)
         else:
             return Response({'error': 'Acesso negado'}, status=status.HTTP_403_FORBIDDEN)
@@ -212,35 +216,16 @@ class UserViewWishlist(APIView):
 class UserAddWishlist(APIView):
     def post(self, request):
         token = request.headers.get('Authorization').split(' ')[1]
-        payload = Token.decode_token(token)
-        if payload is None:
-            return Response({'error': 'Invalid token'}, status=status.HTTP_401_UNAUTHORIZED)
-
-        user_id = payload['user_id']
         rom_id = request.data.get('rom_id')
-
-        user = User.objects.get(id=user_id)
-        rom = ROM.objects.get(id=rom_id)
-
-        user.wishlist.add(rom)
-        serializer = UserSerializer(user)
-        return Response(serializer.data)
+        response = Wishlist.add_wishlist(rom_id, token)
+        return response
 
 class UserRemoveWishlist(APIView):
     def delete(self, request):
         token = request.headers.get('Authorization').split(' ')[1]
-        payload = Token.decode_token(token)
-
-        if payload is None:
-            return Response({'error': 'Invalid token'}, status=status.HTTP_401_UNAUTHORIZED)
-
-        user_id = payload['user_id']
-        user = User.objects.get(id=user_id)
         rom_id = request.data.get('rom_id')
-        rom = ROM.objects.get(id=rom_id)
-        user.wishlist.remove(rom)
-        serializer = UserSerializer(user)
-        return Response(serializer.data)
+        response = Wishlist.remove_wishlist(rom_id, token)
+        return response
 
 #autenticacao
 class Login(APIView):

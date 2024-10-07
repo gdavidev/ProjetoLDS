@@ -116,5 +116,5 @@ class Auth:
         if email is None:
             raise credentials_exception
         token_data = TokenData(email=email)
-    except JWTError:
-        raise credentials_exception
+        except JWTError:
+           raise credentials_exception
