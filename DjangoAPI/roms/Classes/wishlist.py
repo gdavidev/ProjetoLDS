@@ -6,6 +6,7 @@ from ..serializer import UserSerializer
 
 class Wishlist():
     def __init__(self):
+        pass
 
     def add_to_wishlist(self, rom_id, token):
         payload = Token.decode_token(token)
