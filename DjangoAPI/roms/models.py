@@ -30,6 +30,7 @@ class ROM(models.Model):
     description = models.TextField()
     categoria = models.ForeignKey('Categoria_Jogo', on_delete=models.CASCADE)
     emulador = models.ForeignKey('Emulador', on_delete=models.CASCADE)
+    empresa = models.CharField(max_length=40)
     image = models.ImageField(upload_to='img/' , blank=True, null=True)
     file = models.FileField(upload_to='roms/', blank=True, null=True)
     qtd_download = models.IntegerField(default=0)

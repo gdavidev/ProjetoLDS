@@ -24,7 +24,7 @@ class Roms():
         for rom in roms:
             categoria = Categoria_Jogo.objects.get(id=rom.categoria_id)
             emulador = Emulador.objects.get(id=rom.emulador_id)
-            jogo = self.create_data(rom.id, rom.title, rom.description, rom.emulador_id, rom.categoria_id, self.encode_image_to_base64(rom.image), rom.file)
+            jogo = self.create_data(rom.id, rom.title, rom.description, rom.emulador_id, rom.categoria_id, self.encode_image_to_base64(rom.image), rom.file, rom.empresa)
             data.append(jogo)
         print(data)
         return data
@@ -34,7 +34,7 @@ class Roms():
             rom = ROM.objects.get(id=rom_id)
             categoria = Categoria_Jogo.objects.get(id=rom.categoria_id)
             emulador = Emulador.objects.get(id=rom.emulador_id)
-            data = self.create_data(rom.id, rom.title, rom.description, rom.emulador_id, rom.categoria_id, self.encode_image_to_base64(rom.image), rom.file)
+            data = self.create_data(rom.id, rom.title, rom.description, rom.emulador_id, rom.categoria_id, self.encode_image_to_base64(rom.image), rom.file, rom.empresa)
             return data
         except ROM.DoesNotExist:
             raise NotFound()
@@ -48,20 +48,20 @@ class Roms():
             for rom in roms:
                 categoria = Categoria_Jogo.objects.get(id=rom.categoria_id)
                 emulador = Emulador.objects.get(id=rom.emulador_id)
-                jogo = self.create_data(rom.id, rom.title, rom.description, rom.emulador_id, rom.categoria_id, self.encode_image_to_base64(rom.image), rom.file)
+                jogo = self.create_data(rom.id, rom.title, rom.description, rom.emulador_id, rom.categoria_id, self.encode_image_to_base64(rom.image), rom.file, rom.empresa)
                 data.append(jogo)
             return data
         except ROM.DoesNotExist:
             raise NotFound()
     
-    def create_data(self, id_rom, title, description, emulador, categoria, image_base64, file):
-        file_split = str(file).split("/")[2]
+    def create_data(self, id_rom, title, description, emulador, categoria, image_base64, file, empresa):
         rom = {
             'id': id_rom,
             'title': title,
             'description': description,
             'emulador': emulador,
             'categoria': categoria,
+            'empresa': empresa,
             'image_base64': image_base64,
             'file': file,
         }

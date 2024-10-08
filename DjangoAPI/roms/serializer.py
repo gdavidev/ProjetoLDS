@@ -7,7 +7,7 @@ class ROMSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ROM
-        fields = ['title', 'description', 'categoria', 'emulador', 'image', 'file']
+        fields = ['title', 'description', 'categoria', 'emulador', 'empresa', 'image', 'file']
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
