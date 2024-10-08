@@ -56,6 +56,7 @@ class Roms():
     
     def create_data(self, id_rom, title, description, emulador, categoria, image_base64, file, empresa):
         file = file.path
+        file_name = os.path.basename(file)
 
         rom = {
             'id': id_rom,
@@ -65,6 +66,6 @@ class Roms():
             'categoria': categoria,
             'empresa': empresa,
             'image_base64': image_base64,
-            'file': file,
+            'file': file_name,
         }
         return rom
