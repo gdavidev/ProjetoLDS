@@ -89,7 +89,7 @@ class Auth:
             else:
                 user_id = payload['user_id']
                 user = User.objects.get(id=user_id)
-                user.password = password
+                user.set_password(password)
                 user.save()
                 return Response({'message': 'Password reset successfully'})
         except jwt.ExpiredSignatureError:
