@@ -59,11 +59,9 @@ class Auth:
 
             reset_link = f"{settings.FRONTEND_URL}/reset-password?token={token}"
             subject = "Reset your password"
-            message = f"""
-            Olá,<br><br>
+            message = f'Olá,<br><br>
             Clique no link abaixo para alterar a senha:<br><br>
-            <a href="{reset_link}">Clique aqui</a>
-            """
+            <a href="http://localhost:5173/reset-password?token={token}">Clique aqui</a>'
 
             msg = MIMEMultipart()
             msg['From'] = settings.EMAIL_HOST_USER
