@@ -108,10 +108,10 @@ class ROMDelete(APIView):
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
 class ROMDownload(APIView):
-    def get(self, request, emulador_name, game_name):
+    def get(self, request, empresa, emulador_name, game_name):
         
         emulador = Emulador.objects.get(nome=emulador_name)
-        obj = ROM.objects.get(emulador_id=emulador.id, title=game_name)
+        obj = ROM.objects.get(emulador_id=emulador.id, title=game_name, empresa=empresa)
         file_path = obj.file.path
         print(file_path)
         
@@ -125,7 +125,6 @@ class ROMDownload(APIView):
                 return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         else:
             return Response({'error': 'File not found'}, status=status.HTTP_400_BAD_REQUEST)
-
 
 class MostPlayed(APIView):
     def get(self, request):
