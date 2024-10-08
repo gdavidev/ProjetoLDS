@@ -16,4 +16,10 @@ class Migration(migrations.Migration):
             field=models.CharField(default=1, max_length=125),
             preserve_default=False,
         ),
+        migrations.AddField(
+            model_name="emulador",
+            name="empresa",
+            field=models.CharField(default=1, max_length=40),
+            preserve_default=False,
+        ),
     ]

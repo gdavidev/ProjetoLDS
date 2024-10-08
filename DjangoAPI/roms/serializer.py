@@ -7,7 +7,7 @@ class ROMSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ROM
-        fields = ['title', 'description', 'categoria', 'emulador', 'empresa', 'image', 'file']
+        fields = ['title', 'description', 'categoria', 'emulador', 'image', 'file']
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -40,7 +40,7 @@ class UserSerializer(serializers.ModelSerializer):
 class EmuladorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Emulador
-        fields = ['id', 'nome', 'console']
+        fields = ['id', 'nome', 'console', 'empresa']
 
 class CategoriaJogoSerializer(serializers.ModelSerializer):
     class Meta:
