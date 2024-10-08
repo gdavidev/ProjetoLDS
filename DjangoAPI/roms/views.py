@@ -110,8 +110,8 @@ class ROMDelete(APIView):
 class ROMDownload(APIView):
     def get(self, request, empresa, emulador_name, game_name):
         
-        emulador = Emulador.objects.get(nome=emulador_name)
-        obj = ROM.objects.get(emulador_id=emulador.id, title=game_name, empresa=empresa)
+        emulador = Emulador.objects.get(nome=emulador_name, empresa=empresa)
+        obj = ROM.objects.get(emulador_id=emulador.id, title=game_name)
         file_path = obj.file.path
         print(file_path)
         
