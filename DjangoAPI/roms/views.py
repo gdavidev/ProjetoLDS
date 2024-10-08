@@ -70,6 +70,7 @@ class ROMCreate(APIView):
     #        return Response({'error': 'Invalid token'}, status=status.HTTP_401_UNAUTHORIZED)
     #    if payload.get('admin') == False:
     #        return Response({'error': 'Unauthorized'}, status=status.HTTP_403_FORBIDDEN)
+        print(request.data)
         serializer = ROMSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
