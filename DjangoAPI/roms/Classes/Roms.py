@@ -3,6 +3,7 @@ from django.core.files.storage import default_storage
 from django.http import JsonResponse, Http404
 from django.core.exceptions import ObjectDoesNotExist
 from ..serializer import ROMSerializer
+import os
 import base64
 import asyncio
 
