@@ -55,6 +55,8 @@ class Roms():
             raise NotFound()
     
     def create_data(self, id_rom, title, description, emulador, categoria, image_base64, file, empresa):
+        file = file.path
+
         rom = {
             'id': id_rom,
             'title': title,
