@@ -16,7 +16,6 @@ class Roms():
             with image.open('rb') as img_file:
                 return base64.b64encode(img_file.read()).decode('utf-8')
         except Exception as e:
-            logger.error(f"Error encoding image: {e}")
             return None
 
     def get_roms(self):
@@ -27,7 +26,6 @@ class Roms():
             emulador = Emulador.objects.get(id=rom.emulador_id)
             jogo = self.create_data(rom.id, rom.title, rom.description, rom.emulador_id, rom.categoria_id, self.encode_image_to_base64(rom.image), rom.file, emulador.empresa)
             data.append(jogo)
-        print(data)
         return data
 
     def rom_detail(self, id_rom):

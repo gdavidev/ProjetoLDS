@@ -1,0 +1,6 @@
+services:
+  front: 
+    build:
+      context: .
+    ports:
+      - "5173:80"

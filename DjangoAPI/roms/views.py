@@ -46,7 +46,6 @@ Wishlist = Wishlist()
 class ROMListView(APIView):
     def get(self, request):
         data = Roms.get_roms()
-        print(data)
         return JsonResponse(data, safe=False)
 
 class ROMDetailView(APIView):
@@ -64,13 +63,12 @@ class ROMSearch(APIView):
 
 class ROMCreate(APIView):
     def post(self, request):
-    #    token = request.headers.get('Authorization', '').split(' ')[1]
-    #    payload = Token.decode_token(token)
-    #    if payload is None:
-    #        return Response({'error': 'Invalid token'}, status=status.HTTP_401_UNAUTHORIZED)
-    #    if payload.get('admin') == False:
-    #        return Response({'error': 'Unauthorized'}, status=status.HTTP_403_FORBIDDEN)
-        print(request.data)
+        token = request.headers.get('Authorization', '').split(' ')[1]
+        payload = Token.decode_token(token)
+        if payload is None:
+            return Response({'error': 'Invalid token'}, status=status.HTTP_401_UNAUTHORIZED)
+        if payload.get('admin') == False:
+            return Response({'error': 'Unauthorized'}, status=status.HTTP_403_FORBIDDEN)
         serializer = ROMSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -113,7 +111,7 @@ class ROMDownload(APIView):
         
         empresa = empresa.lower()
         emulador_name = emulador_name.lower()
-        
+
         emulador = Emulador.objects.get(nome=emulador_name, empresa=empresa)
         obj = ROM.objects.get(emulador_id=emulador.id, title=game_name)
         file_path = obj.file.path
