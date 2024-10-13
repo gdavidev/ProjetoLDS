@@ -24,7 +24,7 @@ jobs:
         run: |
           scp -r -o StrictHostKeyChecking=no ./DjangoAPI ${{ secrets.DEV_LIGHTSAIL_USER }}@${{ secrets.DEV_LIGHTSAIL_HOST }}:/home/ubuntu/app
           
-      - name: Deploy na instância Oracle
+      - name: Deploy na instância Lightsail
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.DEV_LIGHTSAIL_USER }}@${{ secrets.DEV_LIGHTSAIL_HOST }} << 'EOF'
           cd /home/ubuntu/app/DjangoAPI
