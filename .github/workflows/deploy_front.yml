@@ -15,14 +15,10 @@ jobs:
 
       - name: Setup SSH
         run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.DEV_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ls -la ~/.ssh
-          cat ~/.ssh/id_rsa
-          ssh-keyscan -H ${{ secrets.DEV_LIGHTSAIL_HOST }} >> ~/.ssh/known_hosts
-          cat ~/.ssh/known_hosts
-
+            mkdir -p ~/.ssh
+            printf "%s" "${{ secrets.DEV_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+            chmod 600 ~/.ssh/id_rsa
+            ssh-keyscan -H ${{ secrets.DEV_LIGHTSAIL_HOST }} >> ~/.ssh/known_hosts
 
       - name: Copiar a pasta DjangoAPI
         run: |
