@@ -54,7 +54,13 @@ class AuthTests(APITestCase):
         }
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertIn(response.data)
+
+    def test_refresh_token(self):
+        test_login_success()
+        url = reverse('refresh-token')
+        response = self.client.post(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn('token', response.data)
 
     def _generate_token(self):
         token = jwt.encode(
