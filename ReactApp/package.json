@@ -3,9 +3,12 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+
+
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build && tailwindcss --watch",
+    "build": "tsc -b && vite build",
+    "watch": "tailwindcss --watch",
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest",
