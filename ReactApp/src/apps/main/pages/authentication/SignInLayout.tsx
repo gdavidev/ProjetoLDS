@@ -1,12 +1,13 @@
 import { useMutation } from "react-query";
-import FormInputGroupMerge from "@shared/components/formComponents/FromGroup/FormInputGroupMerge.tsx"
-import TextInput from "@shared/components/formComponents/FromGroup/TextInput.tsx";
+import FormInputGroupMerge from "@/apps/shared/components/formComponents/FormGroup/FormInputGroupMerge.tsx"
+import TextInput from "@/apps/shared/components/formComponents/FormGroup/TextInput.tsx";
 import React, { PropsWithoutRef, RefObject, useEffect, useRef } from "react";
 import { AlertInfo, AlertType } from "./AuthPage.tsx";
 import { personOutline, mailOutline, eyeOutline } from "ionicons/icons"
 import { Link } from "react-router-dom";
 import UserApiClient from "@/api/UserApiClient.ts";
 import { UserRegisterDTO } from "@/models/UserDTOs.ts";
+import { AxiosError } from 'axios';
 
 type UserSignInData = {
   email: string,
@@ -27,28 +28,20 @@ export default function SignInLayout(props: PropsWithoutRef<SignInLayoutProps>):
   const passInput: RefObject<HTMLInputElement> = useRef<HTMLInputElement>(null)
   const confirmPassInput: RefObject<HTMLInputElement> = useRef<HTMLInputElement>(null)
   
-  const { isLoading, isError, error: mutationError, mutate } = useMutation(
-    'ADD_USER',
+  const { isLoading, mutate } = useMutation('ADD_USER',
     async (dto: UserRegisterDTO) => {
       const userApiClient: UserApiClient = new UserApiClient();
-      userApiClient.register(dto);
-    },
-    {      
-      onSuccess: () => {
-        props.onSuccess?.()
-      },
-      onError: (err) => {
-        props.onError?.({ message: JSON.stringify(err), type: AlertType.ERROR })
-      }
+      return userApiClient.register(dto);
+    }, {      
+      onSuccess: () => props.onSuccess?.(),
+      onError: (err: AxiosError | Error) => props.onError?.(handleRequestError(err))
     }    
   );
 
   useEffect(() => {
     if (isLoading)
       props.onStateChanged?.({ message: "Enviando...", type: AlertType.PROGRESS });
-    else if (isError) 
-      props.onError?.({ message: "Erro: " + mutationError, type: AlertType.ERROR });
-  }, [isLoading, isError])
+  }, [isLoading])
   
   function submitData(): void {
     const userRegisterDTO: UserRegisterDTO = {
@@ -111,4 +104,30 @@ function getErrorMessageIfNotValid(userSignInData: UserSignInData): string {
   if (userSignInData.password !== userSignInData.passwordConfirm)
     return "A senha e a confirmação são diferentes.";
   return "";
+}
+
+function handleRequestError(err: AxiosError | Error): AlertInfo {  
+  const isDebugMode: boolean = process.env.NODE_ENV === 'development'
+  
+  if (err instanceof AxiosError) {
+    switch (err.response?.status) {
+      case 400:
+        const resData: any = err.response.data;
+        if (resData["username"])
+          return { message: "Nome de usuário indisponível.", type: AlertType.ERROR };
+        if (resData["email"])
+          return { message: "Este email ja está em uso.", type: AlertType.ERROR };
+        if (isDebugMode)
+          return { message: resData.status + "Erro desconhecido.", type: AlertType.ERROR }
+        break;
+      default:
+        if (isDebugMode)
+          return { message: err.message, type: AlertType.ERROR };        
+    }
+  } else if (isDebugMode) {
+    console.log(err.stack);
+    return { message: err.name +  ": " + err.message, type: AlertType.ERROR };
+  }
+  
+  return { message: "Por favor, tente novamente mais tarde.", type: AlertType.ERROR };
 }

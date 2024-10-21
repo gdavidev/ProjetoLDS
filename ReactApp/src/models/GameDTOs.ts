@@ -1,17 +1,58 @@
+/* CREATE */
 export type GameCreateResponseDTO ={
-  id: number,
+  rom_id: number,
   title: string,
   description: string,
   emulador: string,
   image_name: string,
   file_name: string,
 }
+export type GameCreateDTO = {
+  title: string,
+  description: string,
+  emulador: number,
+  categoria: number,
+  image?: File,
+  file?: File,
+}
 
-export type GameGetDTO = {
+/* UPDATE */
+export type GameUpdateDTO = {
+  rom_id: number,
+  title: string,
+  description: string,
+  emulador: number,
+  categoria: number,
+  image?: File,
+  file?: File,
+}
+export type GameUpdateResponseDTO = {
+
+}
+
+/* DELETE */
+export type GameDeleteDTO = {
+  rom_id: number
+}
+export type GameDeleteResponseDTO = {
+
+}
+
+/* GET */
+export type GameGetDTO = {  
+  id: number,
+}
+export type GameGetResponseDTO = {
   description: string,
   id: number,
-  emulador: string,
+  emulador: number,
+  categoria: number,
   image_base64: string,
-  file_name: string,
+  file: string,
   title: string,
 }
+
+
+
+
+

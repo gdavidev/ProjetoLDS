@@ -10,6 +10,7 @@ export default function App() {
   switch (currentPath) {
     case '/sign-in':
     case '/log-in':
+    case '/reset-password':
       backgroundClass = ' bg-cover bg-login-page'
       break;    
     default:

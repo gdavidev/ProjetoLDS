@@ -3,13 +3,13 @@ import { MainContext, MainContextProps } from '@shared/context/MainContextProvid
 import BannerSwiper from '@apps/main/components/displayComponents/BannerSwiper';
 import CardSwiper from '@apps/main/components/displayComponents/CardSwiper';
 import VGameCard from '@apps/main/components/displayComponents/VGameCard';
-import { GameGetDTO } from '@models/GameDTOs';
 import GameApiClient from '@api/GameApiClient';
 import donkeyKongBanner from '@apps/main/assets/banners/donkeyKongBanner.png'
 import pokemonFireRedBanner from '@apps/main/assets/banners/pokemonFireRedBanner.jpg'
 import superMarioKartBanner from '@apps/main/assets/banners/superMarioKartBanner.webp'
 import superMarioWorldBanner from '@apps/main/assets/banners/superMarioWorldBanner.jpg'
 import { SwiperSlide } from 'swiper/react';
+import Game from '@/models/Game';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import 'swiper/css';
@@ -32,26 +32,24 @@ const bannerList: React.ReactElement[] = [
 export default function HomePage() {
   const mainContext: MainContextProps = useContext<MainContextProps>(MainContext)
   const { theme } = mainContext.tailwindConfig
-  const defaultImageURL: string = "https://placehold.co/90x120"
   const [ cardList, setCardList ] = useState<JSX.Element[]>([])
+  //const defaultImageURL: string = "https://placehold.co/90x120"
 
   useEffect(() => {
     document.documentElement.style.setProperty("--swiper-theme-color", theme.colors.white);
     fillCardSwiper()
   }, []);
 
-  async function fetchGameData(): Promise<GameGetDTO[]> {
+  async function fetchGameData(): Promise<Game[]> {
     const gameApiClient: GameApiClient = new GameApiClient()
-    return gameApiClient.getAll<GameGetDTO>()
+    return gameApiClient.getAll()
   }
   async function fillCardSwiper(): Promise<void> {
-    const gameList: GameGetDTO[] = await fetchGameData()
+    const gameList: Game[] = await fetchGameData()
     const gameCardList: JSX.Element[] =
-      gameList.map((game: GameGetDTO, index: number) => 
-        <VGameCard key={ index } name={ game.title } emulador={ game.emulador }
-          img={ game.image_base64 ? 
-            'data:image/jpeg;base64,' +  game.image_base64 :
-             defaultImageURL } />
+      gameList.map((game: Game, index: number) => 
+        <VGameCard key={ index } name={ game.name } emulador={ game.emulator?.abbreviation }
+          img={ game.thumbnail?.toDisplayable() } />
       )
     setCardList(gameCardList)
   }

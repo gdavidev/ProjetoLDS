@@ -5,7 +5,7 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { AlertInfo } from '@apps/main/pages/authentication/AuthPage';
 import userEvent from '@testing-library/user-event'
-import SignInLayout from '../pages/authentication/SignInLayout';
+import SignInLayout from '@apps/main/pages/authentication/SignInLayout';
 
 describe("SignInLayout", () => {
   const callbacks = {

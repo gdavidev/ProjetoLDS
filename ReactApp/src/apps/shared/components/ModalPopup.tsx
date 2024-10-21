@@ -11,16 +11,15 @@ export type ModalPopupProps = {
   bottomText?: string,
   className?: string,
   isOpen: boolean,
-  onClose?: () => void,
+  onCloseRequest?: () => void
 }
 
 export default function ModalPopup(props: PropsWithChildren<ModalPopupProps>) {
   return (
     <>      
-      <Modal className={ props.className } open={ props.isOpen }
-          onClose={ props.onClose } >
+      <Modal className={ props.className } open={ props.isOpen } >
         <ModalDialog>
-          <ModalClose variant="plain" sx={{ m: 1 }} />
+          <ModalClose variant="plain" sx={{ m: 1 }} onClick={ () => props.onCloseRequest?.() } />
           <DialogTitle>{ props.title || "Warning" }</DialogTitle>
           { 
             props.topText ? 

@@ -1,4 +1,4 @@
-import { createContext, Context, PropsWithChildren, useState, useEffect } from 'react'
+import { createContext, Context, PropsWithChildren, useState, useLayoutEffect } from 'react'
 import Cookies from 'js-cookie'
 import CurrentUser from '@models/User'
 import EventHandler from '@libs/EventHandler';
@@ -31,7 +31,7 @@ type UserCookie = {
 export default function MainContextProvider({ children }: PropsWithChildren) {
   const [ currentUser, setCurrentUser ] = useState<CurrentUser | undefined>(undefined);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     updateCurrentUserAndCookie(getUserFromCookieOrNull())
   }, []);
 

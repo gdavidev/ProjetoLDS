@@ -13,14 +13,9 @@ import { caretDown, person } from "ionicons/icons";
 import logo from '/icons/logo.png';
 
 export default function Header() {
+  const downloadLink: string = 'https://github.com/Denis-Saavedra/EmuHub-Desktop/raw/refs/heads/main/Instalador/Win32/Debug/EmuHubInstaller.exe'
   const mainContext: MainContextProps = useContext(MainContext)
   const [ currentUser , setCurrentUser  ] = useState<CurrentUser | undefined>(undefined);
-  const [ downloadLink, setDownloadLink ] = useState<string>('https://github.com/gdavidev/ProjetoLDS/raw/refs/heads/main/DelphiApp/Instalador/Win32/Debug/EmuHubInstaller.exe');
-
-  useEffect(() => {
-    if (process.env.NODE_ENV === 'development') // Link para o download da nightly
-      setDownloadLink('https://github.com/gdavidev/ProjetoLDS/raw/refs/heads/sprint_1/DelphiApp/Instalador/Win32/Debug/EmuHubInstaller.exe')
-  }, []);
 
   useEffect(() => {
     if (mainContext.currentUser)
@@ -66,6 +61,9 @@ const LoggedUserDropdown = (props: { user: CurrentUser }) => {
         { props.user.userName }
       </MenuButton>
       <Menu size="lg" sx={{border: 'none'}}>
+        <MenuItem sx={{padding: '0'}}>
+          <Link to="/profile" className="w-full h-full px-8 text-center">Perfil</Link>
+        </MenuItem>
         {
           // TODO add way to set an admin in the backend
           true ? //props.user.isAdmin !== undefined && props.user.isAdmin ?

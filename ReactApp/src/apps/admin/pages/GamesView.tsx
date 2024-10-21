@@ -7,7 +7,6 @@ import { add, createOutline, trashOutline, reloadOutline } from 'ionicons/icons'
 import TableDisplay from '../components/TableDisplay';
 import GameEditModal from './modal/GameEditModal';
 import GameApiClient from '@api/GameApiClient';
-import { GameGetDTO } from '@models/GameDTOs';
 import { MainContext, MainContextProps } from '@shared/context/MainContextProvider';
 import FileUtil from '@libs/FileUtil';
 import { useMutation } from 'react-query';
@@ -24,22 +23,20 @@ export default function GamesView() {
 
   function fetchGameData() {
     const gameApiClient: GameApiClient = new GameApiClient()
-    gameApiClient.getAll<GameGetDTO>()
-      .then(data => {
-        let resultGameList: Game[] = data.map(gameDTO => Game.fromGetDTO(gameDTO));
-        resultGameList.sort((prev: Game, curr: Game) => prev.id - curr.id)
-        setGameList(resultGameList);
+    gameApiClient.getAll()
+      .then(data => {        
+        data.sort((prev: Game, curr: Game) => prev.id - curr.id)
+        setGameList(data);
       });
   }
 
   const { mutate: deleteGame } = useMutation('delete-game',
-    async (gameId: number) => {
-      const gameApiClient: GameApiClient = new GameApiClient();
-      gameApiClient.setToken(mainContext.currentUser?.token!)
-      return await gameApiClient.delete(gameId);
+    async (game: Game) => {
+      const gameApiClient: GameApiClient = new GameApiClient(mainContext.currentUser?.token!);
+      return await gameApiClient.delete(game);
     },
     {
-      onSuccess: (_, gameId) => deleteGameOnGameList(gameId),
+      onSuccess: (_, game) => deleteGameOnGameList(game.id),
       onError: (err: any) => console.log("err: " + JSON.stringify(err)),
     }
   );
@@ -80,6 +77,7 @@ export default function GamesView() {
     {colName: 'Name'        , colWidth: '280px' },
     {colName: 'Description' , colWidth: '100%'  },
     {colName: 'Emulador'    , colWidth: '160px' }, 
+    {colName: 'Categoria'   , colWidth: '90px'  },
     {colName: ''            , colWidth: '120px' }
   ]
 
@@ -109,14 +107,15 @@ export default function GamesView() {
                     cellClassName='first:rounded-s-md last:rounded-e-md'
                     actions={{
                       edit: editGame, 
-                      delete: (game: Game) => deleteGame(game.id)
+                      delete: (game: Game) => deleteGame(game)
                     }} />
                 )
               })            
           }
         </TableDisplay>
       </div>
-      <GameEditModal game={ gameModalGame } isOpen={ isGameModalOpen } onClose={ () => { setIsGameModalOpen(false) } }
+      <GameEditModal game={ gameModalGame } 
+          onCloseRequest={ () => { setIsGameModalOpen(false) } } isOpen={ isGameModalOpen } 
           onChange={ gameModalGame.id === 0 ? appendGameOnGameList : updateGameOnGameList } />
     </>
   );
@@ -126,47 +125,42 @@ type GameDataTableRowProps = {
   rowClassName?: string,
   cellClassName?: string,
   game: Game,
-  actions: { 
+  actions: {
     edit: (game: Game) => void,
     delete: (game: Game) => void,
   }
 }
 
 function GameDataTableRow(props: GameDataTableRowProps): React.ReactElement {  
+  const game: Game = props.game;
+  const cellClassName: string | undefined = props.cellClassName
   let source: string
-  if (props.game.thumbnailBase64) {
-    source = 'data:image/jpeg;base64,' + props.game.thumbnailBase64
-  } else if (props.game.thumbnail) {
-    source = FileUtil.uploadedFileToURL(props.game.thumbnail);    
+  if (props.game.thumbnail?.base64) {
+    source = 'data:image/jpeg;base64,' + props.game.thumbnail?.base64
+  } else if (props.game.thumbnail?.file) {
+    source = FileUtil.uploadedFileToURL(props.game.thumbnail.file);    
   } else {
     source = "https://placehold.co/16"
   }
 
   return (
     <tr className={ props.rowClassName }>
-      <td className={ props.cellClassName }>         
-      <img className='max-w-16 min-h-16 bg-slate-600' src={ source } />
+      <td className={ cellClassName }>         
+        <img className='max-w-16 min-h-16 bg-slate-600' src={ source } />
       </td>
-      <td className={ props.cellClassName }>
-        { props.game.id   }
-      </td>
-      <td className={ props.cellClassName }>
-        { props.game.name }
-      </td>
-      <td className={ props.cellClassName }>
-        { props.game.desc }
-      </td>
-      <td className={ props.cellClassName }>
-        { props.game.emulator }
-      </td>
-      <td className={ props.cellClassName }>
+      <td className={ cellClassName }>{ game.id                     }</td>
+      <td className={ cellClassName }>{ game.name                   }</td>
+      <td className={ cellClassName }>{ game.desc                   }</td>
+      <td className={ cellClassName }>{ game.emulator?.abbreviation }</td>
+      <td className={ cellClassName }>{ game.category?.name         }</td>
+      <td className={ cellClassName }>
         <Box sx={{ display: 'flex', gap: 1 }}>
           <Button size="sm" variant="plain" 
-              onClick={ () => { props.actions.edit(props.game) } } >
+              onClick={ () => { props.actions.edit(game) } } >
             <IonIcon style={{color: '#FFFFFF'}} icon={ createOutline } />
           </Button>
           <Button size="sm" variant="plain"
-             onClick={ () => { props.actions.delete(props.game) } } >
+             onClick={ () => { props.actions.delete(game) } } >
             <IonIcon style={{color: '#FFFFFF'}} icon={ trashOutline } />
           </Button>
         </Box>

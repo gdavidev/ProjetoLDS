@@ -1,62 +1,44 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
+import Game from '@models/Game';
+import { useQuery } from 'react-query';
+import GameApiClient from '@/api/GameApiClient';
+import { IonIcon } from '@ionic/react';
+import { play } from 'ionicons/icons';
 
-interface GameViewPageProps {
-  id: number;
-  title: string;
-  description: string;
-  emulador: string;
-  image_base64: string;
+type GameViewPageParams = {
+  gameId: string
 }
 
-const GameViewPage: React.FC = () => {
-  const { gameId } = useParams<{ gameId: string }>();
-  const [game, setGame] = useState<GameViewPageProps | null>(null);
+export default  function GameViewPage() {
+  const { gameId } = useParams<GameViewPageParams>();
   const navigate = useNavigate();
-
-  const fetchGameDetails = async () => {
-    try {
-      const response = await axios.get(`http://localhost:8080/api/roms/detail/`, {
-        params: { rom_id: gameId },
-      });
-      setGame(response.data[0]);
-    } catch (error) {
-      console.error('Erro ao buscar detalhes do jogo:', error);
-    }
-  };
+    
+  const { data: game, isLoading, isError } = useQuery<Game>("GET_GAME", () => {
+    const gameApiClient: GameApiClient = new GameApiClient();
+    return gameApiClient.get(Number(gameId));
+  }); 
 
   const handlePlayGame = () => {
     navigate(`/play/${gameId}`);
   };
 
-  useEffect(() => {
-    fetchGameDetails();
-  }, [gameId]);
-
-  if (!game) {
-    return <div>Carregando...</div>;
-  }
-
   return (
     <div>
-      <h1>title : {game.title}</h1>
-      <p>description : {game.description}</p>
-      <p><strong>Emulador:</strong> {game.emulador}</p>
+      <h1>title : { game?.name }</h1>
+      <p>description : { game?.desc }</p>
+      <p><strong>Emulador:</strong> { game?.emulator.console }</p>
       
-      {game.image_base64 && (
+      { game?.thumbnail?.base64 && (
         <img
-          src={`data:image/jpeg;base64,${game.image_base64}`}
-          alt={game.title}
+          src={`data:image/jpeg;base64,${ game.thumbnail.base64 }`}
+          alt={ game.name }
           style={{ maxWidth: '100%', height: 'auto' }}
         />
       )}
 
-      <button onClick={handlePlayGame} style={{ marginRight: '10px' }}>
-        <FontAwesomeIcon icon={faPlay} /> Jogar
+      <button onClick={ handlePlayGame } style={{ marginRight: '10px' }}>
+        <IonIcon icon={ play } /> Jogar
       </button>
     </div>
   );
 };
-
-export default GameViewPage;

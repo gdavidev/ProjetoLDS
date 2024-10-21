@@ -21,5 +21,24 @@ export default class FileUtil {
 
   static uploadedFileToURL(file: File): string {
     return URL.createObjectURL(file)
-  } 
+  }
+
+  static downloadFromUrl(fileName: string, url: string) {
+    fetch(url, {
+        method: 'GET',
+        headers: { 'Content-Type': "blob" }, 
+        mode: 'no-cors',
+      })
+      .then(async (res: Response) => {
+        const blob: Blob = await res.blob()
+        const blobUrl = URL.createObjectURL(blob);
+        const anchor = document.createElement('a');
+        anchor.href = blobUrl;
+        anchor.download = fileName;
+        anchor.click();
+      })
+      .catch((rej: PromiseRejectedResult) => {
+        console.log(rej.status + ": " + rej.reason)
+      })
+  }
 }
