@@ -21,6 +21,7 @@ class User(models.Model):
 class Emulador(models.Model):
     nome = models.CharField(max_length=125)
     console = models.CharField(max_length=125)
+    empresa = models.CharField(max_length=40)
 
 class Categoria_Jogo(models.Model):
     nome = models.CharField(max_length=125)

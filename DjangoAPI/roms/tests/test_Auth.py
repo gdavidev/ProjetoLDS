@@ -7,15 +7,17 @@ import jwt
 
 class AuthTests(APITestCase):
     def setUp(self):
-        self.user = User.objects.create_user(
-            username='testuser',
+        self.user = User.objects.create(
             email='leonardolcp@live.com',
-            password='password'
+            password='123456',
+            username='Admin',
         )
+        self.user.set_password('123456') 
+        self.user.save()
 
     def test_login_success(self):
-        url = reverse('token')
-        data = {'email': 'leonardolcp@live.com', 'password': 'password'}
+        url = reverse('token') 
+        data = {'email': 'leonardolcp@live.com', 'password': '123456'}
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn('token', response.data)
@@ -35,8 +37,7 @@ class AuthTests(APITestCase):
         self.assertIn('message', response.data)
 
     def test_reset_password(self):
-        # Primeiro, você deve gerar um token válido para o usuário
-        token = self._generate_reset_token(self.user)
+        token = self._generate_token()
 
         url = reverse('reset-password')
         data = {'password': 'newpassword'}
@@ -44,9 +45,27 @@ class AuthTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn('message', response.data)
 
-    def _generate_reset_token(self, user):
+    def test_register_user(self):
+        url = reverse('user-create')
+        data = {
+            'email': 'newuser@example.com',
+            'password': '123',
+            'username': 'joao'
+        }
+        response = self.client.post(url, data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_refresh_token(self):
+        test_login_success()
+        url = reverse('refresh-token')
+        response = self.client.post(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn('token', response.data)
+
+    def _generate_token(self):
         token = jwt.encode(
-            {'user_id': user.id},
+            {'user_id': self.user.id},
             settings.SECRET_KEY,
             algorithm='HS256'
         )
+        return token

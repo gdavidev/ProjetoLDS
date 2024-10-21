@@ -16,6 +16,7 @@ import base64
 import jwt
 from datetime import datetime, timedelta
 
+from .Classes.wishlist import Wishlist
 from .Classes.Roms import Roms
 from .Classes.Auth import Auth
 from .Classes.token import Token
@@ -40,11 +41,11 @@ logger = logging.getLogger(__name__)
 Auth = Auth()
 Token = Token()
 Roms = Roms()
+Wishlist = Wishlist()
 
 class ROMListView(APIView):
     def get(self, request):
         data = Roms.get_roms()
-        print(data)
         return JsonResponse(data, safe=False)
 
 class ROMDetailView(APIView):
@@ -62,12 +63,12 @@ class ROMSearch(APIView):
 
 class ROMCreate(APIView):
     def post(self, request):
-    #    token = request.headers.get('Authorization', '').split(' ')[1]
-    #    payload = Token.decode_token(token)
-    #    if payload is None:
-    #        return Response({'error': 'Invalid token'}, status=status.HTTP_401_UNAUTHORIZED)
-    #    if payload.get('admin') == False:
-    #        return Response({'error': 'Unauthorized'}, status=status.HTTP_403_FORBIDDEN)
+        token = request.headers.get('Authorization', '').split(' ')[1]
+        payload = Token.decode_token(token)
+        if payload is None:
+            return Response({'error': 'Invalid token'}, status=status.HTTP_401_UNAUTHORIZED)
+        if payload.get('admin') == False:
+            return Response({'error': 'Unauthorized'}, status=status.HTTP_403_FORBIDDEN)
         serializer = ROMSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -106,12 +107,14 @@ class ROMDelete(APIView):
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
 class ROMDownload(APIView):
-    def get(self, request, emulador_name, game_name):
+    def get(self, request, empresa, emulador_name, game_name):
         
-        emulador = Emulador.objects.get(nome=emulador_name)
+        empresa = empresa.lower()
+        emulador_name = emulador_name.lower()
+
+        emulador = Emulador.objects.get(nome=emulador_name, empresa=empresa)
         obj = ROM.objects.get(emulador_id=emulador.id, title=game_name)
         file_path = obj.file.path
-        print(file_path)
         
         if file_path:
             try:
@@ -123,7 +126,6 @@ class ROMDownload(APIView):
                 return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         else:
             return Response({'error': 'File not found'}, status=status.HTTP_400_BAD_REQUEST)
-
 
 class MostPlayed(APIView):
     def get(self, request):
@@ -212,35 +214,16 @@ class UserViewWishlist(APIView):
 class UserAddWishlist(APIView):
     def post(self, request):
         token = request.headers.get('Authorization').split(' ')[1]
-        payload = Token.decode_token(token)
-        if payload is None:
-            return Response({'error': 'Invalid token'}, status=status.HTTP_401_UNAUTHORIZED)
-
-        user_id = payload['user_id']
         rom_id = request.data.get('rom_id')
-
-        user = User.objects.get(id=user_id)
-        rom = ROM.objects.get(id=rom_id)
-
-        user.wishlist.add(rom)
-        serializer = UserSerializer(user)
-        return Response(serializer.data)
+        response = Wishlist.add_to_wishlist(rom_id, token)
+        return response
 
 class UserRemoveWishlist(APIView):
     def delete(self, request):
         token = request.headers.get('Authorization').split(' ')[1]
-        payload = Token.decode_token(token)
-
-        if payload is None:
-            return Response({'error': 'Invalid token'}, status=status.HTTP_401_UNAUTHORIZED)
-
-        user_id = payload['user_id']
-        user = User.objects.get(id=user_id)
         rom_id = request.data.get('rom_id')
-        rom = ROM.objects.get(id=rom_id)
-        user.wishlist.remove(rom)
-        serializer = UserSerializer(user)
-        return Response(serializer.data)
+        response = Wishlist.remove_wishlist(rom_id, token)
+        return response
 
 #autenticacao
 class Login(APIView):

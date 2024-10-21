@@ -57,13 +57,10 @@ class Auth:
         try:
             token = self.Token.create_token(user.id, user.admin, datetime.utcnow() + timedelta(minutes=15))
 
-            reset_link = f"{settings.FRONTEND_URL}/reset-password?token={token}"
             subject = "Reset your password"
-            message = f"""
-            Olá,<br><br>
+            message = f'''Olá,<br><br>
             Clique no link abaixo para alterar a senha:<br><br>
-            <a href="{reset_link}">Clique aqui</a>
-            """
+            <a href="http://localhost:5173/reset-password?token={token}">Clique aqui</a>'''
 
             msg = MIMEMultipart()
             msg['From'] = settings.EMAIL_HOST_USER
@@ -91,8 +88,8 @@ class Auth:
                 return Response({'error': 'Invalid token'}, status=status.HTTP_401_UNAUTHORIZED)
             else:
                 user_id = payload['user_id']
-                user = User.objects.get(id=['user_id'])
-                user.password = password
+                user = User.objects.get(id=user_id)
+                user.set_password(password)
                 user.save()
                 return Response({'message': 'Password reset successfully'})
         except jwt.ExpiredSignatureError:
