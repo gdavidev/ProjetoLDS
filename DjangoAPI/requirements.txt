@@ -1,9 +1,0 @@
-Django>=3.0
-djangorestframework>=3.12
-djangorestframework-simplejwt>=4.7
-PyJWT>=2.0
-psycopg2-binary==2.9.8
-Pillow
-django-cors-headers
-async-property
-adrf==0.1.7
