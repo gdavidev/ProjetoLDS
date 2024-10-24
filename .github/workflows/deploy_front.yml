@@ -1,0 +1,34 @@
+name: CI/CD Pipeline - Deployc Frontend no Lightsail
+
+on:
+  push:
+    branches:
+      - developing
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v3
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.DEV_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.DEV_LIGHTSAIL_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Copiar a pasta ReactApp
+        run: |
+          scp -r -o StrictHostKeyChecking=no ./ReactApp ${{ secrets.DEV_LIGHTSAIL_USER }}@${{ secrets.DEV_LIGHTSAIL_HOST }}:/home/ubuntu/app
+          
+      - name: Deploy na instância Lightsail
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.DEV_LIGHTSAIL_USER }}@${{ secrets.DEV_LIGHTSAIL_HOST }} << 'EOF'
+          cd /home/ubuntu/app/ReactApp
+          
+          sudo docker compose down
+          sudo docker compose up --build -d
+          EOF
