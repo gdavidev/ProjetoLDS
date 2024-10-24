@@ -22,11 +22,11 @@ jobs:
 
       - name: Copiar a pasta
         run: |
-          scp -r -o StrictHostKeyChecking=no * ${{ secrets.DEV_LIGHTSAIL_USER }}@${{ secrets.DEV_LIGHTSAIL_HOST }}:/home/ubuntu/app
+          scp -T -r -o StrictHostKeyChecking=no * ${{ secrets.DEV_LIGHTSAIL_USER }}@${{ secrets.DEV_LIGHTSAIL_HOST }}:/home/ubuntu/app
 
       - name: Deploy na instância Lightsail
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.DEV_LIGHTSAIL_USER }}@${{ secrets.DEV_LIGHTSAIL_HOST }} << 'EOF'
+          ssh -T -o StrictHostKeyChecking=no ${{ secrets.DEV_LIGHTSAIL_USER }}@${{ secrets.DEV_LIGHTSAIL_HOST }} << 'EOF'
           cd /home/ubuntu/app
 
           sudo docker compose down
