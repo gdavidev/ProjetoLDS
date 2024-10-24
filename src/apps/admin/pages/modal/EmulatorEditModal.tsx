@@ -96,6 +96,11 @@ export default function EmulatorEditModal(props: EmulatorEditModalProps) {
                  defaultValue={ props.emulator?.abbreviation } />
             </FormControl>
             <FormControl>
+              <FormLabel>Empresa</FormLabel>
+              <input ref={ consoleInput } type='text' className='input-text'
+                 defaultValue={ props.emulator?.console } />
+            </FormControl>
+            <FormControl>
               <FormLabel>Console</FormLabel>
               <input ref={ consoleInput } type='text' className='input-text'
                  defaultValue={ props.emulator?.console } />
