@@ -22,7 +22,7 @@ jobs:
 
       - name: Copiar a pasta
         run: |
-          scp -r -o StrictHostKeyChecking=no ${pwd} ${{ secrets.DEV_LIGHTSAIL_USER }}@${{ secrets.DEV_LIGHTSAIL_HOST }}:/home/ubuntu/app
+          scp -r -o StrictHostKeyChecking=no ./ ${{ secrets.DEV_LIGHTSAIL_USER }}@${{ secrets.DEV_LIGHTSAIL_HOST }}:/home/ubuntu/app
 
       - name: Deploy na instância Lightsail
         run: |
