@@ -29,7 +29,6 @@ jobs:
           ssh -T -o StrictHostKeyChecking=no ${{ secrets.DEV_LIGHTSAIL_USER }}@${{ secrets.DEV_LIGHTSAIL_HOST }} << 'EOF'
           cd /home/ubuntu/app
 
-          sudo kill -9 $(sudo lsof -t -i :5173)
           sudo docker compose down
           sudo docker compose up --build -d
           EOF
