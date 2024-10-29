@@ -4,11 +4,11 @@ import FormInputGroupMerge from "@/apps/shared/components/formComponents/FormGro
 import TextInput from "@/apps/shared/components/formComponents/FormGroup/TextInput.tsx";
 import { useMutation } from "react-query";
 import UserApiClient from "@api/UserApiClient.ts";
-import { UserLoginDTO } from "@models/UserDTOs.ts";
+import { UserLoginDTO } from "@models/data/UserDTOs.ts";
 import CurrentUser from "@models/User.ts";
 import { mailOutline, eyeOutline } from "ionicons/icons"
 import { Link } from "react-router-dom";
-import PasswordResetEmailSentModal from "@apps/main/pages/authentication/modal/PasswordResetEmailSentModal.tsx";
+import PasswordResetEmailSentModal from "@/apps/main/components/modal/PasswordResetEmailSentModal.tsx";
 import Validation from "@/libs/Validation.ts";
 import { AxiosError } from 'axios';
 

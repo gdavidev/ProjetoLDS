@@ -1,6 +1,6 @@
 import Axios from 'axios';
 import CurrentUser from "@models/User";
-import * as DTO from '@models/UserDTOs';
+import * as DTO from '@models/data/UserDTOs';
 import ApiService from './ApiService';
 
 export default class UserApiClient {

@@ -4,6 +4,7 @@ import { IonIcon } from '@ionic/react';
 import { cloudUploadOutline } from 'ionicons/icons';
 
 type FileInputProps = {
+  id?: string,
   buttonText: string,
   className?: string,
   inputRef?: RefObject<HTMLInputElement>,
@@ -18,7 +19,7 @@ export default function FileInput(props: FileInputProps) {
         className={ props.className }>
       { props.buttonText }
       <input ref={ props.inputRef } className="hidden" type="file" accept={ props.accept }
-        onChange={ props.onChange } />
+        onChange={ props.onChange } id={ props.id } name={ props.id } />
     </Button>
   );
 }

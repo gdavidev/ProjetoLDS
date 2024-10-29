@@ -5,7 +5,7 @@ import Game from '@models/Game';
 import { IonIcon } from '@ionic/react'
 import { add, createOutline, trashOutline, reloadOutline } from 'ionicons/icons';
 import TableDisplay from '../components/TableDisplay';
-import GameEditModal from './modal/GameEditModal';
+import GameEditModal from '../components/modal/GameEditModal';
 import GameApiClient from '@api/GameApiClient';
 import { MainContext, MainContextProps } from '@shared/context/MainContextProvider';
 import FileUtil from '@libs/FileUtil';

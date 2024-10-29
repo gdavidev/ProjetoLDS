@@ -20,4 +20,10 @@ export default class StringFormatter {
   toString(): string {
     return this.value
   }
+
+  toUrlSafe(): string {
+    this.value = this.value.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    this.value = this.value.replace(" ", "_");
+    return this.value;
+  }
 }

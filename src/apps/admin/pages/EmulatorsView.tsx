@@ -9,7 +9,7 @@ import { useMutation } from 'react-query';
 import { IconButton } from '@mui/joy';
 import Emulator from '@/models/Emulator';
 import EmulatorApiClient from '@/api/EmulatorApiClient';
-import EmulatorEditModal from './modal/EmulatorEditModal';
+import EmulatorEditModal from '../components/modal/EmulatorEditModal';
 
 export default function EmulatorsView() {
   const mainContext: MainContextProps = useContext(MainContext);
@@ -131,10 +131,10 @@ function EmulatorDataTableRow(props: EmulatorDataTableRowProps): React.ReactElem
         { props.emulator.console }
       </td>
       <td className={ props.cellClassName }>
-        { props.emulator.abbreviation }
+        { props.emulator.companyName }
       </td>
       <td className={ props.cellClassName }>
-        { props.emulator.companyName }
+        { props.emulator.abbreviation }
       </td>
       <td className={ props.cellClassName }>
         <Box sx={{ display: 'flex', gap: 1 }}>

@@ -1,4 +1,4 @@
-import * as DTO from "@models/EmulatorDTOs";
+import * as DTO from "@models/data/EmulatorDTOs";
 import Emulator from "@models/Emulator";
 import ApiService, { Endpoints } from "./ApiService";
 
@@ -6,9 +6,9 @@ export default class EmulatorApiClient {
   private apiService: ApiService;
   private static endpoints: Endpoints = {
     get: 'api/emuladores/',
-    post: 'api/emuladores/create/',
-    put: 'api/emuladores/update/',
-    delete: 'api/emuladores/delete/',
+    post: 'api/emulador/create/',
+    put: 'api/emulador/update/',
+    delete: 'api/emulador/delete/',
   };
 
   constructor(token?: string) {

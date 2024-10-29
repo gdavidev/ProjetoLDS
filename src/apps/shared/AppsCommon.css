@@ -5,10 +5,15 @@
 @layer components {
   /* BUTTONS */
   .btn {
-    @apply font-rubik flex items-center font-bold px-5 py-1.5 hover:scale-[105%] 
-      active:scale-[98%] transition duration-150 ease-in-out cursor-pointer select-none
-      justify-center
-  }  
+    @apply font-rubik flex items-center font-bold px-5 py-1.5 transition duration-150 
+      ease-in-out cursor-pointer select-none justify-center
+  }
+  .btn:not([disabled]) {
+    @apply hover:scale-[105%] active:scale-[98%]
+  }
+  .btn[disabled] {
+    @apply text-gray-400 bg-primary-dark
+  }
   .btn-r-full {
     @apply btn rounded-full 
   }

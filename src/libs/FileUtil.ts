@@ -41,4 +41,9 @@ export default class FileUtil {
         console.log(rej.status + ": " + rej.reason)
       })
   }
+
+  static renamed(file: File, name: string) {
+    const fileExtension: string = file?.name.substring(file?.name.indexOf('.'), file?.name.length)!
+    return file = new File([file], name + fileExtension);
+  }
 }

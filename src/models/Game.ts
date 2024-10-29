@@ -1,4 +1,4 @@
-import * as DTO from "@models/GameDTOs";
+import * as DTO from "@models/data/GameDTOs";
 import Emulator from "@models/Emulator";
 import Category from "@models/Category";
 import Thumbnail from "@models/Thumbnail";
@@ -12,7 +12,7 @@ export default class Game {
   thumbnail: Thumbnail | null;
   file: File | null;
   
-  constructor(id?: number, name?: string, desc?: string, emulator?: Emulator, thumbnail?: Thumbnail, file?: File, category?: Category) {
+  constructor(id?: number, name?: string, desc?: string, emulator?: Emulator, thumbnail?: Thumbnail | null, file?: File | null, category?: Category) {
     this.id           = id          || 0;
     this.name         = name        || '';
     this.desc         = desc        || '';
@@ -23,12 +23,10 @@ export default class Game {
   }
 
   getDesktopAppQueryString() {
-    const fileExtension: string = this.file?.name.substring(this.file?.name.indexOf('.'), this.file?.name.length)!
-
     return "emuhub://" +
        this.emulator?.companyName + "|" +
        this.emulator?.abbreviation.toUpperCase() + "|" +
-       this.name + fileExtension;
+       this.file!.name;
   }
   
   toCreateDTO(): DTO.GameCreateDTO {
