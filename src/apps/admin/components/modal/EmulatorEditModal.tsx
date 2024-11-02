@@ -1,69 +1,53 @@
-import { useState, useContext, FormEvent, useEffect } from 'react';
+import { useContext, useEffect } from 'react';
 import FormControl from '@mui/joy/FormControl';
 import FormLabel from '@mui/joy/FormLabel';
 import { Alert } from '@mui/joy';
-import FileInput from '@shared/components/formComponents/FileInput';
-import { IonIcon } from '@ionic/react'
-import { document } from 'ionicons/icons'
-import { useMutation } from 'react-query';
+import { useMutation, UseMutationResult } from 'react-query';
 import { MainContext, MainContextProps } from '@shared/context/MainContextProvider';
 import ModalPopup, { ModalPopupProps } from '@/apps/shared/components/ModalPopup';
 import Emulator from '@/models/Emulator';
 import EmulatorApiClient from '@/api/EmulatorApiClient';
+import { FormState, useForm } from 'react-hook-form';
+import { IonIcon } from '@ionic/react';
+import { document, cloudUploadOutline } from 'ionicons/icons';
+import Button from '@mui/joy/Button';
+import FileUtil from '@/libs/FileUtil';
 
-enum FormMode {
-  ADD,
-  EDIT
-}
 export type EmulatorEditModalProps = {
   emulator: Emulator,
   onChange?: (newEmulator: Emulator) => void
 } & ModalPopupProps
-type EmulatorModalFormData = {
+interface IEmulatorFormData {
   company: string,
   console: string,
   abbreviation: string,
-  file?: File,
+  file?: FileList,
+}
+
+const defaultValues: IEmulatorFormData = {
+  company: "",
+  console: "",
+  abbreviation: "",
+  file: undefined
 }
 
 export default function EmulatorEditModal(props: EmulatorEditModalProps) {
   const mainContext: MainContextProps = useContext<MainContextProps>(MainContext)
-  const [ errorMessage , setErrorMessage ] = useState<string>("");
-  const [ fileName     , setFileName     ] = useState<string>("");
-  const [ formData     , setFormData     ] = useState<EmulatorModalFormData>(getEmptyFormData());
-  const [ formMode     , setFormMode     ] = useState<FormMode>(FormMode.ADD);
-
-  function getEmptyFormData(): EmulatorModalFormData {
-    return {company: "", console: "", abbreviation: ""}
-  }
+  const { register, handleSubmit, watch, reset, clearErrors, formState } = useForm<IEmulatorFormData>({
+    defaultValues: defaultValues,
+  });
 
   useEffect(() => {
-    if (props.isOpen === false) return;
-    setFormMode(props.emulator.id === 0 ? FormMode.ADD : FormMode.EDIT)
-
-    if (props.emulator.id !== 0) {
-      setFormData({
+    if (props.emulator.id !== 0)
+      reset({
         company: props.emulator.companyName,
         console: props.emulator.console,
         abbreviation: props.emulator.abbreviation,
-        file: new File([], props.emulator.file.name)
+        file: FileUtil.createFileList(props.emulator.file),
       });
-    } else { 
-      setFormData(getEmptyFormData());
-      setFileName("");
-    }
   }, [props.isOpen])
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {    
-    const { name, value, files } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: files !== null ? files[0] : value,
-    }));
-  };
   
-  const {isLoading, isSuccess, isError, mutate, error: mutateError, reset: resetMutationResults} = 
-    useMutation('mutate-emulator',
+  const emulatorService = useMutation('mutate-emulator',
       async (emulator: Emulator) => {
         const emulatorApiClient: EmulatorApiClient = new EmulatorApiClient(mainContext.currentUser?.token!);
         return await emulatorApiClient.store(emulator);
@@ -74,85 +58,72 @@ export default function EmulatorEditModal(props: EmulatorEditModalProps) {
       }
     );
 
-  function resetForm() {
-    resetMutationResults();    
-    setErrorMessage('');
+  const resetForm = () => { 
+    emulatorService.reset();
+    clearErrors();
+    reset();
   }
 
-  async function handleSubmit(e: React.FormEvent): Promise<void> {
-    e.preventDefault();
-    const error: string | undefined = getErrorOnValidateGameForm()    
-    if (errorMessage)  {
-      setErrorMessage(error);
-      return
-    }
-    
+  function onSubmit(data: IEmulatorFormData) {
+    const emulatorFile: File | undefined = data.file instanceof FileList ? data.file[0] : data.file;
     const newEmulator: Emulator = new Emulator(
       props.emulator.id,
-      formData.abbreviation,
-      formData.console,
-      formData.company,
-      formData.file,
+      data.abbreviation,
+      data.console,
+      data.company,
+      emulatorFile,
     );
-    
-    mutate(newEmulator);
-  }
-  
-  function getErrorOnValidateGameForm(): string {
-    if (formData.console === "") return "Campo console vazío."
-    if (formData.company === "") return "Campo empresa vazío."
-    if (formData.abbreviation === "") return "Campo nome vazío."
-    if (formMode === FormMode.ADD && formData.file === undefined) return "Nenhum arquivo enviado.";
-    return ""
-  }
-
-  function getAlert(): JSX.Element | undefined {
-    if (errorMessage)
-      return <Alert color="danger" >{ errorMessage }</Alert>
-    if (isLoading)
-      return <Alert color="warning" >Enviando...</Alert>
-    if (isSuccess)
-      return <Alert color="success" >Enviado com sucesso!</Alert>
-    if (isError)
-      return <Alert color="danger" >{ mutateError.message }</Alert>
-    return undefined
-  }
+    emulatorService.mutate(newEmulator);
+  }  
 
   return (
     <ModalPopup title={ props.emulator.id === 0 ? "Adicionar Jogo" : "Editar Jogo" }
         isOpen={ props.isOpen } bottomText={ props.bottomText } topText={ props.topText } 
         onCloseRequest={ () => { resetForm(); props.onCloseRequest?.() } }
         className="flex flex-col gap-y-3">
-      <form onSubmit={ handleSubmit }>
-        { getAlert() }
+      <form onSubmit={ handleSubmit(onSubmit) }>
+        { getAlert(formState, emulatorService) }
         <div className="flex flex-col gap-y-3 min-h-full justify-between">
           <FormControl>
             <FormLabel>Console</FormLabel>
-            <input type='text' name='console' className='input-text' onChange={ handleChange }
-                defaultValue={ props.emulator?.console } />
+            <input {...register("console", { required: true })} className='input-text'/>
           </FormControl>
           <FormControl>
             <FormLabel>Empresa</FormLabel>
-            <input type='text' name='company' className='input-text' onChange={ handleChange }
-                defaultValue={ props.emulator?.companyName } />
+            <input {...register("company", { required: true })} className='input-text' />
           </FormControl>
-          <FormControl>              
+          <FormControl>
             <FormLabel>Abreviação</FormLabel>             
-            <input type='text' name='abbreviation' className='input-text' onChange={ handleChange }
-                defaultValue={ props.emulator?.abbreviation } />
+            <input {...register("abbreviation", { required: true })} className='input-text' />
           </FormControl>
           <div className='flex justify-start items-center gap-x-2'>
             <IonIcon className='min-h-4 min-w-4' icon={ document } />
-            <span className="truncate">
-                { fileName }
-            </span>
+            <span className="truncate">{ watch("file")?.[0]?.name }</span>
           </div>
-          <FileInput id='file' onChange={ (e) => { setFileName(e.target.files?.item(0)?.name!); handleChange(e) } }
-              buttonText='Upload File' />
+          <Button component="label" tabIndex={-1} variant="outlined" color="neutral" startDecorator={ <IonIcon icon={ cloudUploadOutline } /> } >
+            Aquivo do Emulador
+            <input type="file" className='hidden' {...register("file", { required: true })} />
+          </Button>
         </div>
-        <input type="submit" disabled={ isLoading } value="Confirmar"
-            className={ "btn-r-md bg-primary text-white w-full mt-4" + (isLoading ? " disabled" : "") } />
+        <input type="submit" disabled={ emulatorService.isLoading } value="Confirmar"
+            className={ "btn-r-md bg-primary text-white w-full mt-4" + (emulatorService.isLoading ? " disabled" : "") } />
       </form>
     </ModalPopup>
   );
 };
+
+function getAlert(formState: FormState<IEmulatorFormData>, emulatorService: UseMutationResult<any, any, any, any>): JSX.Element | undefined {
+  if (formState.errors.console)
+    return <Alert color="danger" >Campo console vazío.</Alert>
+  if (formState.errors.company)
+    return <Alert color="danger" >Campo empresa vazío.</Alert>
+  if (formState.errors.abbreviation)
+    return <Alert color="danger" >Campo nome vazío.</Alert>
+  if (emulatorService.isLoading)
+    return <Alert color="warning" >Enviando...</Alert>
+  if (emulatorService.isSuccess)
+    return <Alert color="success" >Enviado com sucesso!</Alert>
+  if (emulatorService.isError)
+    return <Alert color="danger" >{ emulatorService.error.message }</Alert>
+  return undefined
+}

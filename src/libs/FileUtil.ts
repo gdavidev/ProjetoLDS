@@ -46,4 +46,15 @@ export default class FileUtil {
     const fileExtension: string = file?.name.substring(file?.name.indexOf('.'), file?.name.length)!
     return file = new File([file], name + fileExtension);
   }
+
+  static createFileList(file: File | File[]): FileList {
+    const dataTransfer = new DataTransfer();
+    if (Array.isArray(file)) {
+      file.forEach(f => dataTransfer.items.add(f))
+    } else {
+      dataTransfer.items.add(file);
+    } 
+
+    return dataTransfer.files;
+  }
 }
