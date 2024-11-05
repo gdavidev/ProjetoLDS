@@ -33,13 +33,13 @@ const defaultValues: IEmulatorFormData = {
 
 export default function EmulatorEditModal(props: EmulatorEditModalProps) {
   const mainContext: MainContextProps = useContext<MainContextProps>(MainContext)
-  const { register, handleSubmit, watch, reset, clearErrors, formState } = useForm<IEmulatorFormData>({
+  const { register, handleSubmit, watch, reset: setFormData, clearErrors, formState } = useForm<IEmulatorFormData>({
     defaultValues: defaultValues,
   });
 
   useEffect(() => {
     if (props.emulator.id !== 0)
-      reset({
+      setFormData({
         company: props.emulator.companyName,
         console: props.emulator.console,
         abbreviation: props.emulator.abbreviation,
@@ -61,7 +61,7 @@ export default function EmulatorEditModal(props: EmulatorEditModalProps) {
   const resetForm = () => { 
     emulatorService.reset();
     clearErrors();
-    reset();
+    setFormData();
   }
 
   function onSubmit(data: IEmulatorFormData) {
