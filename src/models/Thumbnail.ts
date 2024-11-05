@@ -1,3 +1,5 @@
+import FileUtil from "@/libs/FileUtil";
+
 export default class Thumbnail {
   public file: File | null;
   public base64: string | null;
@@ -22,5 +24,10 @@ export default class Thumbnail {
     if (this.base64)
       return 'data:image/jpeg;base64,' + this.base64
     return ""
+  }
+
+  renameFile(name: string): void {
+    if (this.file)
+      FileUtil.renamed(this.file, name)      
   }
 }

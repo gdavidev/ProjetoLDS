@@ -17,6 +17,8 @@ import Emulator from '@/models/Emulator';
 import EmulatorApiClient from '@/api/EmulatorApiClient';
 import CategoryApiClient from '@/api/CategoryApiClient';
 import Category from '@/models/Category';
+import FileUtil from '@/libs/FileUtil';
+import StringFormatter from '@/libs/StringFormatter';
 
 export enum FormAction {
   ADD,
@@ -107,18 +109,25 @@ export default function GameEditModal(props: GameEditModalProps) {
     if (errorMessage) 
       return
     
-    const gameFiles: FileList | null = fileInput.current ? fileInput.current.files : null    
-    const gameThumbnailFiles: FileList | null = thumbnailInput.current ? thumbnailInput.current.files : null
-    const emulator: Emulator = emulatorList.find((value: Emulator) => Number(emulatorSelect.current?.value!) === value.id)!;
-    const category: Category = categoryList.find((value: Category) => Number(categorySelect.current?.value!) === value.id)!;
+    let gameFile: File | null = fileInput.current && fileInput.current.files ?
+        fileInput.current.files[0] : null;
+    let thumbnailFile: Thumbnail | null = thumbnailInput.current && thumbnailInput.current.files ?
+        new Thumbnail(thumbnailInput.current.files[0]) : null;
+    let emulator: Emulator = emulatorList.find((value: Emulator) => Number(emulatorSelect.current?.value!) === value.id)!;
+    let category: Category = categoryList.find((value: Category) => Number(categorySelect.current?.value!) === value.id)!;
+
+    if (thumbnailFile && nameInput.current)
+      thumbnailFile.renameFile((new StringFormatter(nameInput.current.value)).toUrlSafe());
+    if (gameFile && nameInput.current)
+      gameFile = FileUtil.renamed(gameFile, (new StringFormatter(nameInput.current.value)).toUrlSafe());
 
     const newGame: Game = new Game(
       props.game.id,
       nameInput.current?.value,
       descInput.current?.value,
       emulator,
-      gameThumbnailFiles  ? new Thumbnail(gameThumbnailFiles[0])  : undefined,
-      gameFiles           ? gameFiles[0]                          : undefined,
+      thumbnailFile,
+      gameFile,
       category,
     )
     mutate(newGame);

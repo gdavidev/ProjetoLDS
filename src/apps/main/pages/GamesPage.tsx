@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import GameApiClient from "@api/GameApiClient";
 import { HGameCard } from "@apps/main/components/displayComponents/HGameCard";
 import { useQuery } from "react-query";

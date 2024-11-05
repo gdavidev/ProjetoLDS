@@ -1,4 +1,4 @@
-import * as DTO from "@models/CategoryDTOs";
+import * as DTO from "@models/data/CategoryDTOs";
 
 export default class Category {
   id: number;

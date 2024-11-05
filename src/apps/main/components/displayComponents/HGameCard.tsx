@@ -19,7 +19,7 @@ export function HGameCard(props: HGameCardProps) {
         </div>
         <span className="h-full">{ props.game.desc }</span>
         <a className="btn-r-full text-white w-36 gap-x-2 self-end bg-primary hover:bg-primary-dark"
-            href={ props.game.getDesktopAppQueryString() }>
+            href={ props.game.getDesktopAppQueryString() } target="_blank">
           <IonIcon icon={ openOutline } /><span>JOGAR</span>
         </a>
       </div>    

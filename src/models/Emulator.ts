@@ -1,16 +1,18 @@
-import * as DTO from '@models/EmulatorDTOs';
+import * as DTO from '@models/data/EmulatorDTOs';
 
 export default class Emulator {
   id: number;
   abbreviation: string;
   console: string;
   companyName: string;
+  file: File;
 
-  constructor(id?: number, abbreviation?: string, console?: string, companyName?: string) {
+  constructor(id?: number, abbreviation?: string, console?: string, companyName?: string, file?: File) {
     this.id               = id           || 0;
     this.abbreviation     = abbreviation || "";
     this.console          = console      || "";
     this.companyName      = companyName  || "";
+    this.file             = file         || new File([], '')
   }
 
   toCreateDTO(): DTO.EmulatorCreateDTO {
@@ -18,6 +20,7 @@ export default class Emulator {
       nome: this.abbreviation,
       console: this.console,
       empresa: this.companyName,
+      emu_file: this.file,
     }
   }
 
@@ -27,6 +30,7 @@ export default class Emulator {
       nome: this.abbreviation,
       console: this.console,
       empresa: this.companyName,
+      emu_file: this.file,
     }
   }
 

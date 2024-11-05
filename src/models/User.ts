@@ -1,4 +1,4 @@
-import { UserRegisterDTO, UserLoginDTO, UserLoginResponseDTO } from "@models/UserDTOs";
+import { UserRegisterDTO, UserLoginDTO, UserLoginResponseDTO } from "@models/data/UserDTOs";
 
 export default class CurrentUser {
   isAdmin?: boolean

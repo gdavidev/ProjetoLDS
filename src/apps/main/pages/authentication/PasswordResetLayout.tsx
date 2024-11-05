@@ -4,9 +4,9 @@ import FormInputGroupMerge from "@/apps/shared/components/formComponents/FormGro
 import TextInput from "@/apps/shared/components/formComponents/FormGroup/TextInput.tsx";
 import { useMutation } from "react-query";
 import UserApiClient from "@api/UserApiClient.ts";
-import { UserResetPasswordDTO } from "@models/UserDTOs.ts";
+import { UserResetPasswordDTO } from "@models/data/UserDTOs.ts";
 import { mailOutline, eyeOutline } from "ionicons/icons"
-import { useParams, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { AxiosError } from 'axios';
 
 type PasswordResetLayoutProps = {
