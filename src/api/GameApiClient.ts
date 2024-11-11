@@ -1,4 +1,4 @@
-import * as DTO from "@/models/GameDTOs";
+import * as DTO from "@/models/data/GameDTOs";
 import Game from "@models/Game";
 import ApiService, { Endpoints } from "./ApiService";
 import EmulatorApiClient from "./EmulatorApiClient";

@@ -1,4 +1,4 @@
-import * as DTO from "@/models/CategoryDTOs";
+import * as DTO from "@/models/data/CategoryDTOs";
 import Category from "@models/Category";
 import ApiService, { Endpoints } from "./ApiService";
 
