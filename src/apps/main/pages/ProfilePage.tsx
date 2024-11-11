@@ -1,130 +1,156 @@
-import { MainContext, MainContextProps } from '@/apps/shared/context/MainContextProvider';
 import Category from '@/models/Category';
 import CurrentUser from '@/models/User';
 import { Alert, FormControl } from '@mui/joy';
 import Chip from '@mui/joy/Chip';
-import { useContext, useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { useMutation } from 'react-query';
+import { useEffect, useState } from 'react';
 import { AxiosError } from 'axios'
-import UserApiClient from '@/api/UserApiClient';
-import { UserUpdateDTO } from '@/models/UserDTOs';
+import { UserUpdateDTO } from '@/models/data/UserDTOs';
 import Validation from '@/libs/Validation';
-import { AlertInfo, AlertType } from './authentication/AuthPage';
+import { AlertInfo, AlertType } from './auth/AuthPage';
+import useCurrentUser from '@/hooks/useCurrentUser';
+import useAuth from '@/hooks/useAuth';
+import { Controller, useForm } from 'react-hook-form';
+import TextInput from '@/apps/shared/components/formComponents/TextInput';
+import { IonIcon } from '@ionic/react';
+import { personOutline, mailOutline } from "ionicons/icons"
+import PasswordHiddenToggle from '../components/PasswordHiddenToggle';
+
+interface IUserSignInFormData {
+  email: string
+  username: string
+  password: string
+  passwordConfirm: string
+}
+const defaultValues = {
+  email: '',
+  username: '',
+  password: '',
+  passwordConfirm: '',
+}
 
 export default function ProfilePage() {
-  const [ alertInfo, setAlertInfo ] = useState<AlertInfo | undefined>(undefined);
-  const [ user     , setUser      ] = useState<CurrentUser | undefined>(undefined);
-  const mainContext: MainContextProps = useContext(MainContext);
-  const preferencesArr: Category[] = [new Category(0, 'Action'), new Category(0, 'Adventure')];
-  const nameInput = useRef<HTMLInputElement>(null);
-  const passwordInput = useRef<HTMLInputElement>(null);
-  const confirmPasswordInput = useRef<HTMLInputElement>(null);
-  const emailInput = useRef<HTMLInputElement>(null);  
-  
-  useLayoutEffect(() => {
-    setAlertInfo({ type: AlertType.HIDDEN })  
-    mainContext.onUserAuth.subscribe(setUser);
-  }, []);
+  const [ alertInfo, setAlertInfo ] = useState<AlertInfo | undefined>({type: AlertType.HIDDEN});
+  const [ isPasswordHidden       , setIsPasswordHidden        ] = useState<boolean>(true);
+  const [ isPasswordConfirmHidden, setIsPasswordConfirmHidden ] = useState<boolean>(true);
+  const preferencesArr: Category[] = [new Category(0, 'Action'), new Category(0, 'Adventure')];  
+  const { user, setUser } = useCurrentUser();
+  const { handleSubmit, watch, control, reset: setFormData } = useForm<IUserSignInFormData>({
+    defaultValues: defaultValues,
+  });
+  const fields: IUserSignInFormData = watch();
+
   useEffect(() => {
-    setUser(mainContext.currentUser);
-    return mainContext.onUserAuth.remove(setUser) // Cleanup code
-  }, []);
+    if (!user) return;
 
-  const { isLoading, mutate } = useMutation('UPDATE_USER', 
-    async (dto: UserUpdateDTO) => {
-      const userApiClient: UserApiClient = new UserApiClient();
-      return userApiClient.update(dto, user?.token!)
-    }, {
-      onSuccess: (_, dto: UserUpdateDTO) => {
-        const newUser: CurrentUser = new CurrentUser(
-          dto.username || user?.userName!,
-          dto.email    || user?.userName!,
-          '',
-          user?.token!
-        );
-        mainContext.setCurrentUser?.(newUser);
-        setAlertInfo({ message: "Usuário alterado com sucesso.", type: AlertType.SUCCESS })
-      },
-      onError: (err: AxiosError | Error) => setAlertInfo(handleRequestError(err))
-    })
+    setFormData({
+      email: user.email,
+      username: user.userName,
+      password: '',
+      passwordConfirm: '',
+    });
+  }, [user]);
 
-    useEffect(() => {
-      if (isLoading)
-        setAlertInfo({ message: "Enviando...", type: AlertType.PROGRESS })
-    }, [isLoading])
+  const { update } = useAuth({
+    onSuccess: (_, dto: UserUpdateDTO) => updateMainContextCurrentUser(dto),
+    onError: (err: AxiosError | Error) => setAlertInfo(handleRequestError(err)),
+    onIsLoading: () => setAlertInfo({ message: "Enviando...", type: AlertType.PROGRESS })
+  });
 
-  function handleUpdateSubmit() {
-    const dto: UserUpdateDTO = {
-      username: nameInput.current?.value,
-      email: emailInput.current?.value,
-      password: passwordInput.current?.value,      
-    }
+  function updateMainContextCurrentUser(dto: UserUpdateDTO) {
+    const newUser: CurrentUser = new CurrentUser(
+      dto.username || user?.userName!,
+      dto.email    || user?.userName!,
+      '',
+      user?.token!
+    );
+    setUser(newUser);
+    setAlertInfo({ message: "Usuário alterado com sucesso.", type: AlertType.SUCCESS })
+  }
 
-    const dtoValidate: UserUpdateDTO & { confirmPassword?: string } =
-        {...dto, confirmPassword: confirmPasswordInput.current?.value,}
-    const errorMessage: string = getErrorMessageIfNotValid(dtoValidate);
-    if (errorMessage) {
-      setAlertInfo({ message: errorMessage, type: AlertType.ERROR })
+  function onSubmit(data: IUserSignInFormData) {
+    const error: string | undefined = getErrorMessage(fields);
+    if (error) {
+      setAlertInfo({ message: error, type: AlertType.ERROR });
       return;
     }
-    mutate(dto);
-  }
-
-  function getAlert() {
-    if (alertInfo === undefined || alertInfo.type === AlertType.HIDDEN) 
-      return null;
-
-    if (alertInfo.type === AlertType.ERROR)
-      return <Alert color='danger'>{ alertInfo.message }</Alert>
-    if (alertInfo.type === AlertType.PROGRESS)
-      return <Alert color='warning'>{ alertInfo.message }</Alert>
-    if (alertInfo.type === AlertType.SUCCESS)
-      return <Alert color='success'>{ alertInfo.message }</Alert>
-  }
-
-  if (!user) {
-    return "Loading..."
+    
+    update({
+      username: data.username,
+      email: data.email,
+      password: data.password,
+      token: user?.token!
+    })
   }
 
   return(
-    <div className="mx-auto w-1/3 overflow-y-auto rounded-md bg-layout-backgroud">
+    <form onSubmit={ handleSubmit(onSubmit) } className="mx-auto md:w-1/2 w-96 overflow-y-auto rounded-md bg-layout-backgroud">
       <div id="banner" className="bg-primary w-full h-16" />
       <div className='text-white flex flex-col gap-y-3 p-2'>
-        <FormControl>
-          <label htmlFor='name'>Nome:</label>
-          <input ref={ nameInput } type='text' name='name' defaultValue={ user.userName }
-              className='border-b-[1px] border-b-primary bg-transparent pt-2 pb-1 outline-none focus:border-b-4' />
-        </FormControl>
-        <FormControl>
-          <label htmlFor='name'>Email:</label>
-          <input ref={ emailInput } type='text' defaultValue={ user.email } 
-              className='border-b-[1px] border-b-primary bg-transparent pt-2 pb-1 outline-none focus:border-b-4' />
-        </FormControl>
-        <div className='flex gap-3 w-full'>
-          <FormControl sx={{width: '100%'}}>              
-            <label htmlFor='name'>Senha:</label>
-            <input ref={ passwordInput } type='text' 
-                className='border-b-[1px] border-b-primary bg-transparent pt-2 pb-1 outline-none focus:border-b-4' />
-          </FormControl>
-          <FormControl sx={{width: '100%'}}>              
-            <label htmlFor='name'>Confirmar Senha:</label>
-            <input ref={ confirmPasswordInput } type='text' 
-                className='border-b-[1px] border-b-primary bg-transparent pt-2 pb-1 outline-none focus:border-b-4' />
-          </FormControl>
+        <Controller name="username" control={ control } render={ ({field}) => (
+          <TextInput {...field} 
+              name="Nome de Usuário"
+              inputClassName='bg-transparent text-white' 
+              inputContainerClassName="bg-transparent border-b-primary border-b-[1px]"
+              endDecoration={ <IonIcon icon={personOutline} /> } />
+        ) }/>
+        <Controller name="email" control={ control } render={ ({field}) => (
+          <TextInput {...field} 
+              name="Email" 
+              inputClassName='bg-transparent text-white' 
+              inputContainerClassName="bg-transparent border-b-primary border-b-[1px]"
+              endDecoration={ <IonIcon icon={mailOutline} /> } />
+        ) }/>
+
+        <div className='xl:flex md:block gap-3 w-full'>
+          <Controller name="password" control={ control } render={ ({field}) => (
+            <TextInput {...field} 
+                name="Senha" 
+                inputClassName='bg-transparent text-white' 
+                password={ isPasswordHidden }
+                containerClassName='w-full'
+                inputContainerClassName="bg-transparent border-b-primary border-b-[1px]"
+                endDecoration={ 
+                  <PasswordHiddenToggle initialState={ true } onChange={ setIsPasswordHidden }/> 
+                } />
+          ) }/>
+          <Controller name="passwordConfirm" control={ control } render={ ({field}) => (
+            <TextInput {...field} 
+                name="Confirmar Senha" 
+                inputClassName='bg-transparent text-white' 
+                password={ isPasswordConfirmHidden }
+                containerClassName='w-full'
+                inputContainerClassName="bg-transparent border-b-primary border-b-[1px]"
+                endDecoration={ 
+                  <PasswordHiddenToggle initialState={ true } onChange={ setIsPasswordConfirmHidden }/> 
+                } />
+          ) }/>
         </div>
+
         <FormControl>              
-          <label htmlFor='name'>Preferencias:</label>
+          <label>Preferencias:</label>
           <div className='flex gap-x-2 gap-y-1 border-b-[1px] border-b-primary w-full pt-2 pb-1'>
             { categoryToChips(preferencesArr) }
           </div>
         </FormControl>
         <div className='w-full flex justify-end'>
-          <button className='btn-r-md bg-primary' onClick={ handleUpdateSubmit }>Atualizar</button>
+          <button className='btn-r-md bg-primary' type='submit'>Atualizar</button>
         </div>
       </div>
-      { getAlert() }      
-    </div>
+      { getAlert(alertInfo) }      
+    </form>
   );
+}
+
+function getAlert(alertInfo?: AlertInfo) {
+  if (alertInfo === undefined || alertInfo.type === AlertType.HIDDEN) 
+    return null;
+
+  if (alertInfo.type === AlertType.ERROR)
+    return <Alert color='danger'>{ alertInfo.message }</Alert>
+  if (alertInfo.type === AlertType.PROGRESS)
+    return <Alert color='warning'>{ alertInfo.message }</Alert>
+  if (alertInfo.type === AlertType.SUCCESS)
+    return <Alert color='success'>{ alertInfo.message }</Alert>
 }
 
 function categoryToChips(categoryArr: Category[]) {
@@ -132,14 +158,19 @@ function categoryToChips(categoryArr: Category[]) {
     <Chip>{cat.name}</Chip>);
 }
 
-function getErrorMessageIfNotValid(dto: UserUpdateDTO & { confirmPassword?: string }) {
-  // if (!dto.email)
-  //   return "Campo email está vázio.";
-  // if (!dto.username)
-  //   return "Campo nome está vázio.";
-  // if (!Validation.isValidEmail(dto.email))
-  //   return "Email inválido.";
-  return "";
+function getErrorMessage(data: IUserSignInFormData): string | undefined {
+  if (data.username === '')
+    return "Campo nome está vázio.";
+  if (data.email === '')
+    return "Campo email está vázio.";
+  if (data.password === '')
+    return "Você deve fornecer sua senha para fazer alterações.";
+  if (data.passwordConfirm !== '')
+    if (data.password !== data.passwordConfirm)
+      return "As senhas não são iguais.";
+  if (!Validation.isValidEmail(data.email))
+    return "Email inválido.";
+  return undefined;
 }
 
 function handleRequestError(err: AxiosError | Error): AlertInfo {  

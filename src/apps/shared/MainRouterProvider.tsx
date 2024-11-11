@@ -5,7 +5,7 @@ import HomePage from '@apps/main/pages/HomePage.tsx'
 import ProfilePage from '@apps/main/pages/ProfilePage.tsx'
 import LibraryPage from '@apps/main/pages/LibraryPage.tsx'
 import GamesPage from '@apps/main/pages/GamesPage.tsx'
-import AuthPage, { AuthPageMode } from '@apps/main/pages/authentication/AuthPage.tsx';
+import AuthPage, { AuthPageMode } from '@/apps/main/pages/auth/AuthPage';
 import AdminApp from '@apps/admin/AdminApp.tsx'
 import GameViewPage from '@apps/main/pages/GameViewPage.tsx'
 /*Admin*/

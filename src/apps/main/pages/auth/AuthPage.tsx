@@ -1,7 +1,7 @@
 import React, { useState, PropsWithoutRef, useContext, useEffect } from "react";
 import { Alert, ColorPaletteProp } from "@mui/joy";
-import SignInLayout from "@apps/main/pages/authentication/SignInLayout";
-import LogInLayout from "@apps/main/pages/authentication/LogInLayout";
+import SignInLayout from "@/apps/main/pages/auth/SignInLayout";
+import LogInLayout from "@/apps/main/pages/auth/LogInLayout";
 import logo from '/icons/logo.png'
 import CurrentUser from "@/models/User";
 import { MainContext, MainContextProps } from "@/apps/shared/context/MainContextProvider";
