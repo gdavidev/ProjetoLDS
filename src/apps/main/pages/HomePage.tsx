@@ -48,8 +48,7 @@ export default function HomePage() {
     const gameList: Game[] = await fetchGameData()
     const gameCardList: JSX.Element[] =
       gameList.map((game: Game, index: number) => 
-        <VGameCard key={ index } name={ game.name } emulador={ game.emulator?.abbreviation }
-          img={ game.thumbnail?.toDisplayable() } />
+        <VGameCard key={ index } game={ game } />
       )
     setCardList(gameCardList)
   }

@@ -1,12 +1,11 @@
 import { useState } from "react";
 import GameApiClient from "@api/GameApiClient";
-import { HGameCard } from "@apps/main/components/displayComponents/HGameCard";
 import { useQuery } from "react-query";
 import Game from "@/models/Game";
 import { AxiosError } from 'axios';
+import VGameCard from "../components/displayComponents/VGameCard";
 
 export default function GamesPage() {
-  //const defaulImgURL: string = "https://placehold.co/90x120"
   const [ cardList, setCardList ] = useState<JSX.Element[]>([])
   
   useQuery({
@@ -21,16 +20,14 @@ export default function GamesPage() {
   async function fillCardContainer(games: Game[]): Promise<void> {
     const gameCardList: JSX.Element[] =
       games.map((game: Game, index: number) => 
-        <HGameCard key={ index } game={ game } />
+        <VGameCard key={ index } game={ game } />
       )
     setCardList(gameCardList)
   }
   
   return (
-    <>
-      <div className="flex flex-col gap-y-2">
-        { cardList }
-      </div>
-    </>
+    <div className="grid grid-cols-5 gap-2">
+      { cardList }
+    </div>
   );
 }
