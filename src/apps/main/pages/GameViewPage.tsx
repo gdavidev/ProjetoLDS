@@ -1,7 +1,7 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import Game from '@models/Game';
 import { useQuery } from 'react-query';
-import GameApiClient from '@/api/GameApiClient';
+import GameApiService from '@/api/GameApiService';
 import { IonIcon } from '@ionic/react';
 import { play } from 'ionicons/icons';
 
@@ -14,8 +14,8 @@ export default  function GameViewPage() {
   const navigate = useNavigate();
     
   const { data: game, isLoading, isError } = useQuery<Game>("GET_GAME", () => {
-    const gameApiClient: GameApiClient = new GameApiClient();
-    return gameApiClient.get(Number(gameId));
+    const gameApiService: GameApiService = new GameApiService();
+    return gameApiService.get(Number(gameId));
   }); 
 
   const handlePlayGame = () => {

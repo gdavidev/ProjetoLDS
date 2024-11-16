@@ -32,6 +32,7 @@ export default function ProfilePage() {
   const [ alertInfo, setAlertInfo ] = useState<AlertInfo | undefined>({type: AlertType.HIDDEN});
   const [ isPasswordHidden       , setIsPasswordHidden        ] = useState<boolean>(true);
   const [ isPasswordConfirmHidden, setIsPasswordConfirmHidden ] = useState<boolean>(true);
+  const [ isLoading              , setIsLoading               ] = useState<boolean>(true);
   const preferencesArr: Category[] = [new Category(0, 'Action'), new Category(0, 'Adventure')];  
   const { user, setUser } = useCurrentUser();
   const { handleSubmit, watch, control, reset: setFormData } = useForm<IUserSignInFormData>({
@@ -40,7 +41,10 @@ export default function ProfilePage() {
   const fields: IUserSignInFormData = watch();
 
   useEffect(() => {
-    if (!user) return;
+    if (!user) {
+      setIsLoading(true);
+      return;
+    }
 
     setFormData({
       email: user.email,
@@ -48,15 +52,16 @@ export default function ProfilePage() {
       password: '',
       passwordConfirm: '',
     });
+    setIsLoading(false);
   }, [user]);
 
   const { update } = useAuth({
-    onSuccess: (_, dto: UserUpdateDTO) => updateMainContextCurrentUser(dto),
+    onSuccess: (_, dto: UserUpdateDTO) => updateCurrentUser(dto),
     onError: (err: AxiosError | Error) => setAlertInfo(handleRequestError(err)),
     onIsLoading: () => setAlertInfo({ message: "Enviando...", type: AlertType.PROGRESS })
   });
 
-  function updateMainContextCurrentUser(dto: UserUpdateDTO) {
+  function updateCurrentUser(dto: UserUpdateDTO) {
     const newUser: CurrentUser = new CurrentUser(
       dto.username || user?.userName!,
       dto.email    || user?.userName!,
@@ -75,14 +80,14 @@ export default function ProfilePage() {
     }
     
     update({
-      username: data.username,
-      email: data.email,
-      password: data.password,
+      username: data.username !== user?.userName ? data.username : undefined,
+      email: data.email !== user?.email ? data.email : undefined,
+      password: data.password !== '' ? data.password : undefined,
       token: user?.token!
     })
   }
-
-  return(
+  
+  return (
     <form onSubmit={ handleSubmit(onSubmit) } className="mx-auto md:w-1/2 w-96 overflow-y-auto rounded-md bg-layout-backgroud">
       <div id="banner" className="bg-primary w-full h-16" />
       <div className='text-white flex flex-col gap-y-3 p-2'>
@@ -91,6 +96,7 @@ export default function ProfilePage() {
               name="Nome de Usuário"
               inputClassName='bg-transparent text-white' 
               inputContainerClassName="bg-transparent border-b-primary border-b-[1px]"
+              isLoading={isLoading}
               endDecoration={ <IonIcon icon={personOutline} /> } />
         ) }/>
         <Controller name="email" control={ control } render={ ({field}) => (
@@ -98,6 +104,7 @@ export default function ProfilePage() {
               name="Email" 
               inputClassName='bg-transparent text-white' 
               inputContainerClassName="bg-transparent border-b-primary border-b-[1px]"
+              isLoading={isLoading}
               endDecoration={ <IonIcon icon={mailOutline} /> } />
         ) }/>
 
@@ -108,6 +115,7 @@ export default function ProfilePage() {
                 inputClassName='bg-transparent text-white' 
                 password={ isPasswordHidden }
                 containerClassName='w-full'
+                isLoading={isLoading}
                 inputContainerClassName="bg-transparent border-b-primary border-b-[1px]"
                 endDecoration={ 
                   <PasswordHiddenToggle initialState={ true } onChange={ setIsPasswordHidden }/> 
@@ -119,6 +127,7 @@ export default function ProfilePage() {
                 inputClassName='bg-transparent text-white' 
                 password={ isPasswordConfirmHidden }
                 containerClassName='w-full'
+                isLoading={isLoading}
                 inputContainerClassName="bg-transparent border-b-primary border-b-[1px]"
                 endDecoration={ 
                   <PasswordHiddenToggle initialState={ true } onChange={ setIsPasswordConfirmHidden }/> 
@@ -163,9 +172,7 @@ function getErrorMessage(data: IUserSignInFormData): string | undefined {
     return "Campo nome está vázio.";
   if (data.email === '')
     return "Campo email está vázio.";
-  if (data.password === '')
-    return "Você deve fornecer sua senha para fazer alterações.";
-  if (data.passwordConfirm !== '')
+  if (data.passwordConfirm !== '' && data.password !== '')
     if (data.password !== data.passwordConfirm)
       return "As senhas não são iguais.";
   if (!Validation.isValidEmail(data.email))

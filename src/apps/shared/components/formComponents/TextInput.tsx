@@ -1,5 +1,6 @@
 import StringFormatter from "@libs/StringFormatter";
-import { ChangeEventHandler } from "react";
+import { Skeleton } from "@mui/joy";
+import { ChangeEventHandler, forwardRef } from "react";
 
 export enum TextInputStyle {
   LABEL_LESS = 'LabelLess',
@@ -15,38 +16,42 @@ type TextInputProps = {
   endDecoration?: JSX.Element,
   password?: boolean,
   styleType?: TextInputStyle,
+  isLoading?: boolean,
   onChange?: ChangeEventHandler<HTMLInputElement>,
 }
 
-export default function TextInput(props: TextInputProps) {
+const TextInput = forwardRef((props: TextInputProps, ref: React.ForwardedRef<HTMLInputElement>) => {
   const styleType: TextInputStyle = props.styleType || TextInputStyle.REGULAR;
+  const isLoading: boolean = props.isLoading === undefined ? false : props.isLoading;
 
   switch (styleType) {
     case (TextInputStyle.LABEL_LESS):
-      return LabelLessTextInput(props);
+      return <LabelLessTextInput {...props} ref={ ref } isLoading={ isLoading } />;
     default: // REGULAR
-      return RegularTextInput(props);
+      return <RegularTextInput {...props} ref={ ref } isLoading={ isLoading } />;
   }
-}
+})
+export default TextInput;
 
-function RegularTextInput(props: TextInputProps) {
+const RegularTextInput = forwardRef((props: TextInputProps & { isLoading: boolean }, ref: React.ForwardedRef<HTMLInputElement>) => {
   return (
     <div className={ props.containerClassName }>
       <label htmlFor={ props.name }>{props.name}:</label>
-      <LabelLessTextInput {...props} />
+      <LabelLessTextInput {...props} ref={ ref } />
     </div>
-  )
-}
+  );
+})
 
-function LabelLessTextInput(props: TextInputProps) {
+const LabelLessTextInput = forwardRef((props: TextInputProps & { isLoading: boolean }, ref: React.ForwardedRef<HTMLInputElement>) => {
   const formatter: StringFormatter = new StringFormatter(props.name)
   const formatedName: string = formatter.replaceAll(' ', '-').toLowerCase()
 
   const makeInputClassName = (): string => 
-    "py-2 front-lg focus:outline-none text-black flex-grow "
-    + props.inputClassName
-    + (!props.endDecoration ? " pe-3" : '')
-    + (!props.startDecoration ? " ps-3" : '');
+    (props.inputClassName ?? '')
+    + ' py-2 front-lg text-black flex-grow'
+    + (props.styleType === TextInputStyle.LABEL_LESS ? ' focus:outline-none' : '')
+    + (!props.endDecoration ? ' pe-3' : '')
+    + (!props.startDecoration ? ' ps-3' : '');
   
   const makeContainerClassName = (): string => 
     "flex items-center "
@@ -55,14 +60,22 @@ function LabelLessTextInput(props: TextInputProps) {
     + (props.startDecoration ? " ps-3" : '');
 
   return (
-    <div className={ makeContainerClassName() }>
-      { props.startDecoration }
+    <Skeleton loading={ props.isLoading } variant="rectangular">
+      <div className={ makeContainerClassName() }>
+        { props.startDecoration }
 
-      <input id={ formatedName } name={ formatedName } aria-label={ formatedName } role="textbox"
-        placeholder={ props.name } type={ props.password ? "password" : "text" } defaultValue={ props.value } 
-        className={ makeInputClassName() } onChange={ props.onChange }/>
+        <input role="textbox"
+            ref={ ref }
+            id={ formatedName } 
+            name={ formatedName } 
+            className={ makeInputClassName() } onChange={ props.onChange }
+            aria-label={ formatedName } 
+            placeholder={ props.name } 
+            type={ props.password ? "password" : "text" } 
+            defaultValue={ props.value } />
 
-      { props.endDecoration }
-    </div>
+        { props.endDecoration }
+      </div>
+    </Skeleton>
   );
-}
+})

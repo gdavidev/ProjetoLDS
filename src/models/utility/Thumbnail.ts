@@ -20,10 +20,12 @@ export default class Thumbnail {
       this.base64 = null;
   }
 
-  toDisplayable(): string {
-    if (this.base64)
+  toDisplayable(options?: {fallback: string}): string {
+    if (this.file) {
+      return FileUtil.uploadedFileToURL(this.file)
+    } else if (this.base64)
       return 'data:image/jpeg;base64,' + this.base64
-    return ""
+    return options ? options.fallback : ''
   }
 
   renameFile(name: string): void {

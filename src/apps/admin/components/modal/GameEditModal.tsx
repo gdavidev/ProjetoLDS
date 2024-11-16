@@ -1,168 +1,132 @@
-import { useRef, RefObject, useState, useContext, useEffect } from 'react';
-import FormControl from '@mui/joy/FormControl';
-import FormLabel from '@mui/joy/FormLabel';
+import { useEffect, useState } from 'react';
 import { Alert } from '@mui/joy';
 import FileInput from '@shared/components/formComponents/FileInput';
 import FileInputImagePreview from '@shared/components/formComponents/FileInputImagePreview';
-import GameApiClient from '@api/GameApiClient';
 import { IonIcon } from '@ionic/react'
 import { document } from 'ionicons/icons'
 import Game from '@models/Game';
-import { useMutation } from 'react-query';
-import { MainContext, MainContextProps } from '@shared/context/MainContextProvider';
-import ModalPopup, { ModalPopupProps } from '@/apps/shared/components/ModalPopup';
-import Thumbnail from '@/models/Thumbnail';
-import SelectInput from '@/apps/shared/components/formComponents/SelectInput';
-import Emulator from '@/models/Emulator';
-import EmulatorApiClient from '@/api/EmulatorApiClient';
-import CategoryApiClient from '@/api/CategoryApiClient';
-import Category from '@/models/Category';
-import FileUtil from '@/libs/FileUtil';
+import ModalPopup, { ModalPopupProps } from '@apps/shared/components/ModalPopup';
+import Thumbnail from '@models/utility/Thumbnail';
+import SelectInput from '@apps/shared/components/formComponents/SelectInput';
+import Emulator from '@models/Emulator';
+import Category from '@models/Category';
+import useEmulators from '@/hooks/useEmulators';
+import useCategories from '@/hooks/useCategories';
+import useCurrentUser from '@/hooks/useCurrentUser';
+import { useStoreGame } from '@/hooks/useGames';
+import { AxiosError } from 'axios';
+import { Controller, FieldErrors, useForm } from 'react-hook-form';
+import TextInput from '@/apps/shared/components/formComponents/TextInput';
 import StringFormatter from '@/libs/StringFormatter';
+import FileUtil from '@/libs/FileUtil';
 
-export enum FormAction {
-  ADD,
-  EDIT,
-}
-export type GameEditModalProps = {
+type GameEditModalProps = {
   game: Game,
   onChange?: (newGame: Game) => void
 } & ModalPopupProps
+type GameEditModalFormData = {
+  name: string,
+  desc: string,
+  emulatorId: number,
+  categoryId: number,
+  thumbnail?: Thumbnail,
+  file?: File
+}
+const defaultValues: GameEditModalFormData = {
+  name: '',
+  desc: '',
+  emulatorId: -1,
+  categoryId: -1,
+  thumbnail: undefined,
+  file: undefined,
+}
 
 export default function GameEditModal(props: GameEditModalProps) {
-  const mainContext: MainContextProps = useContext<MainContextProps>(MainContext)
-  const [ errorMessage         , setErrorMessage         ] = useState<string | undefined>(undefined);  
-  const [ fileName             , setFileName             ] = useState<string>('');
-  const [ previewImage         , setPreviewImage         ] = useState<File | string>('');
   const [ emulatorSelectSource , setEmulatorSelectSource ] = useState<[number, string][]>([]);
   const [ emulatorList         , setEmulatorList         ] = useState<Emulator[]>([]);
   const [ categorySelectSource , setCategorySelectSource ] = useState<[number, string][]>([]);
   const [ categoryList         , setCategoryList         ] = useState<Category[]>([]);
-  const nameInput: RefObject<HTMLInputElement> = useRef<HTMLInputElement>(null);
-  const descInput: RefObject<HTMLInputElement> = useRef<HTMLInputElement>(null);
-  const emulatorSelect: RefObject<HTMLSelectElement> = useRef<HTMLSelectElement>(null);
-  const categorySelect: RefObject<HTMLSelectElement> = useRef<HTMLSelectElement>(null);  
-  const fileInput: RefObject<HTMLInputElement> = useRef<HTMLInputElement>(null);
-  const thumbnailInput: RefObject<HTMLInputElement> = useRef<HTMLInputElement>(null);
-  const formAction: FormAction = props.game.id === 0 ? FormAction.ADD : FormAction.EDIT;
-  
+  const { user } = useCurrentUser();
+  const { handleSubmit, watch, control, formState: { errors }, reset: setFormData } = 
+    useForm<GameEditModalFormData>({
+      defaultValues: defaultValues
+    })
+
+  const { isLoading: emulatorsIsLoading } = useEmulators({
+    onSuccess: (emulators: Emulator[]) => {
+      setEmulatorList(emulators);
+      const emulatorSelectSourceRaw: [number, string][] = emulators.map(em => [em.id, em.console]);
+      setEmulatorSelectSource([[-1, '--SELECIONE--'], ...emulatorSelectSourceRaw]);
+    },
+    onError: (err: AxiosError | Error) => console.log("err: " + JSON.stringify(err))
+  });
+  const { isLoading: categoriesIsLoading } = useCategories({
+    onSuccess: (categories: Category[]) => {
+      setCategoryList(categories);
+      const categorySelectSourceRaw: [number, string][] = categories.map(cat => [cat.id, cat.name]);
+      setCategorySelectSource([[-1, '--SELECIONE--'], ...categorySelectSourceRaw]);
+    },
+    onError: (err: AxiosError | Error) => console.log("err: " + JSON.stringify(err))
+  });
+
+  const {
+      mutate: storeGame,
+      reset: resetMutationResults, 
+      isLoading: storeIsLoading,
+      error: mutateError,
+      isSuccess,
+      isError
+    } = useStoreGame(user?.token!, {
+      onSuccess: async (game: Game) => props.onChange?.(game),
+      onError: (err: AxiosError | Error) => console.log("err: " + JSON.stringify(err))
+    });
+
   useEffect(() => {
-    fetchEmulatorData();
-    fectchCategoryData();
-  }, [props.isOpen]);
+    if (!props.isOpen) return;
 
-  async function fetchEmulatorData(): Promise<void> {
-    const emulatorApiClient: EmulatorApiClient = new EmulatorApiClient();
-    const emulatorList: Emulator[] = await emulatorApiClient.getAll();
-    setEmulatorList(emulatorList);
-    setEmulatorSelectSource(emulatorList.map(em => [em.id, em.console]))
-  }
-
-  async function fectchCategoryData(): Promise<void> {
-    const categoryApiCliente: CategoryApiClient = new CategoryApiClient();
-    const categoryList: Category[] = await categoryApiCliente.getAll();
-    setCategoryList(categoryList);
-    setCategorySelectSource(categoryList.map(cat => [cat.id, cat.name]))
-  }
-
-  useEffect(() => {
-    if (props.game.file) {
-      setFileName(props.game.file.name);
+    if (props.game.id !== 0) {
+      setFormData({
+        name: props.game.name,
+        desc: props.game.desc,
+        emulatorId: props.game.emulator.id,
+        categoryId: props.game.category.id,
+        thumbnail: props.game.thumbnail ?? undefined,
+        file: props.game.file ?? undefined,
+      })
     } else {
-      setFileName("");
-    }
-
-    if (props.game.thumbnail) {
-      if (props.game.thumbnail.base64) {
-        setPreviewImage(props.game.thumbnail.base64);
-      } else if (props.game.thumbnail.file) {
-        setPreviewImage(props.game.thumbnail.file);
-      }
-    } else {
-      setPreviewImage("");
+      setFormData(defaultValues)
     }
   }, [props.isOpen]);
-
-  const {isLoading, isSuccess, isError, mutate, error: mutateError, reset: resetMutationResults} = 
-    useMutation('query-games',
-      async (game: Game) => {
-        const gameApiClient: GameApiClient = new GameApiClient(mainContext.currentUser?.token!);
-        return await gameApiClient.store(game);
-      },
-      {
-        onSuccess: async (_, game: Game) => {        
-          triggerChanged(game, game.id);
-        },
-        onError: async (err: any) => {
-          console.log("err: " + JSON.stringify(err));
-        },
-      }
-    );
 
   function resetForm() {
-    resetMutationResults();    
-    setErrorMessage('');
+    resetMutationResults();
   }
 
-  async function submitGame(): Promise<void> {
-    setErrorMessage(getErrorOnValidateGameForm())
-    if (errorMessage) 
-      return
-    
-    let gameFile: File | null = fileInput.current && fileInput.current.files ?
-        fileInput.current.files[0] : null;
-    let thumbnailFile: Thumbnail | null = thumbnailInput.current && thumbnailInput.current.files ?
-        new Thumbnail(thumbnailInput.current.files[0]) : null;
-    let emulator: Emulator = emulatorList.find((value: Emulator) => Number(emulatorSelect.current?.value!) === value.id)!;
-    let category: Category = categoryList.find((value: Category) => Number(categorySelect.current?.value!) === value.id)!;
+  function submitGame(data: GameEditModalFormData) {    
+    const emulator: Emulator = emulatorList.find((emu: Emulator) => data.emulatorId == emu.id)!;
+    const category: Category = categoryList.find((cat: Category) => data.categoryId == cat.id)!;
 
-    if (thumbnailFile && nameInput.current)
-      thumbnailFile.renameFile((new StringFormatter(nameInput.current.value)).toUrlSafe());
-    if (gameFile && nameInput.current)
-      gameFile = FileUtil.renamed(gameFile, (new StringFormatter(nameInput.current.value)).toUrlSafe());
+    if (data.thumbnail)
+      data.thumbnail.renameFile((new StringFormatter(data.name)).toUrlSafe());  
+    if (data.file)
+      data.file = FileUtil.renamed(data.file, (new StringFormatter(data.name)).toUrlSafe());
 
-    const newGame: Game = new Game(
+    storeGame(new Game(
       props.game.id,
-      nameInput.current?.value,
-      descInput.current?.value,
+      data.name,
+      data.desc,
       emulator,
-      thumbnailFile,
-      gameFile,
+      data.thumbnail,
+      data.file,
       category,
-    )
-    mutate(newGame);
-  }
-
-  function triggerChanged(newGame: Game, newGameId: number) {
-    if (props.onChange) {
-      let thumbnailInputEl: HTMLInputElement | null = thumbnailInput.current;
-      if (thumbnailInputEl && thumbnailInputEl.files && thumbnailInputEl.files.length > 0) {
-        newGame.thumbnail = new Thumbnail(thumbnailInputEl.files[0]);
-      } else {
-        newGame.thumbnail = props.game.thumbnail;
-      }
-      newGame.file = new File([], fileName);
-
-      newGame.id = newGameId;
-      props.onChange(newGame);
-    }
-  }
-  
-  function getErrorOnValidateGameForm(): string | undefined {
-    if (nameInput.current?.value === "") return "Campo nome vazío."
-    if (descInput.current?.value === "") return "Campo descrição vazío."
-    if (emulatorSelect.current?.value === "") return "Campo emulador vazío."
-    if (formAction === FormAction.ADD) {
-      if (!(thumbnailInput.current?.files?.length! > 0)) return "Nenhuma thumbnail enviada."
-      if (!(fileInput.current?.files?.length! > 0)) return "Nenhuma rom enviada." 
-    }
-    return undefined
+    ));
   }
 
   function getAlert(): JSX.Element | undefined {
-    if (errorMessage)
-      return <Alert color="danger" >{ errorMessage }</Alert>
-    if (isLoading)
+    const formError = Object.values(errors).find(err => err.message !== undefined)
+    if (formError !== undefined)
+      return <Alert color="danger" >{ formError.message }</Alert>
+    if (storeIsLoading)
       return <Alert color="warning" >Enviando...</Alert>
     if (isSuccess)
       return <Alert color="success" >Enviado com sucesso!</Alert>
@@ -172,53 +136,88 @@ export default function GameEditModal(props: GameEditModalProps) {
   }
 
   return (
-    <ModalPopup title={ formAction === FormAction.EDIT ? "Editar Jogo" : "Adicionar Jogo" }
-        isOpen={ props.isOpen } bottomText={ props.bottomText } topText={ props.topText } 
-        onCloseRequest={ () => { resetForm(); props.onCloseRequest?.() } }
-        className="flex flex-col gap-y-3">
+    <ModalPopup title={ props.game.id !== 0 ? "Editar Jogo" : "Adicionar Jogo" }
+        isOpen={ props.isOpen } 
+        bottomText={ props.bottomText } 
+        topText={ props.topText } 
+        onCloseRequest={ () => { resetForm(); props.onCloseRequest?.() } }>      
       { getAlert() }
-      <div className="grid grid-cols-2 gap-x-5">
-        <div className="flex flex-col min-h-full justify-between">
-          <div className="flex flex-col gap-y-3">
-            <FormControl>              
-              <FormLabel>Nome</FormLabel>             
-              <input ref={ nameInput } type='text' className='input-text'
-                 defaultValue={ props.game?.name } />
-            </FormControl>
-            <FormControl>
-              <FormLabel>Descrição</FormLabel>
-              <input ref={ descInput } type='text' className='input-text'
-                 defaultValue={ props.game?.desc } />
-            </FormControl>
-            <FormControl>
-              <FormLabel>Console</FormLabel>
-              <SelectInput ref={ emulatorSelect } defaultValue={ props.game.emulator?.id }
-                  source={ emulatorSelectSource } className='input-text' />
-            </FormControl>
-            <FormControl>
-              <FormLabel>Category</FormLabel>
-              <SelectInput ref={ categorySelect } defaultValue={ props.game.category?.id }
-                  source={ categorySelectSource } className='input-text' />
-            </FormControl>
+      <form onSubmit={ handleSubmit(submitGame) }>
+        <div className="grid grid-cols-2 gap-x-5">        
+          <div className="flex flex-col min-h-full justify-between">
+            <div className="flex flex-col gap-y-3">
+              <Controller name="name" control={ control }
+                  rules={{ required: 'É necessário especificar um Nome.' }}
+                  render={ ({field}) => (
+                    <TextInput {...field} 
+                        name="Nome"
+                        inputClassName={ 'input-text' + (errors.name ? ' bg-red-100 border-red-500' : ' bg-slate-200') }
+                        inputContainerClassName="rounded-md overflow-hidden" />
+                ) }/>
+              <Controller name="desc" control={ control } 
+                  rules={{ required: 'É necessário especificar uma Descrição.' }}
+                  render={ ({field}) => (
+                    <TextInput {...field} 
+                        name="Descrição"
+                        inputClassName={ 'input-text' + (errors.desc ? ' bg-red-100 border-red-500' : ' bg-slate-200') }
+                        inputContainerClassName="rounded-md overflow-hidden" />
+                ) }/>
+              <Controller name="emulatorId" control={ control }
+                  defaultValue={-1}
+                  rules={{ validate: (value) => value > -1 || 'É necessário especificar um Console.' }}
+                  render={ ({field}) => (
+                    <SelectInput {...field}
+                        name="Console"
+                        source={ emulatorSelectSource } 
+                        isLoading={ emulatorsIsLoading }
+                        containerClassName='flex flex-col'
+                        className={'input-text ' + (errors.emulatorId ? ' bg-red-100 border-red-500' : ' bg-slate-200') } />
+                ) }/>
+              <Controller name="categoryId" control={ control }
+                  defaultValue={-1}
+                  rules={{ validate: (value) => value > -1 || 'É necessário especificar uma Categoria.' }}
+                  render={ ({field}) => (
+                    <SelectInput {...field}
+                        name="Categoria"
+                        source={ categorySelectSource }
+                        isLoading={ categoriesIsLoading }
+                        containerClassName='flex flex-col'
+                        className={ 'input-text ' + (errors.categoryId ? ' bg-red-100 border-red-500' : ' bg-slate-200') } />
+                ) }/>
+            </div>
+            <div className='flex justify-start items-center gap-x-2 my-2'>
+              <IonIcon className='min-h-4 min-w-4' icon={ document } />
+              <span className="truncate">{ watch("file")?.name }</span>
+            </div>
+            <Controller name="file" control={ control } 
+                rules={{ required: props.game.id !== 0 || 'É necessário enviar um arquivo.' }}
+                render={ ({field}) => (
+                  <FileInput {...field}
+                      onChange={ (e) => field.onChange(e?.[0]) }
+                      error={ errors.file !== undefined }
+                      buttonText='Arquivo do Jogo' />
+                ) }/>          
           </div>
-          <div className='flex justify-start items-center gap-x-2'>
-            <IonIcon className='min-h-4 min-w-4 mb-2 mt-4' icon={ document } />
-            <span className="truncate">
-                { fileName }
-            </span>
+          <div className="flex flex-col justify-between">
+            <FileInputImagePreview 
+                thumbnail={ watch('thumbnail') }
+                className="min-w-[300px] min-h-80" />
+
+            <Controller name="thumbnail" control={ control } 
+                rules={{ required: props.game.id !== 0 || 'É necessário enviar uma imagem.' }}
+                render={ ({field}) => (
+                <FileInput {...field}
+                    buttonText='Arquivo de imagem'
+                    onChange={ (e) => field.onChange(e ? new Thumbnail(e[0]) : undefined) }
+                    error={ errors.thumbnail !== undefined }
+                    accept="image/*" />
+              ) }/>
           </div>
-          <FileInput inputRef={ fileInput } buttonText='Upload File'
-              onChange={ (e) => { setFileName(e.target.files?.item(0)?.name!) } } />
         </div>
-        <div className="flex flex-col justify-between">
-          <FileInputImagePreview previewImageSource={ previewImage }
-             targetInputRef={ thumbnailInput } className="min-w-[300px] h-72" />
-          <FileInput inputRef={ thumbnailInput } buttonText='Upload Thumbnail' accept="image/*" />
-        </div>
-      </div>
-      <input type="button" onClick={ submitGame } disabled={ isLoading }
-          className={ "btn-r-md bg-primary text-white" + (isLoading ? " disabled" : "") }
-          value="Confirmar" />    
+        <input value="Confirmar" type="submit"
+            className={ "btn-r-md mx-auto w-60 mt-3 bg-primary text-white" + (storeIsLoading ? " disabled" : "") }            
+            disabled={ storeIsLoading } />
+      </form>      
     </ModalPopup>
   );
 };

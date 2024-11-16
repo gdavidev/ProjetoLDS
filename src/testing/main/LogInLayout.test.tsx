@@ -2,7 +2,7 @@ import '@testing-library/jest-dom/vitest'
 import { it, expect, describe, vi, suite } from 'vitest'
 import { render } from '@testing-library/react';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
-import { QueryClient, QueryClientProvider } from 'react-query';
+import { QueryService, QueryServiceProvider } from 'react-query';
 import LogInLayout from '@/apps/main/pages/auth/LogInLayout';
 import CurrentUser from '@/models/User';
 import { AlertInfo } from '@/apps/main/pages/auth/AuthPage';
@@ -16,7 +16,7 @@ describe("LogInLayout", () => {
   }
   const errorCallbackSpy = vi.spyOn(callbacks, 'error')
   const successCallbackSpy = vi.spyOn(callbacks, 'success')
-  const mockedQueryClient: QueryClient = new QueryClient();
+  const mockedQueryService: QueryService = new QueryService();
   const mockedBrowserRouter = createBrowserRouter([{
     path: '/',
     element: <LogInLayout onError={ callbacks.error } onSuccess={ callbacks.success } />
@@ -27,9 +27,9 @@ describe("LogInLayout", () => {
   let submitButton: HTMLElement
   beforeEach(() => {
     const { getByRole } = render(
-      <QueryClientProvider client={ mockedQueryClient }>
+      <QueryServiceProvider Service={ mockedQueryService }>
         <RouterProvider router={ mockedBrowserRouter } />
-      </QueryClientProvider>
+      </QueryServiceProvider>
     );
     emailInput = getByRole('textbox', { name: /email/i });
     passInput = getByRole('textbox', { name: /senha/i });

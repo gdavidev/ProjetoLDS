@@ -6,81 +6,81 @@
   /* BUTTONS */
   .btn {
     @apply font-rubik flex items-center font-bold px-5 py-1.5 transition duration-150 
-      ease-in-out cursor-pointer select-none justify-center
+      ease-in-out cursor-pointer select-none justify-center;
   }
   .btn:not([disabled]) {
-    @apply hover:scale-[105%] active:scale-[98%]
+    @apply hover:scale-[105%] active:scale-[98%];
   }
   .btn[disabled] {
-    @apply text-gray-400 bg-primary-dark
+    @apply text-gray-400 bg-primary-dark;
   }
   .btn-r-full {
-    @apply btn rounded-full 
+    @apply btn rounded-full;
   }
   .btn-r-md {
-    @apply btn rounded-md 
+    @apply btn rounded-md;
   }
 
   .input-text {
-    @apply bg-gray-100 text-slate-950 py-1.5 px-2 focus:outline-primary border-[1px]
-     border-gray-200 rounded-md box-border
+    @apply text-slate-950 py-1.5 px-2 focus:outline-primary border-[1px]
+     border-gray-200 rounded-md box-border;
   }
-}        
+}
 
 /*------- POPPINS -------*/
 @font-face {
-  font-family: 'Poppins';
+  font-family: "Poppins";
   font-weight: bolder;
   font-style: normal;
-  src: url('../../../public/fonts/Poppins/Poppins-Black.ttf') format('ttf'); 
+  src: url("../../../public/fonts/Poppins/Poppins-Black.ttf") format("ttf");
 }
 @font-face {
-  font-family: 'Poppins';
+  font-family: "Poppins";
   font-weight: bold;
   font-style: normal;
-  src: url('../../../public/fonts/Poppins/Poppins-Bold.ttf') format('ttf'); 
+  src: url("../../../public/fonts/Poppins/Poppins-Bold.ttf") format("ttf");
 }
 @font-face {
-  font-family: 'Poppins';
+  font-family: "Poppins";
   font-weight: bold;
   font-style: italic;
-  src: url('../../../public/fonts/Poppins/Poppins-BoldItalic.ttf') format('ttf'); 
+  src: url("../../../public/fonts/Poppins/Poppins-BoldItalic.ttf") format("ttf");
 }
 @font-face {
-  font-family: 'Poppins';
+  font-family: "Poppins";
   font-weight: normal;
   font-style: italic;
-  src: url('../../../public/fonts/Poppins/Poppins-Italic.ttf') format('ttf'); 
+  src: url("../../../public/fonts/Poppins/Poppins-Italic.ttf") format("ttf");
 }
 @font-face {
-  font-family: 'Poppins';
+  font-family: "Poppins";
   font-weight: normal;
   font-style: normal;
-  src: url('../../../public/fonts/Poppins/Poppins-Regular.ttf') format('ttf');
+  src: url("../../../public/fonts/Poppins/Poppins-Regular.ttf") format("ttf");
 }
 
 /*------- RUBIK -------*/
 @font-face {
-  font-family: 'Rubik';
+  font-family: "Rubik";
   font-weight: bolder;
   font-style: normal;
-  src: url('assets/fonts/Rubik/Rubik-Black.ttf') format('ttf') 
+  src: url("assets/fonts/Rubik/Rubik-Black.ttf") format("ttf");
 }
-@font-face { 
-  font-family: 'Rubik';
+@font-face {
+  font-family: "Rubik";
   font-weight: bold;
   font-style: normal;
-  src: url('assets/fonts/Rubik/Rubik-Bold.ttf') format('ttf');
+  src: url("assets/fonts/Rubik/Rubik-Bold.ttf") format("ttf");
 }
-@font-face { 
-  font-family: 'Rubik';
+@font-face {
+  font-family: "Rubik";
   font-weight: normal;
   font-style: normal;
-  src: url('assets/fonts/Rubik/Rubik-Medium.ttf') format('ttf');
+  src: url("assets/fonts/Rubik/Rubik-Medium.ttf") format("ttf");
 }
-@font-face { 
-  font-family: 'Rubik';
+@font-face {
+  font-family: "Rubik";
   font-weight: normal;
   font-style: italic;
-  src: url('assets/fonts/Rubik/Rubik-MediumItalic.ttf') format('ttf');
+  src: url("assets/fonts/Rubik/Rubik-MediumItalic.ttf") format("ttf");
 }

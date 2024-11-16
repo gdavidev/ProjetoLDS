@@ -1,4 +1,4 @@
-import React, { PropsWithRef, useEffect, useState } from "react";
+import React, { PropsWithRef, useLayoutEffect, useState } from "react";
 import { AlertInfo, AlertType } from "./AuthPage.tsx";
 import FormGroup from "@apps/shared/components/formComponents/FormGroup.tsx"
 import TextInput, { TextInputStyle } from "@apps/shared/components/formComponents/TextInput.tsx";
@@ -10,8 +10,9 @@ import { AxiosError } from 'axios';
 import { Controller, useForm } from "react-hook-form";
 import { IonIcon } from "@ionic/react";
 import { mailOutline } from "ionicons/icons"
-import PasswordHiddenToggle from "../../components/PasswordHiddenToggle.tsx";
+import PasswordHiddenToggle from "@apps/main/components/PasswordHiddenToggle.tsx";
 import useAuth from "@/hooks/useAuth.ts";
+import useErrorHandling from "@/hooks/useErrorHandling.tsx";
 
 type LogInLayoutProps = {
   onSuccess?: (user: CurrentUser) => void,
@@ -31,10 +32,15 @@ const defaultValues: ILogInLayoutFormData = {
 export default function LogInLayout(props: PropsWithRef<LogInLayoutProps>): React.ReactElement {  
   const [ isPasswordResetModalOpen, setIsPasswordResetModalOpen ] = useState<boolean>(false);
   const [ isPasswordHidden        , setIsPasswordHidden         ] = useState<boolean>(true);
-  const { handleSubmit, watch, getValues, control } = useForm<ILogInLayoutFormData>({
+  const { handleSubmit, watch, getValues, control, reset: setFormData, clearErrors } = useForm<ILogInLayoutFormData>({
     defaultValues: defaultValues,
   });
   const fields: ILogInLayoutFormData = watch();
+
+  useLayoutEffect(() => {
+    clearErrors();
+    setFormData(defaultValues);
+  }, []);
 
   const { login, forgotPassword } = useAuth({
     onLogin: {
@@ -48,28 +54,18 @@ export default function LogInLayout(props: PropsWithRef<LogInLayoutProps>): Reac
     onIsLoading: () => props.onStateChanged?.({ message: "Enviando...", type: AlertType.PROGRESS })
   });
 
-  function doLogin(data: ILogInLayoutFormData): void {    
-    login({
-      email: data.email,
-      password: data.password
-    });
-  }
-  function doSendEmailPasswordReset(data: ILogInLayoutFormData) {
-    forgotPassword({
-      email: data.email
-    });
-  }
+  const doLogin = (data: ILogInLayoutFormData) => login({ email: data.email, password: data.password });  
+  const doSendEmailPasswordReset = (data: ILogInLayoutFormData) => forgotPassword({ email: data.email});
+ 
+  useErrorHandling({
+    handler: () => getErrorMessage(fields),
+    onError: (message: string) => props.onError?.({ message: message, type: AlertType.ERROR })
+  }, []);
 
   function openEmailSentModal() {
     setIsPasswordResetModalOpen(true);
     props.onStateChanged?.({ type: AlertType.HIDDEN })
   }
-  
-  useEffect(() => {
-    const error: string | undefined = getErrorMessage(fields);
-    if (error)
-      props.onError?.({ message: error, type: AlertType.ERROR });
-  }, []);
 
   return(
     <>

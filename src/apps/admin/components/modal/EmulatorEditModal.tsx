@@ -1,17 +1,17 @@
-import { useContext, useEffect } from 'react';
+import { useEffect } from 'react';
 import FormControl from '@mui/joy/FormControl';
 import FormLabel from '@mui/joy/FormLabel';
 import { Alert } from '@mui/joy';
-import { useMutation, UseMutationResult } from 'react-query';
-import { MainContext, MainContextProps } from '@shared/context/MainContextProvider';
+import { UseMutationResult } from 'react-query';
 import ModalPopup, { ModalPopupProps } from '@/apps/shared/components/ModalPopup';
 import Emulator from '@/models/Emulator';
-import EmulatorApiClient from '@/api/EmulatorApiClient';
 import { FormState, useForm } from 'react-hook-form';
 import { IonIcon } from '@ionic/react';
 import { document, cloudUploadOutline } from 'ionicons/icons';
 import Button from '@mui/joy/Button';
 import FileUtil from '@/libs/FileUtil';
+import useCurrentUser from '@/hooks/useCurrentUser';
+import { useStoreEmulator } from '@/hooks/useEmulators';
 
 export type EmulatorEditModalProps = {
   emulator: Emulator,
@@ -32,7 +32,7 @@ const defaultValues: IEmulatorFormData = {
 }
 
 export default function EmulatorEditModal(props: EmulatorEditModalProps) {
-  const mainContext: MainContextProps = useContext<MainContextProps>(MainContext)
+  const { user } = useCurrentUser();  
   const { register, handleSubmit, watch, reset: setFormData, clearErrors, formState } = useForm<IEmulatorFormData>({
     defaultValues: defaultValues,
   });
@@ -47,19 +47,17 @@ export default function EmulatorEditModal(props: EmulatorEditModalProps) {
       });
   }, [props.isOpen])
   
-  const emulatorService = useMutation('mutate-emulator',
-      async (emulator: Emulator) => {
-        const emulatorApiClient: EmulatorApiClient = new EmulatorApiClient(mainContext.currentUser?.token!);
-        return await emulatorApiClient.store(emulator);
-      },
-      {
-        onSuccess: async (_, emulator: Emulator) => props.onChange?.(emulator),
-        onError: async (err: any) => console.log("err: " + JSON.stringify(err)),
-      }
-    );
+  const { 
+    mutate: storeEmulator,
+    reset: resetStoreEmulator, 
+    isLoading: isSendingEmulator 
+  } = useStoreEmulator(user?.token!, {
+    onSuccess: (emulator: Emulator) => props.onChange?.(emulator),
+    onError: (err: any) => console.log("err: " + JSON.stringify(err)),
+  })
 
   const resetForm = () => { 
-    emulatorService.reset();
+    resetStoreEmulator();
     clearErrors();
     setFormData();
   }
@@ -73,7 +71,7 @@ export default function EmulatorEditModal(props: EmulatorEditModalProps) {
       data.company,
       emulatorFile,
     );
-    emulatorService.mutate(newEmulator);
+    storeEmulator(newEmulator);
   }  
 
   return (
@@ -82,7 +80,7 @@ export default function EmulatorEditModal(props: EmulatorEditModalProps) {
         onCloseRequest={ () => { resetForm(); props.onCloseRequest?.() } }
         className="flex flex-col gap-y-3">
       <form onSubmit={ handleSubmit(onSubmit) }>
-        { getAlert(formState, emulatorService) }
+        {/* { getAlert(formState, emulatorService) } */}
         <div className="flex flex-col gap-y-3 min-h-full justify-between">
           <FormControl>
             <FormLabel>Console</FormLabel>
@@ -105,8 +103,8 @@ export default function EmulatorEditModal(props: EmulatorEditModalProps) {
             <input type="file" className='hidden' {...register("file", { required: true })} />
           </Button>
         </div>
-        <input type="submit" disabled={ emulatorService.isLoading } value="Confirmar"
-            className={ "btn-r-md bg-primary text-white w-full mt-4" + (emulatorService.isLoading ? " disabled" : "") } />
+        <input type="submit" disabled={ isSendingEmulator } value="Confirmar"
+            className={ "btn-r-md bg-primary text-white w-full mt-4" + (isSendingEmulator ? " disabled" : "") } />
       </form>
     </ModalPopup>
   );

@@ -10,8 +10,11 @@ import AdminApp from '@apps/admin/AdminApp.tsx'
 import GameViewPage from '@apps/main/pages/GameViewPage.tsx'
 /*Admin*/
 import GamesView from '@apps/admin/pages/GamesView.tsx'
-import EmulatorsView from '../admin/pages/EmulatorsView'
-import UsersView from '../admin/pages/UsersView'
+import EmulatorsView from '@apps/admin/pages/EmulatorsView'
+import UsersView from '@apps/admin/pages/UsersView'
+/*Forum*/
+import FeedPage from '@apps/main/pages/forum/FeedPage'
+import PostPage from '@apps/main/pages/forum/PostPage'
 /*Misc*/
 import ErrorPage from '@shared/pages/ErrorPage.tsx'
 
@@ -23,12 +26,14 @@ const router = createBrowserRouter([
     children: [
         { path: '/',                   element: <HomePage />                                   },
         { path: '/library/:profileId', element: <LibraryPage />                                },
-        { path: '/games',              element: <GamesPage />                                  },
+        { path: '/games',              element: <GamesPage />                                  },        
         { path: '/sign-in',            element: <AuthPage mode={AuthPageMode.REGISTER} />      },
         { path: '/log-in',             element: <AuthPage mode={AuthPageMode.LOGIN} />         },
         { path: '/reset-password',     element: <AuthPage mode={AuthPageMode.RESET_PASSWORD} />},
         { path: '/profile',            element: <ProfilePage />                                },
         { path: '/game/:gameId',       element: <GameViewPage />                               },
+        { path: '/feed',               element: <FeedPage />                                   },
+        { path: '/post/:postId',       element: <PostPage />                                   },
       ]      
   },
   {

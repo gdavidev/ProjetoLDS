@@ -1,7 +1,7 @@
 import * as DTO from "@models/data/GameDTOs";
 import Emulator from "@models/Emulator";
 import Category from "@models/Category";
-import Thumbnail from "@models/Thumbnail";
+import Thumbnail from "@models/utility/Thumbnail";
 
 export default class Game {
   id: number;

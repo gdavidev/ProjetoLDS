@@ -1,21 +1,10 @@
-import { useContext, useEffect, useLayoutEffect, useState } from "react"
 import { Link } from "react-router-dom"
-import { MainContext, MainContextProps } from "@shared/context/MainContextProvider"
 import { IonIcon } from '@ionic/react'
 import { home, exit, person, gameController } from 'ionicons/icons';
-import CurrentUser from "@/models/User";
+import useCurrentUser from "@/hooks/useCurrentUser";
 
 export default function SideMenu() {
-  const [ user, setCurrentUser ] = useState<CurrentUser | undefined>(undefined);
-  const context: MainContextProps = useContext(MainContext)
-
-  useLayoutEffect(() => {    
-    context.onUserAuth.subscribe(setCurrentUser);
-  });
-  useEffect(() => {
-    setCurrentUser(context.currentUser);
-    return context.onUserAuth.remove(setCurrentUser) // Cleanup code
-  })
+  const { user } = useCurrentUser()
   
   return (
     <>

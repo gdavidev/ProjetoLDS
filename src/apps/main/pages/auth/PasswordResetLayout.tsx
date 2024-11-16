@@ -2,7 +2,7 @@ import React, { PropsWithoutRef, useEffect, useState } from "react";
 import { AlertInfo, AlertType } from "./AuthPage.tsx";
 import TextInput, { TextInputStyle } from "@apps/shared/components/formComponents/TextInput.tsx";
 import { useMutation } from "react-query";
-import UserApiClient from "@api/UserApiClient.ts";
+import UserApiService from "@api/UserApiService.ts";
 import { UserResetPasswordDTO } from "@models/data/UserDTOs.ts";
 import { useSearchParams } from "react-router-dom";
 import { AxiosError } from 'axios';
@@ -37,8 +37,8 @@ export default function PasswordResetLayout(props: PropsWithoutRef<IPasswordRese
     async (dto: UserResetPasswordDTO) => {
       const token: string | null = params.get('token')
       if (token) {
-        const userApiClient: UserApiClient = new UserApiClient()
-        return userApiClient.resetPassword(dto, token);
+        const userApiService: UserApiService = new UserApiService()
+        return userApiService.resetPassword(dto, token);
       }
     }, {      
       onSuccess: () => props.onSuccess?.(),

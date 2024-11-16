@@ -1,61 +1,42 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import Box from '@mui/joy/Box';
 import Button from '@mui/joy/Button';
 import Game from '@models/Game';
 import { IonIcon } from '@ionic/react'
 import { add, createOutline, trashOutline, reloadOutline } from 'ionicons/icons';
-import TableDisplay from '../components/TableDisplay';
-import GameEditModal from '../components/modal/GameEditModal';
-import GameApiClient from '@api/GameApiClient';
-import { MainContext, MainContextProps } from '@shared/context/MainContextProvider';
+import TableDisplay from '@apps/admin/components/TableDisplay';
+import GameEditModal from '@apps/admin/components/modal/GameEditModal';
 import FileUtil from '@libs/FileUtil';
-import { useMutation } from 'react-query';
 import { IconButton } from '@mui/joy';
+import useCurrentUser from '@/hooks/useCurrentUser';
+import useStatefulArray from '@/hooks/useStatefulArray';
+import useGames, { useDeleteGame } from '@/hooks/useGames';
 
 export default function GamesView() {
-  const mainContext: MainContextProps = useContext(MainContext);
-  const [ gameModalGame   , setGameModalGame   ] = useState<Game>(new Game());
+  const [ gameModalData   , setGameModalData   ] = useState<Game>(new Game());
   const [ isGameModalOpen , setIsGameModalOpen ] = useState<boolean>(false);
-  const [ gameList        , setGameList        ] = useState<Game[]>([]);
-  useEffect(() => {
-    fetchGameData();
-  }, [])
+  const { user } = useCurrentUser();
+  const gameList = useStatefulArray<Game>([], {
+    compare: (game1: Game, game2: Game) => game1.id === game2.id
+  });
 
-  function fetchGameData() {
-    const gameApiClient: GameApiClient = new GameApiClient()
-    gameApiClient.getAll()
-      .then(data => {        
-        data.sort((prev: Game, curr: Game) => prev.id - curr.id)
-        setGameList(data);
-      });
-  }
-
-  const { mutate: deleteGame } = useMutation('delete-game',
-    async (game: Game) => {
-      const gameApiClient: GameApiClient = new GameApiClient(mainContext.currentUser?.token!);
-      return await gameApiClient.delete(game);
-    },
-    {
-      onSuccess: (_, game) => deleteGameOnGameList(game.id),
-      onError: (err: any) => console.log("err: " + JSON.stringify(err)),
-    }
-  );
+  const { refetch: refechGames } = useGames({
+    onSuccess: (games: Game[]) => gameList.set(games.sort((prev, curr) => prev.id - curr.id))
+  });
+  const { mutate: deleteGame } = useDeleteGame(user?.token!, {
+    onSuccess: (game: Game) => gameList.remove(game),
+    onError: (err: any) => console.log("err: " + JSON.stringify(err))
+  })
 
   function addGame() {
-    setGameModalGame(new Game());
+    setGameModalData(new Game());
     setIsGameModalOpen(true);
   }
   function editGame(game: Game) {
-    setGameModalGame(game);
+    setGameModalData(game);
     setIsGameModalOpen(true);
   }
-      
-  const appendGameOnGameList = (newGame: Game): void => {
-    setGameList(gd => [...gd, newGame])
-  }
-  const deleteGameOnGameList = (deletedGameId: number): void => {
-    setGameList(list => list.filter(game => game.id !== deletedGameId))
-  }
+  
   const updateGameOnGameList = (newGame: Game) => {
     const oldGame: Game | undefined = gameList.find(game => game.id === newGame.id)
     if (oldGame) {
@@ -65,9 +46,7 @@ export default function GamesView() {
       if (updatedGame.file === undefined && oldGame.file !== undefined)
         updatedGame.file = oldGame.file
 
-      setGameList(list => {
-        return list.map(game => game.id === updatedGame.id ? game = updatedGame : game )
-      })
+      gameList.update(newGame)
     }
   }
 
@@ -87,7 +66,7 @@ export default function GamesView() {
         <div className="flex justify-between items-center mx-5 text-white">
           <h2 className="font-rubik font-bold">Lista de Jogos</h2>
           <div className="flex gap-x-2 ">
-            <IconButton variant="solid" color="neutral" onClick={ fetchGameData } >
+            <IconButton variant="solid" color="neutral" onClick={ () => refechGames() } >
               <IonIcon icon={ reloadOutline } />
             </IconButton>
             <button className='btn-r-md bg-primary hover:bg-primary-dark text-white'
@@ -100,7 +79,7 @@ export default function GamesView() {
             tableStyleObject={{width: '100%', borderSpacing: '0 3px'}}
             tableHeaderClassName='text-white font-rubik font-bold'>
           { 
-            gameList.map((game: Game, index: number) => {
+            gameList.all.map((game: Game, index: number) => {
                 return ( 
                   <GameDataTableRow key={index} game={ game }
                     rowClassName="bg-primary-light text-white"
@@ -114,9 +93,9 @@ export default function GamesView() {
           }
         </TableDisplay>
       </div>
-      <GameEditModal game={ gameModalGame } 
+      <GameEditModal game={ gameModalData } 
           onCloseRequest={ () => { setIsGameModalOpen(false) } } isOpen={ isGameModalOpen } 
-          onChange={ gameModalGame.id === 0 ? appendGameOnGameList : updateGameOnGameList } />
+          onChange={ gameModalData.id === 0 ? gameList.append : updateGameOnGameList } />
     </>
   );
 }

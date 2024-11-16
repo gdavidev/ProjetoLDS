@@ -21,7 +21,7 @@ export default function App() {
   return (
     <>
       <Header />
-      <main className={ "px-16 pt-28 pb-16 min-w-screen min-h-screen bg-no-repeat" + backgroundClass }>
+      <main className={ "pt-28 pb-16 min-w-screen min-h-screen bg-no-repeat" + backgroundClass }>
         <Outlet />
       </main>
       <Footer />

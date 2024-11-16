@@ -1,7 +1,7 @@
-import UserApiClient from '@/api/UserApiClient';
-import { UserForgotPasswordDTO, UserLoginDTO, UserRegisterDTO, UserResetPasswordDTO, UserUpdateDTO } from '@models/data/UserDTOs';
+import UserApiService from '@/api/UserApiService';
+import * as DTO from '@models/data/UserDTOs';
 import { AxiosError } from 'axios';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useMutation } from 'react-query';
 
 type UseAuthEvents = {
@@ -21,11 +21,11 @@ type UseAuthOptions = {
   onIsLoading?: () => void
 }
 type UseAuthResult = {
-  login: (data: UserLoginDTO) => void
-  register: (data: UserRegisterDTO) => void
-  forgotPassword: (data: UserForgotPasswordDTO) => void
-  passwordReset: (data: UserResetPasswordDTO & {token: string}) => void
-  update: (data: UserUpdateDTO & {token: string}) => void
+  login: (data: DTO.UserLoginDTO) => void
+  register: (data: DTO.UserRegisterDTO) => void
+  forgotPassword: (data: DTO.UserForgotPasswordDTO) => void
+  passwordReset: (data: DTO.UserResetPasswordDTO & {token: string}) => void
+  update: (data: DTO.UserUpdateDTO & {token: string}) => void
   reset: () => void
   isLoading: boolean
 }
@@ -38,43 +38,28 @@ export default function useAuth(options?: UseAuthOptions | UseAuthOptionsEvents)
   } : undefined;
 
   const loginMutation = useMutation('LOGIN_USER',
-    async (dto: UserLoginDTO) => {
-      const userApiClient: UserApiClient = new UserApiClient();
-      return userApiClient.login(dto);
-    }, 
+    async (dto: DTO.UserLoginDTO) => UserApiService.login(dto), 
     mutationFn ?? (options as UseAuthOptions)?.onLogin
   );
 
   const forgotPasswordMutation = useMutation('FORGOT_PASS',
-    async (data: {email: string}) => {
-      const userApiClient = new UserApiClient()
-      return userApiClient.forgotPassword(data)
-    }, 
+    async (data: DTO.UserForgotPasswordDTO) => UserApiService.forgotPassword(data), 
     mutationFn ?? (options as UseAuthOptions)?.onForgotPassword
   );
 
   const registerMutation = useMutation('REGISTER_USER',
-    async (dto: UserRegisterDTO) => {
-      const userApiClient: UserApiClient = new UserApiClient();
-      return userApiClient.register(dto);
-    },
+    async (dto: DTO.UserRegisterDTO) => UserApiService.register(dto),
     mutationFn ?? (options as UseAuthOptions)?.onRegister   
   );
 
   const passwordResetMutation = useMutation('RESET_USER_PASSWORD',
-    async (dto: UserResetPasswordDTO & {token: string}) => {
-      const userApiClient: UserApiClient = new UserApiClient()
-      return userApiClient.resetPassword(dto, dto.token);      
-    }, 
+    async (dto: DTO.UserResetPasswordDTO & {token: string}) => UserApiService.resetPassword(dto, dto.token), 
     mutationFn ?? (options as UseAuthOptions)?.onPasswordReset
   );
 
   const updateUserMutation = useMutation('UPDATE_USER', 
-    async (dto: UserUpdateDTO & { token: string }) => {
-      const userApiClient: UserApiClient = new UserApiClient();
-      return userApiClient.update(dto, dto.token!)
-    }, 
-    mutationFn ?? (options as UseAuthOptions)?.onPasswordReset
+    async (dto: DTO.UserUpdateDTO & { token: string }) => UserApiService.update(dto, dto.token), 
+    mutationFn ?? (options as UseAuthOptions)?.onUpdate
   );
 
   useEffect(() => {
@@ -90,13 +75,13 @@ export default function useAuth(options?: UseAuthOptions | UseAuthOptionsEvents)
       options?.onIsLoading?.()
   }, [loginMutation.isLoading, forgotPasswordMutation.isLoading, registerMutation.isLoading, passwordResetMutation.isLoading]);
 
-  const reset = (): void => {
+  const reset = useCallback((): void => {
     loginMutation.reset()
     forgotPasswordMutation.reset()
     registerMutation.reset()
     passwordResetMutation.reset()
     updateUserMutation.reset()
-  }
+  }, []);
 
   return {
     login: loginMutation.mutate,
