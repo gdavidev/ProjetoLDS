@@ -1,5 +1,5 @@
 import StringFormatter from "@libs/StringFormatter";
-import { Skeleton } from "@mui/joy";
+import { Skeleton } from "@mui/material";
 import { ChangeEventHandler, forwardRef } from "react";
 
 export enum TextInputStyle {

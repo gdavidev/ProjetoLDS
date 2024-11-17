@@ -1,4 +1,4 @@
-import { Skeleton } from "@mui/joy"
+import { Skeleton } from "@mui/material"
 import { forwardRef } from "react"
 
 export enum SelectInputStyle {

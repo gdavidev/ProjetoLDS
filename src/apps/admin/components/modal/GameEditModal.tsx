@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Alert } from '@mui/joy';
+import { Alert } from '@mui/material';
 import FileInput from '@shared/components/formComponents/FileInput';
 import FileInputImagePreview from '@shared/components/formComponents/FileInputImagePreview';
 import { IonIcon } from '@ionic/react'

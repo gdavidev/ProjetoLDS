@@ -1,7 +1,7 @@
 import Category from '@/models/Category';
 import CurrentUser from '@/models/User';
-import { Alert, FormControl } from '@mui/joy';
-import Chip from '@mui/joy/Chip';
+import { Alert, FormControl } from '@mui/material';
+import Chip from '@mui/material/Chip';
 import { useEffect, useState } from 'react';
 import { AxiosError } from 'axios'
 import { UserUpdateDTO } from '@/models/data/UserDTOs';

@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import Box from '@mui/joy/Box';
-import Button from '@mui/joy/Button';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
 import { IonIcon } from '@ionic/react'
 import { add, createOutline, trashOutline, reloadOutline } from 'ionicons/icons';
 import TableDisplay from '@apps/admin/components/TableDisplay';
-import { IconButton } from '@mui/joy';
+import { IconButton } from '@mui/material';
 import Emulator from '@models/Emulator';
 import EmulatorEditModal from '../components/modal/EmulatorEditModal';
 import useStatefulArray from '@/hooks/useStatefulArray';

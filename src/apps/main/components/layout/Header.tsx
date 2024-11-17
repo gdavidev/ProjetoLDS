@@ -1,8 +1,8 @@
 import { useContext, useEffect, useState } from "react";
-import Menu from '@mui/joy/Menu';
-import MenuButton from '@mui/joy/MenuButton';
-import MenuItem from '@mui/joy/MenuItem';
-import Dropdown from '@mui/joy/Dropdown';
+import Menu from '@mui/material/Menu';
+import MenuButton from '@mui/material/MenuButton';
+import MenuItem from '@mui/material/MenuItem';
+import Dropdown from '@mui/material/Dropdown';
 import SearchBar from "@shared/components/formComponents/SearchBar";
 import { Link, useLocation } from "react-router-dom";
 import Navbar from "./Navbar";

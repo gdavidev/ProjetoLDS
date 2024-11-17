@@ -1,4 +1,4 @@
-import { Alert } from "@mui/joy";
+import { Alert } from "@mui/material";
 import { useEffect, useState } from "react";
 
 type UseErrorHandlingOptions = {

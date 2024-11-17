@@ -1,9 +1,9 @@
 import { PropsWithChildren } from 'react';
-import Modal from '@mui/joy/Modal';
-import ModalDialog from '@mui/joy/ModalDialog';
-import DialogTitle from '@mui/joy/DialogTitle';
-import DialogContent from '@mui/joy/DialogContent';
-import ModalClose from '@mui/joy/ModalClose';
+import Modal from '@mui/material/Modal';
+import ModalDialog from '@mui/material/ModalDialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import ModalClose from '@mui/material/ModalClose';
 
 export type ModalPopupProps = {
   title?: string,

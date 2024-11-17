@@ -1,5 +1,5 @@
 import React, { useState, PropsWithoutRef, useContext, useEffect } from "react";
-import { Alert, ColorPaletteProp } from "@mui/joy";
+import { Alert, ColorPaletteProp } from "@mui/material";
 import SignInLayout from "@/apps/main/pages/auth/SignInLayout";
 import LogInLayout from "@/apps/main/pages/auth/LogInLayout";
 import logo from '/icons/logo.png'

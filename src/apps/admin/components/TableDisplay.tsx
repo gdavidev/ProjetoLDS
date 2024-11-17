@@ -1,5 +1,5 @@
 import React from 'react';
-import Table from '@mui/joy/Table';
+import Table from '@mui/material/Table';
 
 type TableDisplayProps = {
   tableStyleObject?: React.CSSProperties,
