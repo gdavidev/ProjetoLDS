@@ -1,5 +1,5 @@
 import React, { useState, PropsWithoutRef, useContext, useEffect } from "react";
-import { Alert, ColorPaletteProp } from "@mui/material";
+import { Alert, AlertColor } from "@mui/material";
 import SignInLayout from "@/apps/main/pages/auth/SignInLayout";
 import LogInLayout from "@/apps/main/pages/auth/LogInLayout";
 import logo from '/icons/logo.png'
@@ -64,16 +64,16 @@ export default function AuthPage(props: PropsWithoutRef<AuthPageProps>): React.R
 }
 
 function getAlert(alertFeedbackData: AlertInfo): React.ReactElement {
-  let style: ColorPaletteProp;
+  let style: AlertColor | undefined;
   switch (alertFeedbackData.type) {
-    case AlertType.ERROR:     style = 'danger' ;  break;
+    case AlertType.ERROR:     style = 'error' ;  break;
     case AlertType.SUCCESS:   style = 'success';  break;
-    case AlertType.PROGRESS:  style = 'warning';  break;
-    default: style = 'neutral'; break;
+    case AlertType.PROGRESS:  style = 'info';  break;
+    default: style = undefined; break;
   }
 
   return (
-    <Alert color={ style } sx={{width: '100%'}} >
+    <Alert severity={ style } sx={{width: '100%'}} >
       { alertFeedbackData.message }
     </Alert>
   )

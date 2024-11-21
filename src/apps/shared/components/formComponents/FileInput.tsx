@@ -16,11 +16,10 @@ export const FileInput = forwardRef((props: FileInputProps, ref: React.Forwarded
   return (
     <Button 
         component="label" 
-        role={undefined} 
         tabIndex={-1} 
         variant="outlined"
-        color={ props.error ? "danger" : 'neutral' }
-        startDecorator={ <IonIcon icon={ cloudUploadOutline } /> }
+        color={ props.error ? "error" : 'primary' }
+        startIcon={ <IonIcon icon={ cloudUploadOutline } /> }
         className={ props.className }>
       { props.buttonText }
       <input ref={ ref } type="file" 

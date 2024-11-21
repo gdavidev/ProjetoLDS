@@ -1,27 +1,19 @@
-import { useContext, useEffect, useState } from "react";
+import { useState } from "react";
 import Menu from '@mui/material/Menu';
-import MenuButton from '@mui/material/MenuButton';
 import MenuItem from '@mui/material/MenuItem';
-import Dropdown from '@mui/material/Dropdown';
 import SearchBar from "@shared/components/formComponents/SearchBar";
 import { Link, useLocation } from "react-router-dom";
 import Navbar from "./Navbar";
-import { MainContext, MainContextProps } from "@shared/context/MainContextProvider";
 import CurrentUser from "@models/User";
 import { IonIcon } from "@ionic/react";
 import { caretDown, person } from "ionicons/icons";
 import logo from '/icons/logo.png';
+import useCurrentUser from "@/hooks/useCurrentUser";
+import { Button } from "@mui/material";
 
 export default function Header() {
   const downloadLink: string = 'https://github.com/Denis-Saavedra/EmuHub-Desktop/raw/refs/heads/main/Instalador/Win32/Debug/EmuHubInstaller.exe'
-  const mainContext: MainContextProps = useContext(MainContext)
-  const [ currentUser , setCurrentUser  ] = useState<CurrentUser | undefined>(undefined);
-
-  useEffect(() => {
-    if (mainContext.currentUser)
-      setCurrentUser(mainContext.currentUser)
-    mainContext.onUserAuth.subscribe(setCurrentUser)
-  }, []);
+  const { user, setUser } = useCurrentUser();
 
   return (
     <header className="fixed w-screen flex flex-col z-50">
@@ -36,9 +28,9 @@ export default function Header() {
              Download App
           </a>
           { 
-            currentUser && currentUser.isAuth() ?
-              <LoggedUserDropdown user={ currentUser } /> :
-              <LoginSigninButtonContainer />
+            user && user.isAuth() ?
+              <LoggedUserDropdown user={ user } logoutFn={ () => setUser(undefined) } /> :
+              <LoginSigninButtons />
           }
         </div>
       </div>
@@ -47,42 +39,40 @@ export default function Header() {
   );
 }
 
-const LoggedUserDropdown = (props: { user: CurrentUser }) => {
-  const mainContext: MainContextProps = useContext(MainContext)  
-  const logout = () => {
-    mainContext.setCurrentUser?.(undefined)
-  }
+function LoggedUserDropdown(props: { user: CurrentUser, logoutFn: () => void }) {  
+  const [ isMenuOpen, setIsMenuOpen ] = useState<boolean>(false);
   
   return (
-    <Dropdown>
-      <MenuButton variant="solid" size="lg"
-          startDecorator={ <IonIcon icon={ person } /> }
-          endDecorator={ <IonIcon icon={ caretDown } /> }>
+    <div>
+      <Button variant="contained" size="large"
+          startIcon={ <IonIcon icon={ person } /> }
+          endIcon={ <IonIcon icon={ caretDown } /> }
+          onClick={ () => setIsMenuOpen(open => !open) }>
         { props.user.userName }
-      </MenuButton>
-      <Menu size="lg" sx={{border: 'none'}}>
+      </Button>
+      <Menu open={ isMenuOpen }>
         <MenuItem sx={{padding: '0'}}>
           <Link to="/profile" className="w-full h-full px-8 text-center">Perfil</Link>
         </MenuItem>
         {
           // TODO add way to set an admin in the backend
-          true ? //props.user.isAdmin !== undefined && props.user.isAdmin ?
+          true ?
             <MenuItem sx={{padding: '0'}}>
               <Link to="/admin/view-games" className="w-full h-full px-8 text-center">Admin</Link>
             </MenuItem> :
             ""
         }
         <MenuItem sx={{padding: '0'}}>
-          <Link to="/log-in" onClick={ logout } className="w-full h-full px-8 text-center">
+          <Link to="/log-in" onClick={ props.logoutFn } className="w-full h-full px-8 text-center">
             Sair
           </Link>        
         </MenuItem>            
       </Menu>
-    </Dropdown>
+    </div>
   )
 }
 
-const LoginSigninButtonContainer = () => {
+function LoginSigninButtons() {
   const currentPath: string = useLocation().pathname
   const pathToLogin: string = "/log-in"
   const pathToSignin: string = "/sign-in"

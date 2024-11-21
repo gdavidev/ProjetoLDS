@@ -33,7 +33,7 @@ const defaultValues: IEmulatorFormData = {
 
 export default function EmulatorEditModal(props: EmulatorEditModalProps) {
   const { user } = useCurrentUser();  
-  const { register, handleSubmit, watch, reset: setFormData, clearErrors, formState } = useForm<IEmulatorFormData>({
+  const { register, handleSubmit, watch, reset: setFormData, clearErrors } = useForm<IEmulatorFormData>({
     defaultValues: defaultValues,
   });
 
@@ -45,7 +45,7 @@ export default function EmulatorEditModal(props: EmulatorEditModalProps) {
         abbreviation: props.emulator.abbreviation,
         file: FileUtil.createFileList(props.emulator.file),
       });
-  }, [props.isOpen])
+  }, [props.isOpen]);
   
   const { 
     mutate: storeEmulator,
@@ -98,7 +98,7 @@ export default function EmulatorEditModal(props: EmulatorEditModalProps) {
             <IonIcon className='min-h-4 min-w-4' icon={ document } />
             <span className="truncate">{ watch("file")?.[0]?.name }</span>
           </div>
-          <Button component="label" tabIndex={-1} variant="outlined" color="neutral" startDecorator={ <IonIcon icon={ cloudUploadOutline } /> } >
+          <Button component="label" tabIndex={-1} variant="outlined" startIcon={ <IonIcon icon={ cloudUploadOutline } /> } >
             Aquivo do Emulador
             <input type="file" className='hidden' {...register("file", { required: true })} />
           </Button>
@@ -112,16 +112,16 @@ export default function EmulatorEditModal(props: EmulatorEditModalProps) {
 
 function getAlert(formState: FormState<IEmulatorFormData>, emulatorService: UseMutationResult<any, any, any, any>): JSX.Element | undefined {
   if (formState.errors.console)
-    return <Alert color="danger" >Campo console vazío.</Alert>
+    return <Alert color="error" >Campo console vazío.</Alert>
   if (formState.errors.company)
-    return <Alert color="danger" >Campo empresa vazío.</Alert>
+    return <Alert color="error" >Campo empresa vazío.</Alert>
   if (formState.errors.abbreviation)
-    return <Alert color="danger" >Campo nome vazío.</Alert>
+    return <Alert color="error" >Campo nome vazío.</Alert>
   if (emulatorService.isLoading)
     return <Alert color="warning" >Enviando...</Alert>
   if (emulatorService.isSuccess)
     return <Alert color="success" >Enviado com sucesso!</Alert>
   if (emulatorService.isError)
-    return <Alert color="danger" >{ emulatorService.error.message }</Alert>
+    return <Alert color="error" >{ emulatorService.error.message }</Alert>
   return undefined
 }

@@ -66,7 +66,7 @@ export default function GamesView() {
         <div className="flex justify-between items-center mx-5 text-white">
           <h2 className="font-rubik font-bold">Lista de Jogos</h2>
           <div className="flex gap-x-2 ">
-            <IconButton variant="solid" color="neutral" onClick={ () => refechGames() } >
+            <IconButton onClick={ () => refechGames() } >
               <IonIcon icon={ reloadOutline } />
             </IconButton>
             <button className='btn-r-md bg-primary hover:bg-primary-dark text-white'
@@ -134,11 +134,11 @@ function GameDataTableRow(props: GameDataTableRowProps): React.ReactElement {
       <td className={ cellClassName }>{ game.category?.name         }</td>
       <td className={ cellClassName }>
         <Box sx={{ display: 'flex', gap: 1 }}>
-          <Button size="sm" variant="plain" 
+          <Button size="small" variant="contained" 
               onClick={ () => { props.actions.edit(game) } } >
             <IonIcon style={{color: '#FFFFFF'}} icon={ createOutline } />
           </Button>
-          <Button size="sm" variant="plain"
+          <Button size="small" variant="contained"
              onClick={ () => { props.actions.delete(game) } } >
             <IonIcon style={{color: '#FFFFFF'}} icon={ trashOutline } />
           </Button>

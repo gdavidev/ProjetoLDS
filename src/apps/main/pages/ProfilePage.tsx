@@ -155,7 +155,7 @@ function getAlert(alertInfo?: AlertInfo) {
     return null;
 
   if (alertInfo.type === AlertType.ERROR)
-    return <Alert color='danger'>{ alertInfo.message }</Alert>
+    return <Alert color='error'>{ alertInfo.message }</Alert>
   if (alertInfo.type === AlertType.PROGRESS)
     return <Alert color='warning'>{ alertInfo.message }</Alert>
   if (alertInfo.type === AlertType.SUCCESS)
@@ -163,8 +163,7 @@ function getAlert(alertInfo?: AlertInfo) {
 }
 
 function categoryToChips(categoryArr: Category[]) {
-  return categoryArr.map(cat => 
-    <Chip>{cat.name}</Chip>);
+  return categoryArr.map(cat => <Chip label={cat.name} />);
 }
 
 function getErrorMessage(data: IUserSignInFormData): string | undefined {

@@ -1,22 +1,24 @@
+import { lazy } from 'react'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import { AuthPageMode } from '@/apps/main/pages/auth/AuthPage'
 /*Main*/
 import MainApp from '@apps/main/MainApp.tsx'
-import HomePage from '@apps/main/pages/HomePage.tsx'
-import ProfilePage from '@apps/main/pages/ProfilePage.tsx'
-import LibraryPage from '@apps/main/pages/LibraryPage.tsx'
-import GamesPage from '@apps/main/pages/GamesPage.tsx'
-import AuthPage, { AuthPageMode } from '@/apps/main/pages/auth/AuthPage';
-import AdminApp from '@apps/admin/AdminApp.tsx'
-import GameViewPage from '@apps/main/pages/GameViewPage.tsx'
+const HomePage = lazy(() => import('@apps/main/pages/HomePage.tsx'))
+const ProfilePage = lazy(() => import('@apps/main/pages/ProfilePage.tsx'))
+const LibraryPage = lazy(() => import('@apps/main/pages/LibraryPage.tsx'))
+const GamesPage = lazy(() => import('@apps/main/pages/GamesPage.tsx'))
+const AuthPage = lazy(() => import('@/apps/main/pages/auth/AuthPage'))
+const AdminApp = lazy(() => import('@apps/admin/AdminApp.tsx'))
+const GameViewPage = lazy(() => import('@apps/main/pages/GameViewPage.tsx'))
 /*Admin*/
-import GamesView from '@apps/admin/pages/GamesView.tsx'
-import EmulatorsView from '@apps/admin/pages/EmulatorsView'
-import UsersView from '@apps/admin/pages/UsersView'
+const GamesView = lazy(() => import('@apps/admin/pages/GamesView.tsx'))
+const EmulatorsView = lazy(() => import('@apps/admin/pages/EmulatorsView'))
+const UsersView = lazy(() => import('@apps/admin/pages/UsersView'))
 /*Forum*/
-import FeedPage from '@apps/main/pages/forum/FeedPage'
-import PostPage from '@apps/main/pages/forum/PostPage'
+const FeedPage = lazy(() => import('@apps/main/pages/forum/FeedPage'))
+const PostPage = lazy(() => import('@apps/main/pages/forum/PostPage'))
 /*Misc*/
-import ErrorPage from '@shared/pages/ErrorPage.tsx'
+const ErrorPage = lazy(() => import('@shared/pages/ErrorPage.tsx'))
 
 const router = createBrowserRouter([
   { errorElement: <ErrorPage code={ 404 } /> },

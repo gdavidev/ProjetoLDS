@@ -15,7 +15,7 @@ import useCategories from '@/hooks/useCategories';
 import useCurrentUser from '@/hooks/useCurrentUser';
 import { useStoreGame } from '@/hooks/useGames';
 import { AxiosError } from 'axios';
-import { Controller, FieldErrors, useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import TextInput from '@/apps/shared/components/formComponents/TextInput';
 import StringFormatter from '@/libs/StringFormatter';
 import FileUtil from '@/libs/FileUtil';
@@ -52,7 +52,7 @@ export default function GameEditModal(props: GameEditModalProps) {
       defaultValues: defaultValues
     })
 
-  const { isLoading: emulatorsIsLoading } = useEmulators({
+  useEmulators({
     onSuccess: (emulators: Emulator[]) => {
       setEmulatorList(emulators);
       const emulatorSelectSourceRaw: [number, string][] = emulators.map(em => [em.id, em.console]);
@@ -60,7 +60,7 @@ export default function GameEditModal(props: GameEditModalProps) {
     },
     onError: (err: AxiosError | Error) => console.log("err: " + JSON.stringify(err))
   });
-  const { isLoading: categoriesIsLoading } = useCategories({
+  useCategories({
     onSuccess: (categories: Category[]) => {
       setCategoryList(categories);
       const categorySelectSourceRaw: [number, string][] = categories.map(cat => [cat.id, cat.name]);
@@ -125,13 +125,13 @@ export default function GameEditModal(props: GameEditModalProps) {
   function getAlert(): JSX.Element | undefined {
     const formError = Object.values(errors).find(err => err.message !== undefined)
     if (formError !== undefined)
-      return <Alert color="danger" >{ formError.message }</Alert>
+      return <Alert severity="error">{ formError.message }</Alert>
     if (storeIsLoading)
-      return <Alert color="warning" >Enviando...</Alert>
+      return <Alert severity="info">Enviando...</Alert>
     if (isSuccess)
-      return <Alert color="success" >Enviado com sucesso!</Alert>
+      return <Alert severity="success">Enviado com sucesso!</Alert>
     if (isError)
-      return <Alert color="danger" >{ mutateError.message }</Alert>
+      return <Alert severity="error">{ mutateError.message }</Alert>
     return undefined
   }
 
@@ -169,7 +169,6 @@ export default function GameEditModal(props: GameEditModalProps) {
                     <SelectInput {...field}
                         name="Console"
                         source={ emulatorSelectSource } 
-                        isLoading={ emulatorsIsLoading }
                         containerClassName='flex flex-col'
                         className={'input-text ' + (errors.emulatorId ? ' bg-red-100 border-red-500' : ' bg-slate-200') } />
                 ) }/>
@@ -180,7 +179,6 @@ export default function GameEditModal(props: GameEditModalProps) {
                     <SelectInput {...field}
                         name="Categoria"
                         source={ categorySelectSource }
-                        isLoading={ categoriesIsLoading }
                         containerClassName='flex flex-col'
                         className={ 'input-text ' + (errors.categoryId ? ' bg-red-100 border-red-500' : ' bg-slate-200') } />
                 ) }/>

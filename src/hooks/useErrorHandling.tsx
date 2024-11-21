@@ -16,7 +16,7 @@ export default function useErrorHandling(options: UseErrorHandlingOptions, deps?
     const result = options.handler();
     if (result !== '' && result !== undefined) {
       options.onError?.(result);
-      setAlertElement(<Alert color="danger">{result}</Alert>)
+      setAlertElement(<Alert color="error">{result}</Alert>)
     }
   }, deps);
 

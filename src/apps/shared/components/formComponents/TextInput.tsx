@@ -1,5 +1,4 @@
 import StringFormatter from "@libs/StringFormatter";
-import { Skeleton } from "@mui/material";
 import { ChangeEventHandler, forwardRef } from "react";
 
 export enum TextInputStyle {
@@ -60,22 +59,20 @@ const LabelLessTextInput = forwardRef((props: TextInputProps & { isLoading: bool
     + (props.startDecoration ? " ps-3" : '');
 
   return (
-    <Skeleton loading={ props.isLoading } variant="rectangular">
-      <div className={ makeContainerClassName() }>
-        { props.startDecoration }
+    <div className={ makeContainerClassName() }>
+      { props.startDecoration }
 
-        <input role="textbox"
-            ref={ ref }
-            id={ formatedName } 
-            name={ formatedName } 
-            className={ makeInputClassName() } onChange={ props.onChange }
-            aria-label={ formatedName } 
-            placeholder={ props.name } 
-            type={ props.password ? "password" : "text" } 
-            defaultValue={ props.value } />
+      <input role="textbox"
+          ref={ ref }
+          id={ formatedName } 
+          name={ formatedName } 
+          className={ makeInputClassName() } onChange={ props.onChange }
+          aria-label={ formatedName } 
+          placeholder={ props.name } 
+          type={ props.password ? "password" : "text" } 
+          defaultValue={ props.value } />
 
-        { props.endDecoration }
-      </div>
-    </Skeleton>
+      { props.endDecoration }
+    </div>
   );
 })
