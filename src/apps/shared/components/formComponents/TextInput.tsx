@@ -15,24 +15,22 @@ type TextInputProps = {
   endDecoration?: JSX.Element,
   password?: boolean,
   styleType?: TextInputStyle,
-  isLoading?: boolean,
   onChange?: ChangeEventHandler<HTMLInputElement>,
 }
 
 const TextInput = forwardRef((props: TextInputProps, ref: React.ForwardedRef<HTMLInputElement>) => {
   const styleType: TextInputStyle = props.styleType || TextInputStyle.REGULAR;
-  const isLoading: boolean = props.isLoading === undefined ? false : props.isLoading;
 
   switch (styleType) {
     case (TextInputStyle.LABEL_LESS):
-      return <LabelLessTextInput {...props} ref={ ref } isLoading={ isLoading } />;
+      return <LabelLessTextInput {...props} ref={ ref } />;
     default: // REGULAR
-      return <RegularTextInput {...props} ref={ ref } isLoading={ isLoading } />;
+      return <RegularTextInput {...props} ref={ ref } />;
   }
 })
 export default TextInput;
 
-const RegularTextInput = forwardRef((props: TextInputProps & { isLoading: boolean }, ref: React.ForwardedRef<HTMLInputElement>) => {
+const RegularTextInput = forwardRef((props: TextInputProps, ref: React.ForwardedRef<HTMLInputElement>) => {
   return (
     <div className={ props.containerClassName }>
       <label htmlFor={ props.name }>{props.name}:</label>
@@ -41,7 +39,7 @@ const RegularTextInput = forwardRef((props: TextInputProps & { isLoading: boolea
   );
 })
 
-const LabelLessTextInput = forwardRef((props: TextInputProps & { isLoading: boolean }, ref: React.ForwardedRef<HTMLInputElement>) => {
+const LabelLessTextInput = forwardRef((props: TextInputProps, ref: React.ForwardedRef<HTMLInputElement>) => {
   const formatter: StringFormatter = new StringFormatter(props.name)
   const formatedName: string = formatter.replaceAll(' ', '-').toLowerCase()
 
