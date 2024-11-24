@@ -1,6 +1,6 @@
 import { createContext, Context, PropsWithChildren, useState, useLayoutEffect } from 'react'
 import Cookies from 'js-cookie'
-import CurrentUser from '@models/User'
+import CurrentUser from '@models/CurrentUser'
 import EventHandler from '@libs/EventHandler';
 import type { Config } from 'tailwindcss'
 import resolveConfig from 'tailwindcss/resolveConfig'

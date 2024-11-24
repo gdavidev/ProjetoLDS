@@ -2,7 +2,7 @@ import React, { PropsWithRef, useLayoutEffect, useState } from "react";
 import { AlertInfo, AlertType } from "./AuthPage.tsx";
 import FormGroup from "@apps/shared/components/formComponents/FormGroup.tsx"
 import TextInput, { TextInputStyle } from "@apps/shared/components/formComponents/TextInput.tsx";
-import CurrentUser from "@models/User.ts";
+import CurrentUser from "@models/CurrentUser.ts";
 import { Link } from "react-router-dom";
 import PasswordResetEmailSentModal from "@apps/main/components/modal/PasswordResetEmailSentModal.tsx";
 import Validation from "@libs/Validation.ts";

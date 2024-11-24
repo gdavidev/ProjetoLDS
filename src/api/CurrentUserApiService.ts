@@ -1,4 +1,4 @@
-import CurrentUser from "@models/User";
+import CurrentUser from "@models/CurrentUser";
 import * as DTO from '@models/data/UserDTOs';
 import ApiService from './ApiService';
 

@@ -1,5 +1,5 @@
 import Category from '@/models/Category';
-import CurrentUser from '@/models/User';
+import CurrentUser from '@/models/CurrentUser';
 import { Alert, FormControl } from '@mui/material';
 import Chip from '@mui/material/Chip';
 import { useEffect, useState } from 'react';

@@ -1,4 +1,4 @@
-import UserApiService from "@/api/UserApiService"
+import UserApiService from "@/api/CurrentUserApiService"
 import ModalPopup, { ModalPopupProps } from "@/apps/shared/components/ModalPopup"
 import Timer from "@/apps/shared/components/Timer"
 import ellipse from '@apps/main/assets/appearence/ellipse.png'

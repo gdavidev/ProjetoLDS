@@ -3,7 +3,7 @@ import { Alert, AlertColor } from "@mui/material";
 import SignInLayout from "@/apps/main/pages/auth/SignInLayout";
 import LogInLayout from "@/apps/main/pages/auth/LogInLayout";
 import logo from '/icons/logo.png'
-import CurrentUser from "@/models/User";
+import CurrentUser from "@/models/CurrentUser";
 import { MainContext, MainContextProps } from "@/apps/shared/context/MainContextProvider";
 import { useNavigate } from "react-router-dom";
 import PasswordResetLayout from "./PasswordResetLayout";

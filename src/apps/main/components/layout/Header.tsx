@@ -4,7 +4,7 @@ import MenuItem from '@mui/material/MenuItem';
 import SearchBar from "@shared/components/formComponents/SearchBar";
 import { Link, useLocation } from "react-router-dom";
 import Navbar from "./Navbar";
-import CurrentUser from "@models/User";
+import CurrentUser from "@models/CurrentUser";
 import { IonIcon } from "@ionic/react";
 import { caretDown, person } from "ionicons/icons";
 import logo from '/icons/logo.png';

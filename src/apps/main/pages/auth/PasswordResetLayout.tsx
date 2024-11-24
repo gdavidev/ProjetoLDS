@@ -2,7 +2,7 @@ import React, { PropsWithoutRef, useEffect, useState } from "react";
 import { AlertInfo, AlertType } from "./AuthPage.tsx";
 import TextInput, { TextInputStyle } from "@apps/shared/components/formComponents/TextInput.tsx";
 import { useMutation } from "react-query";
-import UserApiService from "@api/UserApiService.ts";
+import UserApiService from "@api/CurrentUserApiService.ts";
 import { UserResetPasswordDTO } from "@models/data/UserDTOs.ts";
 import { useSearchParams } from "react-router-dom";
 import { AxiosError } from 'axios';

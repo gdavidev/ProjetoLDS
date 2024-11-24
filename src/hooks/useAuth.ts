@@ -1,4 +1,4 @@
-import UserApiService from '@/api/UserApiService';
+import UserApiService from '@/api/CurrentUserApiService';
 import * as DTO from '@models/data/UserDTOs';
 import { AxiosError } from 'axios';
 import { useCallback, useEffect, useState } from 'react';
