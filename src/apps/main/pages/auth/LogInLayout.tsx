@@ -1,4 +1,4 @@
-import React, { PropsWithRef, useLayoutEffect, useState } from "react";
+import React, { PropsWithRef, useCallback, useLayoutEffect, useState } from "react";
 import { AlertInfo, AlertType } from "./AuthPage.tsx";
 import FormGroup from "@apps/shared/components/formComponents/FormGroup.tsx"
 import TextInput, { TextInputStyle } from "@apps/shared/components/formComponents/TextInput.tsx";
@@ -37,11 +37,13 @@ export default function LogInLayout(props: PropsWithRef<LogInLayoutProps>): Reac
   });
   const fields: ILogInLayoutFormData = watch();
 
+  // ---- Initialization ----
   useLayoutEffect(() => {
     clearErrors();
     setFormData(defaultValues);
   }, []);
 
+  // ---- API Calls Setup ----
   const { login, forgotPassword } = useAuth({
     onLogin: {
       onSuccess: (user: CurrentUser) => props.onSuccess?.(user),      
@@ -54,18 +56,25 @@ export default function LogInLayout(props: PropsWithRef<LogInLayoutProps>): Reac
     onIsLoading: () => props.onStateChanged?.({ message: "Enviando...", type: AlertType.PROGRESS })
   });
 
-  const doLogin = (data: ILogInLayoutFormData) => login({ email: data.email, password: data.password });  
-  const doSendEmailPasswordReset = (data: ILogInLayoutFormData) => forgotPassword({ email: data.email});
+  // ---- API Executing ----
+  const doLogin = useCallback((data: ILogInLayoutFormData) => {
+    login({ email: data.email, password: data.password })
+  }, []);  
+  const doSendEmailPasswordReset = useCallback((data: ILogInLayoutFormData) => { 
+    forgotPassword({ email: data.email })
+  }, []);
  
+  // ---- Error handling ----
   useErrorHandling({
     handler: () => getErrorMessage(fields),
     onError: (message: string) => props.onError?.({ message: message, type: AlertType.ERROR })
-  }, []);
+  }, [fields]);
 
-  function openEmailSentModal() {
+  // ---- General callbacks ----
+  const openEmailSentModal = useCallback(() => {
     setIsPasswordResetModalOpen(true);
     props.onStateChanged?.({ type: AlertType.HIDDEN })
-  }
+  }, []);
 
   return(
     <>

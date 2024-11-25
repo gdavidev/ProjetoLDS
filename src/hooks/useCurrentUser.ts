@@ -18,8 +18,8 @@ export default function useCurrentUser(options?: UseCurrentUserOptions): UseCurr
     throw new Error('useCurrentUser must be used within an MainContextProvider');
 
   const navigate = useNavigate()
-  if (mainContext.getCurrentUser() === null) {
-    navigate(options?.targetUrlWhenNotAuth ?? '/login');
+  if (options && options.targetUrlWhenNotAuth && mainContext.getCurrentUser() === null) {
+    navigate(options?.targetUrlWhenNotAuth);
   }
 
   return {

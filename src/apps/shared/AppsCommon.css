@@ -25,6 +25,10 @@
     @apply text-slate-950 py-1.5 px-2 focus:outline-primary border-[1px] min-h-11 h-11
      border-gray-200 rounded-md box-border;
   }
+
+  .centered {
+    @apply absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2
+  }
 }
 
 /*------- POPPINS -------*/
@@ -32,31 +36,31 @@
   font-family: "Poppins";
   font-weight: bolder;
   font-style: normal;
-  src: url("../../../public/fonts/Poppins/Poppins-Black.ttf") format("ttf");
+  src: url("@/public/fonts/Poppins/Poppins-Black.ttf") format("ttf");
 }
 @font-face {
   font-family: "Poppins";
   font-weight: bold;
   font-style: normal;
-  src: url("../../../public/fonts/Poppins/Poppins-Bold.ttf") format("ttf");
+  src: url("@/public/fonts/Poppins/Poppins-Bold.ttf") format("ttf");
 }
 @font-face {
   font-family: "Poppins";
   font-weight: bold;
   font-style: italic;
-  src: url("../../../public/fonts/Poppins/Poppins-BoldItalic.ttf") format("ttf");
+  src: url("@/public/fonts/Poppins/Poppins-BoldItalic.ttf") format("ttf");
 }
 @font-face {
   font-family: "Poppins";
   font-weight: normal;
   font-style: italic;
-  src: url("../../../public/fonts/Poppins/Poppins-Italic.ttf") format("ttf");
+  src: url("@/public/fonts/Poppins/Poppins-Italic.ttf") format("ttf");
 }
 @font-face {
   font-family: "Poppins";
   font-weight: normal;
   font-style: normal;
-  src: url("../../../public/fonts/Poppins/Poppins-Regular.ttf") format("ttf");
+  src: url("@/public/fonts/Poppins/Poppins-Regular.ttf") format("ttf");
 }
 
 /*------- RUBIK -------*/
