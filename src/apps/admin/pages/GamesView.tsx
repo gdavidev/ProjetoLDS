@@ -51,23 +51,28 @@ export default function GamesView() {
   }
 
   const templateHeader: {colName: string, colWidth: string}[] = [
-    {colName: ''            , colWidth: '80px'  },
-    {colName: '#'           , colWidth: '30px'  },
-    {colName: 'Name'        , colWidth: '280px' },
-    {colName: 'Description' , colWidth: '100%'  },
-    {colName: 'Emulador'    , colWidth: '160px' }, 
-    {colName: 'Categoria'   , colWidth: '90px'  },
-    {colName: ''            , colWidth: '120px' }
+    {colName: ''            , colWidth: 'fit-content' },
+    {colName: '#'           , colWidth: '30px'        },
+    {colName: 'Name'        , colWidth: '230px'       },
+    {colName: 'Description' , colWidth: '400px'       },
+    {colName: 'Emulador'    , colWidth: '160px'       }, 
+    {colName: 'Categoria'   , colWidth: '90px'        },
+    {colName: ''            , colWidth: '120px'       }
   ]
 
   return (
     <>
-      <div className="flex flex-col">
+      <section className="flex flex-col">
         <div className="flex justify-between items-center mx-5 text-white">
-          <h2 className="font-rubik font-bold">Lista de Jogos</h2>
+          <h2 className="font-rubik font-bold">
+            Lista de Jogos
+          </h2>
           <div className="flex gap-x-2 ">
-            <IconButton onClick={ () => refechGames() } >
-              <IonIcon icon={ reloadOutline } />
+            <IconButton 
+              size='small'              
+              onClick={ () => refechGames() } 
+            >
+              <IonIcon style={{color: 'white'}} icon={ reloadOutline } />
             </IconButton>
             <button className='btn-r-md bg-primary hover:bg-primary-dark text-white'
                 onClick={ addGame }>
@@ -75,24 +80,27 @@ export default function GamesView() {
             </button>
           </div>
         </div>
-        <TableDisplay headerTemplateLabels={ templateHeader } 
+        <TableDisplay headerTemplate={ templateHeader } 
             tableStyleObject={{width: '100%', borderSpacing: '0 3px'}}
             tableHeaderClassName='text-white font-rubik font-bold'>
           { 
             gameList.all.map((game: Game, index: number) => {
                 return ( 
-                  <GameDataTableRow key={index} game={ game }
+                  <GameDataTableRow 
+                    key={index} 
+                    game={ game }
                     rowClassName="bg-primary-light text-white"
                     cellClassName='first:rounded-s-md last:rounded-e-md'
                     actions={{
                       edit: editGame, 
                       delete: (game: Game) => deleteGame(game)
-                    }} />
+                    }} 
+                  />
                 )
               })            
           }
         </TableDisplay>
-      </div>
+      </section>
       <GameEditModal game={ gameModalData } 
           onCloseRequest={ () => { setIsGameModalOpen(false) } } isOpen={ isGameModalOpen } 
           onChange={ gameModalData.id === 0 ? gameList.append : updateGameOnGameList } />
@@ -134,14 +142,22 @@ function GameDataTableRow(props: GameDataTableRowProps): React.ReactElement {
       <td className={ cellClassName }>{ game.category?.name         }</td>
       <td className={ cellClassName }>
         <Box sx={{ display: 'flex', gap: 1 }}>
-          <Button size="small" variant="contained" 
-              onClick={ () => { props.actions.edit(game) } } >
+          <IconButton 
+            size='small'
+            color='default'
+            onClick={ () => { props.actions.edit(game) } }
+            sx={{ p: '10px' }}
+          >
             <IonIcon style={{color: '#FFFFFF'}} icon={ createOutline } />
-          </Button>
-          <Button size="small" variant="contained"
-             onClick={ () => { props.actions.delete(game) } } >
+          </IconButton>
+          <IconButton 
+            size='small'
+            color='default'
+            onClick={ () => { props.actions.delete(game) } } 
+            sx={{ p: '10px' }}
+          >
             <IonIcon style={{color: '#FFFFFF'}} icon={ trashOutline } />
-          </Button>
+          </IconButton>
         </Box>
       </td>
     </tr>

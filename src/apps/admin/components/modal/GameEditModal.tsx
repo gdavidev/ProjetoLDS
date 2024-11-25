@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Alert } from '@mui/material';
 import FileInput from '@shared/components/formComponents/FileInput';
 import FileInputImagePreview from '@shared/components/formComponents/FileInputImagePreview';
@@ -51,7 +51,8 @@ export default function GameEditModal(props: GameEditModalProps) {
     useForm<GameEditModalFormData>({
       defaultValues: defaultValues
     })
-
+  
+  // ---- API Calls Setup ----
   useEmulators({
     onSuccess: (emulators: Emulator[]) => {
       const emulatorSelectSourceRaw = emulators.map(em => ({ value: em.id, name: em.console }));
@@ -81,6 +82,7 @@ export default function GameEditModal(props: GameEditModalProps) {
       onError: (err: AxiosError | Error) => console.log("err: " + JSON.stringify(err))
     });
 
+  // ---- Initialization ----
   useEffect(() => {
     if (!props.isOpen) return;
 
@@ -95,14 +97,12 @@ export default function GameEditModal(props: GameEditModalProps) {
       })
     } else {
       setFormData(defaultValues)
+      resetForm()
     }
   }, [props.isOpen]);
-
-  function resetForm() {
-    resetMutationResults();
-  }
-
-  function submitGame(data: GameEditModalFormData) {    
+  
+  // ---- API Calls Execution ----
+  const submitGame = useCallback((data: GameEditModalFormData) => {    
     const emulator: Emulator = emulatorList.find((emu: Emulator) => data.emulatorId == emu.id)!;
     const category: Category = categoryList.find((cat: Category) => data.categoryId == cat.id)!;
 
@@ -120,8 +120,9 @@ export default function GameEditModal(props: GameEditModalProps) {
       data.file,
       category,
     ));
-  }
+  }, [emulatorList, categoryList]);
 
+  // ---- Error handling ----
   function getAlert(): JSX.Element | undefined {
     const formError = Object.values(errors).find(err => err.message !== undefined)
     if (formError !== undefined)
@@ -135,12 +136,20 @@ export default function GameEditModal(props: GameEditModalProps) {
     return undefined
   }
 
+  // ---- General callbacks ----
+  const resetForm = useCallback(() => {
+    resetMutationResults();
+  }, [resetMutationResults]);
+
   return (
-    <ModalPopup title={ props.game.id !== 0 ? "Editar Jogo" : "Adicionar Jogo" }
-        isOpen={ props.isOpen } 
-        bottomText={ props.bottomText } 
-        topText={ props.topText } 
-        onCloseRequest={ () => { resetForm(); props.onCloseRequest?.() } }>      
+    <ModalPopup 
+      title={ props.game.id !== 0 ? "Editar Jogo" : "Adicionar Jogo" }
+      isOpen={ props.isOpen } 
+      bottomText={ props.bottomText } 
+      topText={ props.topText }
+      className='max-w-[80%]'      
+      onCloseRequest={ () => { resetForm(); props.onCloseRequest?.() } }
+    >      
       { getAlert() }
       <form onSubmit={ handleSubmit(submitGame) }>
         <div className="grid grid-cols-2 gap-x-5">        
