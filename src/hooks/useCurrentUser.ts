@@ -1,26 +1,29 @@
 import { MainContext, MainContextProps } from "@/apps/shared/context/MainContextProvider";
 import CurrentUser from "@models/CurrentUser";
-import { useContext, useEffect, useLayoutEffect, useState } from "react";
+import { useContext } from "react";
+import { useNavigate } from "react-router-dom";
 
+type UseCurrentUserOptions = {
+  targetUrlWhenNotAuth?: string
+}
 type UseCurrentUserResult = {
-  user: CurrentUser | undefined,
-  setUser: (user: CurrentUser | undefined) => void
+  user: CurrentUser | null,
+  setUser: (user: CurrentUser | null) => void
 }
 
-export default function useCurrentUser(): UseCurrentUserResult {
+export default function useCurrentUser(options?: UseCurrentUserOptions): UseCurrentUserResult {
   const mainContext: MainContextProps = useContext(MainContext);
-  const [currentUser, setCurrentUser] = useState<CurrentUser | undefined>(mainContext.currentUser)
 
-  useLayoutEffect(() => {
-    mainContext.onUserAuth.subscribe(setCurrentUser);
-  }, []);
-  useEffect(() => {
-    setCurrentUser(mainContext.currentUser);
-    return mainContext.onUserAuth.remove(setCurrentUser) // Cleanup code
-  }, []);
+  if (!mainContext)
+    throw new Error('useCurrentUser must be used within an MainContextProvider');
+
+  const navigate = useNavigate()
+  if (mainContext.getCurrentUser() === null) {
+    navigate(options?.targetUrlWhenNotAuth ?? '/login');
+  }
 
   return {
-    user: currentUser,
-    setUser: mainContext.setCurrentUser!
+    user: mainContext.getCurrentUser(),
+    setUser: mainContext.setCurrentUser
   };
 }

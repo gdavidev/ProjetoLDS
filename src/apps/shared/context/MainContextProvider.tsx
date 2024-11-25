@@ -1,25 +1,21 @@
-import { createContext, Context, PropsWithChildren, useState, useLayoutEffect } from 'react'
+import { createContext, PropsWithChildren, useState, useLayoutEffect } from 'react'
 import Cookies from 'js-cookie'
 import CurrentUser from '@models/CurrentUser'
-import EventHandler from '@libs/EventHandler';
 import type { Config } from 'tailwindcss'
 import resolveConfig from 'tailwindcss/resolveConfig'
 import tailwindConfig from '@tailwind-config'
 
 export type MainContextProps = {
-  currentUser?: CurrentUser
-  setCurrentUser?: ((user: CurrentUser | undefined) => void),
-  onUserAuth: EventHandler<CurrentUser | undefined>,
+  getCurrentUser: () => CurrentUser | null,
+  setCurrentUser: (user: CurrentUser | null) => void,
   tailwindConfig: Config & typeof tailwindConfig,
 };
-const mainProps: MainContextProps = {
-  currentUser: undefined,
-  setCurrentUser: undefined,
-  onUserAuth: new EventHandler<CurrentUser | undefined>(),
-  tailwindConfig: resolveConfig<typeof tailwindConfig>(tailwindConfig),
+const defaultMainContextProps: MainContextProps = {
+  getCurrentUser: () => null,
+  setCurrentUser: () => null,
+  tailwindConfig: resolveConfig<typeof tailwindConfig>(tailwindConfig)
 };
-export const MainContext: Context<MainContextProps> = 
-  createContext<MainContextProps>(mainProps);
+export const MainContext = createContext<MainContextProps>(defaultMainContextProps);
 
 type UserCookie = {
   token: string,
@@ -29,29 +25,32 @@ type UserCookie = {
 }
 
 export default function MainContextProvider({ children }: PropsWithChildren) {
-  const [ currentUser, setCurrentUser ] = useState<CurrentUser | undefined>(undefined);
+  const [ currentUser, setCurrentUser ] = useState<CurrentUser | null>(null);
 
   useLayoutEffect(() => {
     updateCurrentUserAndCookie(getUserFromCookieOrNull())
   }, []);
 
-  function updateCurrentUserAndCookie(newUser: CurrentUser | undefined | null) {
+  function updateCurrentUserAndCookie(newUser: CurrentUser | null) {
     if (newUser) { 
       setCurrentUser(newUser);
       createUserCookie(newUser);
-      mainProps.onUserAuth.trigger(newUser);
     } else {
-      setCurrentUser(undefined);
+      setCurrentUser(null);
       dropUserCookie();
-      mainProps.onUserAuth.trigger(undefined);
     }
   }
-  
-  mainProps.setCurrentUser = updateCurrentUserAndCookie
-  mainProps.currentUser = currentUser
+  function getCurrentUser() {
+    return currentUser ?? getUserFromCookieOrNull()
+  }
 
   return (
-    <MainContext.Provider value={ mainProps }>
+    <MainContext.Provider 
+        value={{ 
+          getCurrentUser: getCurrentUser,
+          setCurrentUser: updateCurrentUserAndCookie,
+          tailwindConfig: defaultMainContextProps.tailwindConfig
+        }}>
       { children }
     </MainContext.Provider>
   )
@@ -68,7 +67,8 @@ function createUserCookie(user: CurrentUser) {
 }
 function getUserFromCookieOrNull(): CurrentUser | null {
   const userCookieContent: string | undefined = Cookies.get('user')
-  if (userCookieContent === undefined) return null
+  if (userCookieContent === undefined) 
+    return null
 
   const userCookieObject: UserCookie = JSON.parse(userCookieContent)
   const token: string = userCookieObject.token
