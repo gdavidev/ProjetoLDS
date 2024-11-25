@@ -23,4 +23,7 @@ export type PostGetDTO = {
 export type PostGetResponseDTO = {
   id: number,
   nome: string
+  likes: number,
+  content: string,
+  lastUpdate: Date
 }

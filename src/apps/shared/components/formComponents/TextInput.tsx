@@ -11,6 +11,7 @@ type TextInputProps = {
   containerClassName?: string,
   inputContainerClassName?: string,
   inputClassName?: string,
+  labelClassName?: string,
   startDecoration?: JSX.Element,
   endDecoration?: JSX.Element,
   password?: boolean,
@@ -33,7 +34,7 @@ export default TextInput;
 const RegularTextInput = forwardRef((props: TextInputProps, ref: React.ForwardedRef<HTMLInputElement>) => {
   return (
     <div className={ props.containerClassName }>
-      <label htmlFor={ props.name }>{props.name}:</label>
+      <label htmlFor={ props.name } className={ props.labelClassName }>{props.name}:</label>
       <LabelLessTextInput {...props} ref={ ref } />
     </div>
   );

@@ -4,24 +4,33 @@ export enum SelectInputStyle {
   LABEL_LESS = 'LabelLess',
   REGULAR = 'Regular'
 }
+export type SelectInputSource = {
+  value: any,
+  name: string
+}[];
 type SelectInputProps = {
-  source: [any, string][]
+  source: SelectInputSource
   name: string,
   className?: string,
+  labelClassName?: string,
   styleType?: SelectInputStyle,
   containerClassName?: string,
   value?: string | number,
+  hasSelectOption?: boolean
   onChange?: (value: string) => void
 }
 
 const SelectInput = forwardRef((props: SelectInputProps, ref: React.ForwardedRef<HTMLSelectElement>) => {  
   const styleType: SelectInputStyle = props.styleType ?? SelectInputStyle.REGULAR
+  const source: SelectInputSource = props.hasSelectOption ? 
+      [{ value: -1, name: '-- Selecione --' }, ...props.source] :
+      props.source;
 
   switch (styleType) {
     case SelectInputStyle.LABEL_LESS:
-      return <LabelLessSelectInput {...props} ref={ ref } />
+      return <LabelLessSelectInput {...props} source={ source } ref={ ref } />
     case SelectInputStyle.REGULAR:
-      return <RegularSelectInput {...props} ref={ ref } />
+      return <RegularSelectInput {...props} source={ source } ref={ ref } />
   }
 })
 export default SelectInput;
@@ -29,7 +38,7 @@ export default SelectInput;
 const RegularSelectInput = forwardRef((props: SelectInputProps, ref: React.ForwardedRef<HTMLSelectElement>) => {
   return (
     <div className={ props.containerClassName }>      
-      <label htmlFor={ props.name }>{props.name}:</label>      
+      <label htmlFor={ props.name } className={ props.labelClassName }>{props.name}:</label>    
       <LabelLessSelectInput {...props} ref={ ref } />
     </div>
   )
@@ -43,10 +52,7 @@ const LabelLessSelectInput = forwardRef((props: SelectInputProps, ref: React.For
         defaultValue={ props.value }
         className={ props.className } >
       { 
-        props.source.map((data, i) => data[0] == props.value ?
-          <option key={i} value={ data[0] } selected={ true }>{ data[1] }</option> :
-          <option key={i} value={ data[0] }>{ data[1] }</option>
-        ) 
+        props.source.map((data, i) => <option key={i} value={ data.value }>{ data.name }</option>) 
       }
     </select>
   )

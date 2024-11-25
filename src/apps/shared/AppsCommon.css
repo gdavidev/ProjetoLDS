@@ -22,7 +22,7 @@
   }
 
   .input-text {
-    @apply text-slate-950 py-1.5 px-2 focus:outline-primary border-[1px]
+    @apply text-slate-950 py-1.5 px-2 focus:outline-primary border-[1px] min-h-11 h-11
      border-gray-200 rounded-md box-border;
   }
 }

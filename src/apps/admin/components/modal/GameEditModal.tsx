@@ -7,7 +7,7 @@ import { document } from 'ionicons/icons'
 import Game from '@models/Game';
 import ModalPopup, { ModalPopupProps } from '@apps/shared/components/ModalPopup';
 import Thumbnail from '@models/utility/Thumbnail';
-import SelectInput from '@apps/shared/components/formComponents/SelectInput';
+import SelectInput, { SelectInputSource } from '@apps/shared/components/formComponents/SelectInput';
 import Emulator from '@models/Emulator';
 import Category from '@models/Category';
 import useEmulators from '@/hooks/useEmulators';
@@ -42,9 +42,9 @@ const defaultValues: GameEditModalFormData = {
 }
 
 export default function GameEditModal(props: GameEditModalProps) {
-  const [ emulatorSelectSource , setEmulatorSelectSource ] = useState<[number, string][]>([]);
+  const [ emulatorSelectSource , setEmulatorSelectSource ] = useState<SelectInputSource>([]);
   const [ emulatorList         , setEmulatorList         ] = useState<Emulator[]>([]);
-  const [ categorySelectSource , setCategorySelectSource ] = useState<[number, string][]>([]);
+  const [ categorySelectSource , setCategorySelectSource ] = useState<SelectInputSource>([]);
   const [ categoryList         , setCategoryList         ] = useState<Category[]>([]);
   const { user } = useCurrentUser();
   const { handleSubmit, watch, control, formState: { errors }, reset: setFormData } = 
@@ -54,17 +54,17 @@ export default function GameEditModal(props: GameEditModalProps) {
 
   useEmulators({
     onSuccess: (emulators: Emulator[]) => {
+      const emulatorSelectSourceRaw = emulators.map(em => ({ value: em.id, name: em.console }));
       setEmulatorList(emulators);
-      const emulatorSelectSourceRaw: [number, string][] = emulators.map(em => [em.id, em.console]);
-      setEmulatorSelectSource([[-1, '--SELECIONE--'], ...emulatorSelectSourceRaw]);
+      setEmulatorSelectSource(emulatorSelectSourceRaw);
     },
     onError: (err: AxiosError | Error) => console.log("err: " + JSON.stringify(err))
   });
   useCategories({
     onSuccess: (categories: Category[]) => {
+      const source = categories.map(cat => ({ value: cat.id, name: cat.name }));
       setCategoryList(categories);
-      const categorySelectSourceRaw: [number, string][] = categories.map(cat => [cat.id, cat.name]);
-      setCategorySelectSource([[-1, '--SELECIONE--'], ...categorySelectSourceRaw]);
+      setCategorySelectSource(source);
     },
     onError: (err: AxiosError | Error) => console.log("err: " + JSON.stringify(err))
   });
@@ -168,8 +168,8 @@ export default function GameEditModal(props: GameEditModalProps) {
                   render={ ({field}) => (
                     <SelectInput {...field}
                         name="Console"
-                        source={ emulatorSelectSource } 
-                        containerClassName='flex flex-col'
+                        source={ emulatorSelectSource } hasSelectOption
+                        containerClassName='flex flex-col'                        
                         className={'input-text ' + (errors.emulatorId ? ' bg-red-100 border-red-500' : ' bg-slate-200') } />
                 ) }/>
               <Controller name="categoryId" control={ control }
@@ -178,7 +178,7 @@ export default function GameEditModal(props: GameEditModalProps) {
                   render={ ({field}) => (
                     <SelectInput {...field}
                         name="Categoria"
-                        source={ categorySelectSource }
+                        source={ categorySelectSource } hasSelectOption
                         containerClassName='flex flex-col'
                         className={ 'input-text ' + (errors.categoryId ? ' bg-red-100 border-red-500' : ' bg-slate-200') } />
                 ) }/>

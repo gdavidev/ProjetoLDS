@@ -17,6 +17,7 @@ const UsersView = lazy(() => import('@apps/admin/pages/UsersView'))
 /*Forum*/
 const FeedPage = lazy(() => import('@apps/main/pages/forum/FeedPage'))
 const PostPage = lazy(() => import('@apps/main/pages/forum/PostPage'))
+const PostCreate = lazy(() => import('@apps/main/pages/forum/PostCreate'))
 /*Misc*/
 const ErrorPage = lazy(() => import('@shared/pages/ErrorPage.tsx'))
 
@@ -36,6 +37,7 @@ const router = createBrowserRouter([
         { path: '/game/:gameId',       element: <GameViewPage />                               },
         { path: '/feed',               element: <FeedPage />                                   },
         { path: '/post/:postId',       element: <PostPage />                                   },
+        { path: '/post/new',           element: <PostCreate />                                 },
       ]      
   },
   {

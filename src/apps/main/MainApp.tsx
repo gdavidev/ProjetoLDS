@@ -8,27 +8,27 @@ import { Suspense } from 'react';
 
 export default function App() {
 	const currentPath: string = useLocation().pathname;
-  let backgroundClass: string = '';
-  switch (currentPath) {
-    case '/sign-in':
-    case '/log-in':
-    case '/reset-password':
+	let backgroundClass: string = '';
+	switch (currentPath) {
+		case '/sign-in':
+		case '/log-in':
+		case '/reset-password':
 			backgroundClass = ' bg-cover bg-login-page';
-      break;    
-    default:
+			break;
+		default:
 			backgroundClass = ' bg-cover bg-background';
-      break;
-  }
+			break;
+	}
 
-  return (
-    <>
-      <Header />
+	return (
+		<>
+			<Header />
 			<main className={'pt-28 pb-16 min-w-screen min-h-screen bg-no-repeat' + backgroundClass}>
-				<Suspense fallback={<CircularProgress color="primary" />}>
-        <Outlet />
+				<Suspense fallback={ <div className='w-full h-full flex justify-center items-center'><CircularProgress color="primary" /></div> }>
+					<Outlet />
 				</Suspense>
-      </main>
-      <Footer />
-    </>    
-  );
+			</main>
+			<Footer />
+		</>
+	);
 }
