@@ -3,12 +3,12 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import { AuthPageMode } from '@/apps/main/pages/auth/AuthPage'
 /*Main*/
 import MainApp from '@apps/main/MainApp.tsx'
+import AdminApp from '@apps/admin/AdminApp.tsx'
 const HomePage = lazy(() => import('@apps/main/pages/HomePage.tsx'))
 const ProfilePage = lazy(() => import('@apps/main/pages/ProfilePage.tsx'))
 const LibraryPage = lazy(() => import('@apps/main/pages/LibraryPage.tsx'))
 const GamesPage = lazy(() => import('@apps/main/pages/GamesPage.tsx'))
 const AuthPage = lazy(() => import('@/apps/main/pages/auth/AuthPage'))
-const AdminApp = lazy(() => import('@apps/admin/AdminApp.tsx'))
 const GameViewPage = lazy(() => import('@apps/main/pages/GameViewPage.tsx'))
 /*Admin*/
 const GamesView = lazy(() => import('@apps/admin/pages/GamesView.tsx'))
