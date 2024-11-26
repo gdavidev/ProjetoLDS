@@ -1,7 +1,6 @@
 import { useState } from "react";
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
-import SearchBar from "@shared/components/formComponents/SearchBar";
 import { Link, useLocation } from "react-router-dom";
 import Navbar from "./Navbar";
 import CurrentUser from "@models/CurrentUser";
@@ -22,8 +21,7 @@ export default function Header() {
         <Link to="/" className="flex items-center gap-x-3 select-none
             hover:scale-110 active:scale-95 transition duration-100 ease-in-out">
           <img src={ logo } className="w-40 h-12 sm:visible invisible" alt="logo" />
-        </Link>        
-        <SearchBar className="fixed flex inset-x-1/2 w-60 -translate-x-1/2" />        
+        </Link>
         <div className="flex gap-x-2">          
           <a href={ downloadLink } className="btn-r-full bg-white hover:bg-slate-300 text-primary">
              Download App
