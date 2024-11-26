@@ -1,11 +1,10 @@
 import { usePost } from '@/hooks/usePosts.ts';
-import { useNavigate } from 'react-router-dom';
 import useTypeSafeSearchParams from '@/hooks/useTypeSafeSearchParams.ts';
 import { AxiosError } from 'axios';
 import { useLikePost } from '@/hooks/useLikePost.ts';
 import LikeButton from '@apps/main/pages/forum/LikeButton.tsx';
 import { useEffect, useState } from 'react';
-import useCurrentUser from '@/hooks/useCurrentUser.ts';
+import useEmergencyExit from '@/hooks/useEmergencyExit.ts';
 
 type PostPageParams = {
   postId: number;
@@ -13,18 +12,17 @@ type PostPageParams = {
 
 export default function PostPage() {
   const [ liked, setLiked ] = useState<boolean>(false);
-  const { user } = useCurrentUser();
-  const navigate = useNavigate();
   const { params }  = useTypeSafeSearchParams<PostPageParams>();
+  const { exit } = useEmergencyExit();
 
   useEffect(() => {
-    if (!params.postId)
-      return navigate('/feed');
+    if (params.postId === undefined)
+      exit('/feed', 'Post não encontrado');
   }, []);
 
   const { mutate: likePost } = useLikePost();
   const { data: post } = usePost(params.postId, {
-    onError: (err: AxiosError | Error) => console.log(err.message),
+    onError: (err: AxiosError | Error) => { exit('/feed', 'Post não encontrado'); console.log(err.message) }
   });
   
   return(

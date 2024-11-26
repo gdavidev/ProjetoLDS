@@ -1,18 +1,21 @@
-import { createContext, PropsWithChildren, useState, useLayoutEffect } from 'react'
+import { createContext, PropsWithChildren, useState, useLayoutEffect, useEffect } from 'react';
 import Cookies from 'js-cookie'
 import CurrentUser from '@models/CurrentUser'
 import type { Config } from 'tailwindcss'
 import resolveConfig from 'tailwindcss/resolveConfig'
 import tailwindConfig from '@tailwind-config'
+import Notification, { NotificationProps } from '@shared/components/Notification.tsx';
 
 export type MainContextProps = {
   getCurrentUser: () => CurrentUser | null,
   setCurrentUser: (user: CurrentUser | null) => void,
+  setNotificationProps: (snackbarProps: NotificationProps) => void,
   tailwindConfig: Config & typeof tailwindConfig,
 };
 const defaultMainContextProps: MainContextProps = {
   getCurrentUser: () => null,
   setCurrentUser: () => null,
+  setNotificationProps: () => null,
   tailwindConfig: resolveConfig<typeof tailwindConfig>(tailwindConfig)
 };
 export const MainContext = createContext<MainContextProps>(defaultMainContextProps);
@@ -26,6 +29,13 @@ type UserCookie = {
 
 export default function MainContextProvider({ children }: PropsWithChildren) {
   const [ currentUser, setCurrentUser ] = useState<CurrentUser | null>(null);
+  const [ notificationProps, setNotificationProps ] = useState<NotificationProps | null>(null);
+  const [ notificationBarOpen, setNotificationBarOpen ] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (notificationProps)
+      setNotificationBarOpen(true)
+  }, [notificationProps]);
 
   useLayoutEffect(() => {
     updateCurrentUserAndCookie(getUserFromCookieOrNull())
@@ -46,12 +56,20 @@ export default function MainContextProvider({ children }: PropsWithChildren) {
 
   return (
     <MainContext.Provider 
-        value={{ 
-          getCurrentUser: getCurrentUser,
-          setCurrentUser: updateCurrentUserAndCookie,
-          tailwindConfig: defaultMainContextProps.tailwindConfig
-        }}>
+      value={{
+        getCurrentUser: getCurrentUser,
+        setCurrentUser: updateCurrentUserAndCookie,
+        setNotificationProps: setNotificationProps,
+        tailwindConfig: defaultMainContextProps.tailwindConfig
+      }}>
       { children }
+      {
+        notificationProps &&
+          <Notification
+            {...notificationProps}
+            open={ notificationBarOpen }
+            onClose={ () => setNotificationBarOpen(false) }
+          /> }
     </MainContext.Provider>
   )
 }
