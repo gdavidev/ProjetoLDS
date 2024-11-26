@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Button } from "@mui/material";
 import { IonIcon } from '@ionic/react';
 import { heartOutline, heart } from 'ionicons/icons';

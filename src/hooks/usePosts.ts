@@ -8,14 +8,14 @@ type UsePostsOptions<T> = {
   onError?: (err: AxiosError | Error) => void
 }
 
-export default function usePosts(options: UsePostsOptions<Post[]>): UseQueryResult {
+export default function usePosts(options: UsePostsOptions<Post[]>): UseQueryResult<Post[]> {
   return useQuery('FETCH_POSTS', {
     queryFn: async () => await PostApiService.getAll(),
     ...options
   });
 }
 
-export function usePost(id: number, options: UsePostsOptions<Post>): UseQueryResult {
+export function usePost(id: number, options: UsePostsOptions<Post>): UseQueryResult<Post> {
   return useQuery('FETCH_POST', {
     queryFn: async () => await PostApiService.get(id),
     ...options

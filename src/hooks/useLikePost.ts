@@ -3,13 +3,13 @@ import { useMutation } from "react-query"
 import { AxiosError } from 'axios';
 
 type UseLikePostOptions = {
-  onSucess?: (_: any, varibles: UseLikePostVariables) => void,
+  onSuccess?: (_: unknown, variables: UseLikePostVariables) => void,
   onError?: (err: AxiosError | Error) => void
 }
 
 type UseLikePostVariables = {
   currentState: boolean,
-  targetId: number,
+  postId: number,
   userId: number
 }
 
@@ -18,19 +18,18 @@ const postEndPoints = {
   unlike: '/topicos/unlike'
 }
 
-
-export function useLikePost(options: UseLikePostOptions) {
+export function useLikePost(options?: UseLikePostOptions) {
   return useMutation('TOGGLE_LIKE_POST',
     async (variables: UseLikePostVariables) => {
       const targetEndpoint: string = variables.currentState ? postEndPoints.like : postEndPoints.unlike;
       return ApiService.post(targetEndpoint, {
-        id_topico: variables.targetId,
+        id_topico: variables.postId,
         id_user: variables.userId,
       })
     }, {
-      onSuccess: options.onSucess,
-      onError: options.onError
-    }
+    onSuccess: options?.onSuccess,
+    onError: options?.onError
+  }
   )
 }
 

@@ -39,7 +39,7 @@ export default function PostCreate() {
     onError: (err: AxiosError | Error) => alert(err.message)
   })
 
-  const { mutate: createPost, error: mutateError, isLoading, isSuccess, isError } = 
+  const { mutate: createPost, error: mutateError, isLoading, isSuccess, isError } =
     useStorePost(user?.token!, {
       onSuccess: (post: Post) => navigate('/post/' + post.id),
       onError: (err: AxiosError | Error) => alert(err.message)
