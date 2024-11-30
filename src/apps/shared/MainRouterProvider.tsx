@@ -15,6 +15,7 @@ const GamesView = lazy(() => import('@apps/admin/pages/GamesView.tsx'))
 const EmulatorsView = lazy(() => import('@apps/admin/pages/EmulatorsView'))
 const UsersView = lazy(() => import('@apps/admin/pages/UsersView'))
 /*Forum*/
+const ForumPage = lazy(() => import('@apps/main/pages/forum/ForumPage'))
 const FeedPage = lazy(() => import('@apps/main/pages/forum/FeedPage'))
 const PostPage = lazy(() => import('@apps/main/pages/forum/PostPage'))
 const PostCreate = lazy(() => import('@apps/main/pages/forum/PostCreate'))
@@ -35,10 +36,15 @@ const router = createBrowserRouter([
         { path: '/reset-password',     element: <AuthPage mode={AuthPageMode.RESET_PASSWORD} />},
         { path: '/profile',            element: <ProfilePage />                                },
         { path: '/game/:gameId',       element: <GameViewPage />                               },
-        { path: '/feed',               element: <FeedPage />                                   },
-        { path: '/post/:postId',       element: <PostPage />                                   },
-        { path: '/post/new',           element: <PostCreate />                                 },
-      ]      
+        {
+          path: '/forum',
+          element: <ForumPage />,
+          children: [
+            { path: '/forum/feed',               element: <FeedPage />                                   },
+            { path: '/forum/post/:postId',       element: <PostPage />                                   },
+            { path: '/forum/post/new',           element: <PostCreate />                                 },
+          ]},
+      ]
   },
   {
     path: '/admin',

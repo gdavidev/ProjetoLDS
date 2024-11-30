@@ -2,8 +2,8 @@ import { useCallback, useEffect, useState } from 'react';
 import { Alert } from '@mui/material';
 import FileInput from '@shared/components/formComponents/FileInput';
 import FileInputImagePreview from '@shared/components/formComponents/FileInputImagePreview';
-import { IonIcon } from '@ionic/react'
-import { document } from 'ionicons/icons'
+import { IonIcon } from '@ionic/react';
+import { document } from 'ionicons/icons';
 import Game from '@models/Game';
 import ModalPopup, { ModalPopupProps } from '@apps/shared/components/ModalPopup';
 import Thumbnail from '@models/utility/Thumbnail';
@@ -11,7 +11,7 @@ import SelectInput, { SelectInputSource } from '@apps/shared/components/formComp
 import Emulator from '@models/Emulator';
 import Category from '@models/Category';
 import useEmulators from '@/hooks/useEmulators';
-import useCategories from '@/hooks/useCategories';
+import useCategories, { CategoryType } from '@/hooks/useCategories.ts';
 import useCurrentUser from '@/hooks/useCurrentUser';
 import { useStoreGame } from '@/hooks/useGames';
 import { AxiosError } from 'axios';
@@ -61,7 +61,7 @@ export default function GameEditModal(props: GameEditModalProps) {
     },
     onError: (err: AxiosError | Error) => console.log("err: " + JSON.stringify(err))
   });
-  useCategories({
+  useCategories(CategoryType.GAMES, {
     onSuccess: (categories: Category[]) => {
       const source = categories.map(cat => ({ value: cat.id, name: cat.name }));
       setCategoryList(categories);

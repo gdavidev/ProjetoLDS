@@ -1,10 +1,8 @@
 import * as DTO from "@models/data/GameDTOs";
 import Game from "@models/Game";
 import ApiService from "./ApiService";
-import EmulatorApiService from "./EmulatorApiService";
 import Emulator from "@models/Emulator";
 import Category from "@models/Category";
-import CategoryApiService from "./CategoryApiService";
 import { AxiosResponse } from 'axios'
 
 export default class GameApiService {
@@ -15,30 +13,33 @@ export default class GameApiService {
     delete: 'api/roms/delete/'
   };
 
-  static async getAll(): Promise<Game[]> {
-    const games: Game[] = [];
-
-    const emulators: Emulator[] = await EmulatorApiService.getAll();
-    const categories: Category[] = await CategoryApiService.getAll();
-
+  static async getAll(emulators?: Emulator[], categories?: Category[]): Promise<Game[]> {
     const res: AxiosResponse<DTO.GameGetResponseDTO[]> = await ApiService.get(GameApiService.endpoints.get);
     const gamesData: DTO.GameGetResponseDTO[] = res.data;
 
-    for (let i = 0; i < gamesData.length; i++) {
-      const emulator: Emulator | undefined = emulators.find(em => em.id === gamesData[i].emulador);
-      const category: Category | undefined = categories.find(ca => ca.id === gamesData[i].categoria);
-      const game: Game = Game.fromGetDTO(gamesData[i], emulator, category);
-
-      games.push(game);
+    if (categories && emulators) {
+      return gamesData.map((dto: DTO.GameGetResponseDTO) => {
+        const emulator: Emulator | undefined = emulators.find(em => em.id === dto.emulador);
+        const category: Category | undefined = categories.find(ca => ca.id === dto.categoria);
+        return Game.fromGetDTO(dto, emulator, category);
+      });
+    } else {
+      return gamesData.map(g => Game.fromGetDTO(g))
     }
-
-    return games;
   }
 
-  static async get(id: number): Promise<Game> {
+  static async get(id: number, categories?: Category[], emulators?: Emulator[]): Promise<Game> {
     const res: AxiosResponse<DTO.GameGetResponseDTO> = 
         await ApiService.get(GameApiService.endpoints.get, { data: { id: id } });
-    return Game.fromGetDTO(res.data);
+
+    let category: Category | undefined = undefined;
+    let emulator: Emulator | undefined = undefined;
+    if (categories)
+      category = categories.find(cat => cat.id === res.data.categoria);
+    if (emulators)
+      emulator = emulators.find(em => em.id === res.data.emulador);
+
+    return Game.fromGetDTO(res.data, emulator, category);
   }  
   
   static async store(game: Game, token: string): Promise<Game> {

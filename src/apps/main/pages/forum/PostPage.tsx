@@ -17,12 +17,12 @@ export default function PostPage() {
 
   useEffect(() => {
     if (params.postId === undefined)
-      exit('/feed', 'Post não encontrado');
+      exit('/forum/feed', 'Post não encontrado');
   }, []);
 
   const { mutate: likePost } = useLikePost();
   const { data: post } = usePost(params.postId, {
-    onError: (err: AxiosError | Error) => { exit('/feed', 'Post não encontrado'); console.log(err.message) }
+    onError: (err: AxiosError | Error) => { exit('/forum/feed', 'Post não encontrado'); console.log(err.message) }
   });
   
   return(

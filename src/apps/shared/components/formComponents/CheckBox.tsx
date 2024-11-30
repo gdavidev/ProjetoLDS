@@ -11,7 +11,7 @@ export default function CheckBox(props: CheckBoxProps) {
   const [ isChecked, setIsChecked ] = useState(props.isChecked);
 
   return (
-    <div className={ "flex align-center cursor-pointer " + (props.className ?? '') } 
+    <div className={ "flex items-center cursor-pointer " + (props.className ?? '') }
         onClick={ (e) => { setIsChecked(!isChecked); e.preventDefault() } }>
       <input type="checkbox" 
           className="w-5 h-5 me-2"

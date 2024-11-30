@@ -1,16 +1,16 @@
-import TextArea from "@/apps/shared/components/formComponents/TextArea";
-import TextInput from "@/apps/shared/components/formComponents/TextInput";
-import useCategories from "@/hooks/useCategories";
-import useCurrentUser from "@/hooks/useCurrentUser";
-import { useStorePost } from "@/hooks/usePosts";
-import Category from "@/models/Category";
-import Post from "@/models/Post";
-import SelectInput, { SelectInputSource } from "@apps/shared/components/formComponents/SelectInput";
-import { Alert } from "@mui/material";
-import { AxiosError } from "axios";
-import { useState } from "react";
-import { Controller, useForm } from "react-hook-form"
-import { useNavigate } from "react-router-dom";
+import TextArea from '@/apps/shared/components/formComponents/TextArea';
+import TextInput from '@/apps/shared/components/formComponents/TextInput';
+import useCategories, { CategoryType } from '@/hooks/useCategories.ts';
+import useCurrentUser from '@/hooks/useCurrentUser';
+import { useStorePost } from '@/hooks/usePosts';
+import Category from '@/models/Category';
+import Post from '@/models/Post';
+import SelectInput, { SelectInputSource } from '@apps/shared/components/formComponents/SelectInput';
+import { Alert } from '@mui/material';
+import { AxiosError } from 'axios';
+import { useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
 
 type PostCreateFormData = {
   categoryId: number,
@@ -31,19 +31,19 @@ export default function PostCreate() {
     defaultValues: defaultValues
   });
   
-  useCategories({
+  useCategories(CategoryType.POSTS, {
     onSuccess: (categories: Category[]) => {
       const source = categories.map(cat => ({ value: cat.id, name: cat.name }));
       setCategorySelectSource(source);
     },
     onError: (err: AxiosError | Error) => alert(err.message)
-  })
+  });
 
   const { mutate: createPost, error: mutateError, isLoading, isSuccess, isError } =
     useStorePost(user?.token!, {
-      onSuccess: (post: Post) => navigate('/post/' + post.id),
+      onSuccess: (post: Post) => navigate('/forum/post/' + post.id),
       onError: (err: AxiosError | Error) => alert(err.message)
-    })
+    });
 
   function submit(data: PostCreateFormData) {
     const newPost = new Post();

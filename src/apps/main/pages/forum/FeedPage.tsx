@@ -14,7 +14,7 @@ export default function FeedPage() {
     <div className="flex col-gap-2">
       <div>
         <Button startIcon={ <IonIcon icon={ add } /> } 
-            onClick={ () => navigate('/post/new') }>
+            onClick={ () => navigate('/forum/post/new') }>
           Novo Post
         </Button>
       </div>

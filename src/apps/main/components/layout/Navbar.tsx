@@ -4,7 +4,7 @@ export default function Navbar() {
   const currentPath: string = useLocation().pathname
   const pathToHome: string = "/"
   const pathToGames: string = "/games"
-  const pathToForuns: string = "/feed"
+  const pathToForuns: string = "/forum/feed"
 
   return (
     <nav className="flex justify-center mt-1">
