@@ -1,41 +1,17 @@
-import CheckBox from '@apps/shared/components/formComponents/CheckBox';
-import { Accordion, AccordionDetails, AccordionSummary } from '@mui/material';
+import CheckBox from '@shared/components/formComponents/CheckBox.tsx';
+import { AccordionDetails } from '@mui/material';
 import { IonIcon } from '@ionic/react';
-import { chevronForwardOutline, filterOutline } from 'ionicons/icons';
-import { AccordionProps } from '@mui/material/Accordion';
-import { accordionSummaryClasses, AccordionSummaryProps } from '@mui/material/AccordionSummary';
+import { filterOutline } from 'ionicons/icons';
 import useCategories, { CategoryType } from '@/hooks/useCategories.ts';
 import useEmulators from '@/hooks/useEmulators.ts';
-
-const AccordionStyled = (props: AccordionProps) => (
-  <Accordion {...props}
-    disableGutters
-    sx={{
-      backgroundColor: 'transparent',
-      border: 'none',
-      color: 'white',
-      boxShadow: 'none',
-    }} />
-);
-const AccordionSummaryStyled = (props: AccordionSummaryProps) => (
-    <AccordionSummary {...props}
-      expandIcon={ <IonIcon style={{color: 'white'}} icon={ chevronForwardOutline } /> }
-      sx={{
-        display: 'flex',
-        flexDirection: 'row-reverse',
-        columnGap: '0.5rem',
-        [`& .${accordionSummaryClasses.expandIconWrapper}.${accordionSummaryClasses.expanded}`]: {
-          transform: 'rotate(90deg)',
-        }
-      }} />
-);
+import { AccordionStyled, AccordionSummaryStyled } from '@shared/components/MuiStyled/Accordion.tsx';
 
 export default function SearchGamesSideBar() {
   const { data: categories } = useCategories(CategoryType.GAMES);
   const { data: emulators  } = useEmulators();
 
   return (
-    <aside className="min-w-72 flex flex-col">
+    <aside className="min-w-72 flex flex-col bg-layout-background">
       <AccordionStyled>
         <AccordionSummaryStyled>Emulador</AccordionSummaryStyled>
         <AccordionDetails>
