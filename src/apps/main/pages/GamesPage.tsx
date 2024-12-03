@@ -19,14 +19,16 @@ export default function GamesPage() {
   });
   
   return (
-    <div className="flex mx-4 gap-x-3 min-h-75">
+    <div className="flex me-4 gap-x-3 min-h-[92vh] -mt-14 -mb-16">
       <SearchGamesSideBar />
-      {
-        !cardList ? <Loading className='grow' /> :
-          <div className="grow grid xl:grid-cols-4 lg:grid-cols-3 grid-cols-2 gap-2">
-            { cardList }
-          </div>
-      }
+      <div className='mt-14 mb-16 w-full'>
+        {
+          !cardList ? <Loading className='grow' /> :
+            <div className="grow grid xl:grid-cols-4 lg:grid-cols-3 grid-cols-2 gap-2">
+              { cardList }
+            </div>
+        }
+      </div>
     </div>
   );
 }

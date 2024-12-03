@@ -11,7 +11,7 @@ export default function SearchGamesSideBar() {
   const { data: emulators  } = useEmulators();
 
   return (
-    <aside className="min-w-72 flex flex-col bg-layout-background">
+    <aside className="min-w-72 flex flex-col px-2 pt-10 pb-4 bg-layout-background">
       <AccordionStyled>
         <AccordionSummaryStyled>Emulador</AccordionSummaryStyled>
         <AccordionDetails>
