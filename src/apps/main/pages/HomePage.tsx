@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from 'react'
 import { MainContext, MainContextProps } from '@shared/context/MainContextProvider';
 import BannerSwiper from '@apps/main/components/displayComponents/BannerSwiper';
 import CardSwiper from '@apps/main/components/displayComponents/CardSwiper';
-import VGameCard from '@apps/main/components/displayComponents/VGameCard';
+import GameCard from '@apps/main/components/displayComponents/GameCard.tsx';
 import donkeyKongBanner from '@apps/main/assets/banners/donkeyKongBanner.png'
 import pokemonFireRedBanner from '@apps/main/assets/banners/pokemonFireRedBanner.jpg'
 import superMarioKartBanner from '@apps/main/assets/banners/superMarioKartBanner.webp'
@@ -46,7 +46,7 @@ export default function HomePage() {
   async function fillCardSwiper(games: Game[]): Promise<void> {
     const gameCardList: JSX.Element[] =
       games.map((game: Game, index: number) => 
-        <VGameCard key={ index } game={ game } />
+        <GameCard key={ index } game={ game } />
       )
     setCardList(gameCardList)
   }
