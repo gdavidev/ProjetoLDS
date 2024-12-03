@@ -15,7 +15,7 @@ import { IonIcon } from '@ionic/react';
 import { personOutline, mailOutline } from "ionicons/icons"
 import PasswordHiddenToggle from '../components/PasswordHiddenToggle';
 
-interface IUserSignInFormData {
+type UserSignInFormData = {
   email: string
   username: string
   password: string
@@ -32,19 +32,15 @@ export default function ProfilePage() {
   const [ alertInfo, setAlertInfo ] = useState<AlertInfo | undefined>({type: AlertType.HIDDEN});
   const [ isPasswordHidden       , setIsPasswordHidden        ] = useState<boolean>(true);
   const [ isPasswordConfirmHidden, setIsPasswordConfirmHidden ] = useState<boolean>(true);
-  const [ isLoading              , setIsLoading               ] = useState<boolean>(true);
   const preferencesArr: Category[] = [new Category(0, 'Action'), new Category(0, 'Adventure')];  
   const { user, setUser } = useCurrentUser();
-  const { handleSubmit, watch, control, reset: setFormData } = useForm<IUserSignInFormData>({
+  const { handleSubmit, watch, control, reset: setFormData } = useForm<UserSignInFormData>({
     defaultValues: defaultValues,
   });
-  const fields: IUserSignInFormData = watch();
+  const fields: UserSignInFormData = watch();
 
   useEffect(() => {
-    if (!user) {
-      setIsLoading(true);
-      return;
-    }
+    if (!user) return;
 
     setFormData({
       email: user.email,
@@ -52,7 +48,6 @@ export default function ProfilePage() {
       password: '',
       passwordConfirm: '',
     });
-    setIsLoading(false);
   }, [user]);
 
   const { update } = useAuth({
@@ -72,7 +67,7 @@ export default function ProfilePage() {
     setAlertInfo({ message: "Usuário alterado com sucesso.", type: AlertType.SUCCESS })
   }
 
-  function onSubmit(data: IUserSignInFormData) {
+  function onSubmit(data: UserSignInFormData) {
     const error: string | undefined = getErrorMessage(fields);
     if (error) {
       setAlertInfo({ message: error, type: AlertType.ERROR });
@@ -96,7 +91,6 @@ export default function ProfilePage() {
               name="Nome de Usuário"
               inputClassName='bg-transparent text-white' 
               inputContainerClassName="bg-transparent border-b-primary border-b-[1px]"
-              isLoading={isLoading}
               endDecoration={ <IonIcon icon={personOutline} /> } />
         ) }/>
         <Controller name="email" control={ control } render={ ({field}) => (
@@ -104,7 +98,6 @@ export default function ProfilePage() {
               name="Email" 
               inputClassName='bg-transparent text-white' 
               inputContainerClassName="bg-transparent border-b-primary border-b-[1px]"
-              isLoading={isLoading}
               endDecoration={ <IonIcon icon={mailOutline} /> } />
         ) }/>
 
@@ -115,7 +108,6 @@ export default function ProfilePage() {
                 inputClassName='bg-transparent text-white' 
                 password={ isPasswordHidden }
                 containerClassName='w-full'
-                isLoading={isLoading}
                 inputContainerClassName="bg-transparent border-b-primary border-b-[1px]"
                 endDecoration={ 
                   <PasswordHiddenToggle initialState={ true } onChange={ setIsPasswordHidden }/> 
@@ -127,7 +119,6 @@ export default function ProfilePage() {
                 inputClassName='bg-transparent text-white' 
                 password={ isPasswordConfirmHidden }
                 containerClassName='w-full'
-                isLoading={isLoading}
                 inputContainerClassName="bg-transparent border-b-primary border-b-[1px]"
                 endDecoration={ 
                   <PasswordHiddenToggle initialState={ true } onChange={ setIsPasswordConfirmHidden }/> 
@@ -136,7 +127,7 @@ export default function ProfilePage() {
         </div>
 
         <FormControl>              
-          <label>Preferencias:</label>
+          <label>Preferências:</label>
           <div className='flex gap-x-2 gap-y-1 border-b-[1px] border-b-primary w-full pt-2 pb-1'>
             { categoryToChips(preferencesArr) }
           </div>
@@ -166,7 +157,7 @@ function categoryToChips(categoryArr: Category[]) {
   return categoryArr.map(cat => <Chip label={cat.name} />);
 }
 
-function getErrorMessage(data: IUserSignInFormData): string | undefined {
+function getErrorMessage(data: UserSignInFormData): string | undefined {
   if (data.username === '')
     return "Campo nome está vázio.";
   if (data.email === '')
