@@ -16,16 +16,16 @@ import useGames from '@/hooks/useGames';
 
 const bannerList: React.ReactElement[] = [
   <SwiperSlide key={0}>
-    <img className='w-screen' src={ donkeyKongBanner } />
+    <img alt='donkeyKongBanner' className='w-screen' src={ donkeyKongBanner } />
   </SwiperSlide>,
   <SwiperSlide key={1}>
-    <img className='w-screen -mt-96' src={ pokemonFireRedBanner } />
+    <img alt='pokemonFireRedBanner' className='w-screen -mt-96' src={ pokemonFireRedBanner } />
   </SwiperSlide>,
   <SwiperSlide key={2}>
-    <img className='w-screen mt-[-800px]' src={ superMarioKartBanner } />
+    <img alt='superMarioKartBanner' className='w-screen mt-[-800px]' src={ superMarioKartBanner } />
   </SwiperSlide>,
   <SwiperSlide key={3}>
-    <img className='w-screen -mt-96' src={ superMarioWorldBanner } />
+    <img alt='superMarioWorldBanner' className='w-screen -mt-96' src={ superMarioWorldBanner } />
   </SwiperSlide>
 ]
 
