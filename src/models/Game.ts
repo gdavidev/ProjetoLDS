@@ -58,15 +58,15 @@ export default class Game {
     }
   }
 
-  static fromGetDTO(dto: DTO.GameGetResponseDTO, emulator?: Emulator, category?: Category): Game {
+  static fromGetDTO(dto: DTO.GameGetResponseDTO): Game {
     return new Game(
       dto.id,
       dto.title,
       dto.description,
-      emulator,
+      new Emulator(dto.emulador, '', '', dto.empresa),
       new Thumbnail(dto.image_base64),
       new File([], dto.file),
-      category,
+      new Category(dto.categoria, dto.categoria_name),
     )
   }
 }

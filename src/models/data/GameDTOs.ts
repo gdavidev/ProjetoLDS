@@ -50,6 +50,8 @@ export type GameGetResponseDTO = {
   image_base64: string,
   file: string,
   title: string,
+  empresa: string,
+  categoria_name: string,
 }
 
 
