@@ -1,6 +1,9 @@
 import { lazy } from 'react'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import { AuthPageMode } from '@/apps/main/pages/auth/AuthPage'
+
+/*Misc*/
+import ErrorPage from '@shared/pages/ErrorPage.tsx';
 /*Main*/
 import MainApp from '@apps/main/MainApp.tsx'
 import AdminApp from '@apps/admin/AdminApp.tsx'
@@ -19,8 +22,6 @@ const ForumPage = lazy(() => import('@apps/main/pages/forum/ForumPage'))
 const FeedPage = lazy(() => import('@apps/main/pages/forum/FeedPage'))
 const PostPage = lazy(() => import('@apps/main/pages/forum/PostPage'))
 const PostCreate = lazy(() => import('@apps/main/pages/forum/PostCreate'))
-/*Misc*/
-const ErrorPage = lazy(() => import('@shared/pages/ErrorPage.tsx'))
 
 const router = createBrowserRouter([
   { errorElement: <ErrorPage code={ 404 } /> },
