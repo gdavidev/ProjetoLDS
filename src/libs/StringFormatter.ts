@@ -11,9 +11,11 @@ export default class StringFormatter {
     return this.value
   }
 
-  tabLeft(amount: number) {
+  padLeft(amount: number, char?: string): string {
+    char = char || ' ';
+
     for (let i = 0; i < amount - 1; i++)
-      this.value = ' ' + this.value
+      this.value = char + this.value
     return this.value
   }
 
