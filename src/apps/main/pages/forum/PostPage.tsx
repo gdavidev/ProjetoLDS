@@ -28,7 +28,7 @@ export default function PostPage() {
   return(
     <section>
       <div>
-        <h1>{ post?.name }</h1>
+        <h1>{ post?.title }</h1>
         <span>{ post?.content }</span>
         <LikeButton
             checked={ liked }

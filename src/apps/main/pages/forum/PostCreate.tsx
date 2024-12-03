@@ -47,7 +47,7 @@ export default function PostCreate() {
 
   function submit(data: PostCreateFormData) {
     const newPost = new Post();
-    newPost.name = data.title
+    newPost.title = data.title
     newPost.content = data.content
 
     createPost(newPost);

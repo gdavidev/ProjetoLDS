@@ -17,7 +17,7 @@ export default function PostRow(props: PostRowProps) {
 	return (
 		<div>
 			<Link to={ '/forum/post/' + props.post.id }>
-				<h3>{props.post.name}</h3>
+				<h3>{props.post.title}</h3>
 			</Link>
 			<span>{ props.post.content }</span>
 			<LikeButton
