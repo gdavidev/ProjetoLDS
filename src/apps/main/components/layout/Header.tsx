@@ -17,7 +17,7 @@ export default function Header() {
 
   return (
     <header className="fixed w-screen flex flex-col z-50">
-      <div className="flex justify-between items-center px-6 py-1.5 bg-layout-backgroud">
+      <div className="flex justify-between items-center px-6 py-1.5 bg-layout-background">
         <Link to="/" className="flex items-center gap-x-3 select-none
             hover:scale-110 active:scale-95 transition duration-100 ease-in-out">
           <img src={ logo } className="w-40 h-12 sm:visible invisible" alt="logo" />

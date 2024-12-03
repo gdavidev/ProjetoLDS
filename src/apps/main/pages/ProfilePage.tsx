@@ -83,7 +83,7 @@ export default function ProfilePage() {
   }
   
   return (
-    <form onSubmit={ handleSubmit(onSubmit) } className="mx-auto md:w-1/2 w-96 overflow-y-auto rounded-md bg-layout-backgroud">
+    <form onSubmit={ handleSubmit(onSubmit) } className="mx-auto md:w-1/2 w-96 overflow-y-auto rounded-md bg-layout-background">
       <div id="banner" className="bg-primary w-full h-16" />
       <div className='text-white flex flex-col gap-y-3 p-2'>
         <Controller name="username" control={ control } render={ ({field}) => (

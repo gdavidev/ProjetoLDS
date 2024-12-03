@@ -17,7 +17,7 @@ export default {
         'secondary': '#5E5454',
         'tertiary': '865151',
         'background': '#262626',
-        'layout-backgroud': '#363636',
+        'layout-background': '#363636',
       }
     },
     fontFamily: {
