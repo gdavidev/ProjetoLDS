@@ -8,8 +8,6 @@ export default class CurrentUser {
   token?: string
   profilePic?: File
 
-  constructor()  
-  constructor(userName: string, email: string, password?: string, token?: string, isAdmin?: boolean)  
   constructor(userName?: string, email?: string, password?: string, token?: string, isAdmin?: boolean, profilePic?: File) {
     this.userName   = userName;
     this.token      = token;
@@ -19,28 +17,24 @@ export default class CurrentUser {
     this.isAdmin    = isAdmin;
   }
 
-  isAuth(): boolean { 
-    if (this.token)
-      return true
-    return false
+  isAuth(): boolean {
+    return !!this.token
   }
 
-  toRegisterDTO(): {} {
-    const dto: UserRegisterDTO = {
+  toRegisterDTO(): UserRegisterDTO {
+    return {
       username: this.userName!,
       email: this.email!,
       password: this.password!,
       imagem_perfil: this.profilePic,
     }
-    return dto;
   }
 
-  toLoginDTO(): {} {
-    const dto: UserLoginDTO = {
+  toLoginDTO(): UserLoginDTO {
+    return {
       email: this.email!,
       password: this.password!,
     }
-    return dto;
   }
 
   static fromLoginResponseDTO(dto: UserLoginResponseDTO): CurrentUser {
