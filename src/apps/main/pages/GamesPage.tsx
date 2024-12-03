@@ -4,27 +4,29 @@ import { AxiosError } from 'axios';
 import VGameCard from "@apps/main/components/displayComponents/VGameCard";
 import SearchGamesSideBar from "@apps/main/components/layout/SearchGamesSideBar";
 import useGames from "@/hooks/useGames";
+import Loading from '@shared/components/Loading.tsx';
 
 export default function GamesPage() {
-  const [ cardList, setCardList ] = useState<JSX.Element[]>([])
+  const [ cardList, setCardList ] = useState<JSX.Element[] | undefined>()
   
   useGames({
-    onSuccess: fillCardContainer,
+    onSuccess: (games: Game[]) => {
+      const gameCardList: JSX.Element[] =
+          games.map((game: Game, index: number) => <VGameCard key={ index } game={ game } />)
+      setCardList(gameCardList)
+    },
     onError: (err: AxiosError | Error) => console.log(err.message)
   });
   
-  async function fillCardContainer(games: Game[]): Promise<void> {
-    const gameCardList: JSX.Element[] =
-      games.map((game: Game, index: number) => <VGameCard key={ index } game={ game } />)
-    setCardList(gameCardList)
-  }
-  
   return (
-    <div className="flex mx-4 gap-x-3">
+    <div className="flex mx-4 gap-x-3 min-h-75">
       <SearchGamesSideBar />
-      <div className="grid xl:grid-cols-4 lg:grid-cols-3 grid-cols-2 gap-2">
-        { cardList }
-      </div>
+      {
+        !cardList ? <Loading className='grow' /> :
+          <div className="grow grid xl:grid-cols-4 lg:grid-cols-3 grid-cols-2 gap-2">
+            { cardList }
+          </div>
+      }
     </div>
   );
 }
