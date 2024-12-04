@@ -1,6 +1,5 @@
 import TextInput, { TextInputStyle } from "@apps/shared/components/formComponents/TextInput.tsx";
 import React, { PropsWithoutRef, useEffect, useState } from "react";
-import { AlertInfo, AlertType } from "./AuthPage.tsx";
 import { personOutline, mailOutline } from "ionicons/icons"
 import { Link } from "react-router-dom";
 import { AxiosError } from 'axios';
@@ -11,9 +10,9 @@ import { IonIcon } from "@ionic/react";
 import PasswordHiddenToggle from "@apps/main/components/PasswordHiddenToggle.tsx";
 
 type SignInLayoutProps = {
-  onError?: (alertData: AlertInfo) => void,
   onSuccess?: () => void,
-  onStateChanged?: (alertData: AlertInfo) => void,
+  onError?: (message: string) => void,
+  onStateChanged?: (message: string) => void,
 }
 interface IUserSignInFormData {
   email: string
@@ -39,7 +38,7 @@ export default function SignInLayout(props: PropsWithoutRef<SignInLayoutProps>):
   const { register } = useAuth({      
     onSuccess: () => props.onSuccess?.(),
     onError: (err: AxiosError | Error) => props.onError?.(handleRequestError(err)),
-    onIsLoading: () => props.onStateChanged?.({ message: "Enviando...", type: AlertType.PROGRESS })
+    onIsLoading: () => props.onStateChanged?.("Enviando...")
   });
   
   function submitForm(data: IUserSignInFormData): void {
@@ -53,7 +52,7 @@ export default function SignInLayout(props: PropsWithoutRef<SignInLayoutProps>):
   useEffect(() => {
     const error: string | undefined = getErrorMessageIfNotValid(fields);
     if (error)
-      props.onError?.({ message: error, type: AlertType.ERROR });
+      props.onError?.(error);
   }, []);
   
   return(
@@ -120,14 +119,14 @@ function getErrorMessageIfNotValid(data: IUserSignInFormData): string | undefine
   if (data.password.trim() === '') 
     return "Por favor, insira uma senha.";
   if (data.passwordConfirm.trim() === '') 
-    return "Por favor, insira uma confimação da senha.";
+    return "Por favor, insira uma confirmação da senha.";
 
   if (data.password !== data.passwordConfirm)
     return "A senha e a confirmação são diferentes.";
   return undefined;
 }
 
-function handleRequestError(err: AxiosError | Error): AlertInfo {  
+function handleRequestError(err: AxiosError | Error): string {
   const isDebugMode: boolean = process.env.NODE_ENV === 'development'
   
   if (err instanceof AxiosError) {
@@ -135,20 +134,20 @@ function handleRequestError(err: AxiosError | Error): AlertInfo {
       case 400:
         const resData: any = err.response.data;
         if (resData["username"])
-          return { message: "Nome de usuário indisponível.", type: AlertType.ERROR };
+          return "Nome de usuário indisponível.";
         if (resData["email"])
-          return { message: "Este email ja está em uso.", type: AlertType.ERROR };
+          return "Este email ja está em uso.";
         if (isDebugMode)
-          return { message: resData.status + "Erro desconhecido.", type: AlertType.ERROR }
+          return resData.status + "Erro desconhecido."
         break;
       default:
         if (isDebugMode)
-          return { message: err.message, type: AlertType.ERROR };        
+          return err.message;
     }
   } else if (isDebugMode) {
     console.log(err.stack);
-    return { message: err.name +  ": " + err.message, type: AlertType.ERROR };
+    return err.name +  ": " + err.message;
   }
   
-  return { message: "Por favor, tente novamente mais tarde.", type: AlertType.ERROR };
+  return "Por favor, tente novamente mais tarde.";
 }
