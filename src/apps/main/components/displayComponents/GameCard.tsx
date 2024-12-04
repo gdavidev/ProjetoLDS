@@ -7,7 +7,7 @@ type GameCardProps = {
 
 export default function GameCard(props: GameCardProps) {
 	return (
-		<Link to={'/game?gameId=' + props.game.id}>
+		<Link to={'/game/' + props.game.id}>
 			<div className="flex flex-col min-w-48 min-h-72 select-none rounded-lg overflow-hidden">
 				<div className="overflow-x-hidden grow flex items-center bg-black">
 					<img className="h-72" src={props.game.thumbnail?.toDisplayable()} alt="" />
