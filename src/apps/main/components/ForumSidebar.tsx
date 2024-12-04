@@ -28,8 +28,12 @@ export default function ForumSidebar() {
 			</h3>
 			<div>
 				{ categories &&
-						categories.map((cat) => (
-							<CheckBox name={cat.name} label={cat.name} />
+						categories.map((cat, i) => (
+							<CheckBox
+								key={i}
+								name={cat.name}
+								label={cat.name}
+							/>
 						))
 				}
 			</div>

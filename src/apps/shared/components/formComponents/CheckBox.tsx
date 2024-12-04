@@ -8,14 +8,13 @@ type CheckBoxProps = {
 }
 
 export default function CheckBox(props: CheckBoxProps) {
-  const [ isChecked, setIsChecked ] = useState(props.isChecked);
+  const [ isChecked, setIsChecked ] = useState<boolean>(props.isChecked ?? false);
 
   return (
     <div
       className={ "flex items-center cursor-pointer " + (props.className ?? '') }
       onClick={ (e) => {
           setIsChecked(!isChecked);
-          e.preventDefault();
           e.stopPropagation();
         }
       }>
@@ -23,10 +22,9 @@ export default function CheckBox(props: CheckBoxProps) {
         className="w-5 h-5 me-2"
         id={ props.name }
         name={ props.name }
-        checked={ isChecked }
+        defaultChecked={ isChecked }
         onClick={ (e) => {
           e.stopPropagation();
-          setIsChecked(ck => !ck);
         }
       }/>
       <label htmlFor={ props.name }
