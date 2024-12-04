@@ -6,31 +6,36 @@ import { useStorePost } from '@/hooks/usePosts';
 import Category from '@/models/Category';
 import Post from '@/models/Post';
 import SelectInput, { SelectInputSource } from '@apps/shared/components/formComponents/SelectInput';
-import { Alert } from '@mui/material';
 import { AxiosError } from 'axios';
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
+import useAlert from '@/hooks/feedback/useAlert.tsx';
+import useNotification, { useNotificationDefaults } from '@/hooks/feedback/useNotification.tsx';
+import useRequestErrorHandler from '@/hooks/useRequestErrorHandler.ts';
 
 type PostCreateFormData = {
   categoryId: number,
   title: string,
   content: string
 }
-const defaultValues: PostCreateFormData = {
-  categoryId: -1,
-  title: '',
-  content: '',
-}
 
 export default function PostCreate() {
   const [ categorySelectSource, setCategorySelectSource ] = useState<SelectInputSource>([])
+  const { alertElement, error, info } = useAlert();
+  const { setNotification } = useNotification();
   const navigate = useNavigate();
   const { user } = useCurrentUser();
-  const { handleSubmit, control, formState: { errors } } = useForm<PostCreateFormData>({
-    defaultValues: defaultValues
+  const { handleSubmit, watch, control, formState: { errors } } = useForm<PostCreateFormData>({
+    defaultValues: {
+      categoryId: -1,
+      title: '',
+      content: '',
+    }
   });
-  
+  const fields = watch()
+
+  // ---- Initialization ----
   useCategories(CategoryType.POSTS, {
     onSuccess: (categories: Category[]) => {
       const source = categories.map(cat => ({ value: cat.id, name: cat.name }));
@@ -39,35 +44,49 @@ export default function PostCreate() {
     onError: (err: AxiosError | Error) => alert(err.message)
   });
 
-  const { mutate: createPost, error: mutateError, isLoading, isSuccess, isError } =
-    useStorePost(user?.token!, {
-      onSuccess: (post: Post) => navigate('/forum/post/' + post.id),
-      onError: (err: AxiosError | Error) => alert(err.message)
-    });
+  // ---- API Calls Setup ----
+  const { mutate: createPost, isLoading } = useStorePost(user?.token!, {
+    onSuccess: (post: Post) => {
+      setNotification({
+        ...useNotificationDefaults,
+        message: 'Post criado com sucesso!',
+        severity: 'success'
+      })
+      navigate('/forum/post/' + post.id)
+    },
+    onError: (err: AxiosError | Error) => handleRequestError(err)
+  });
 
-  function submit(data: PostCreateFormData) {
+  // ---- API Calls Error Handling ----
+  const { handleRequestError } = useRequestErrorHandler({
+    mappings: [{ status: 'default', userMessage: "Por favor tente novamente mais tarde." }],
+    onError: (message: string) => error(message)
+  });
+
+  // ---- Error handling ----
+  useEffect(() => {
+    const formError =
+        Object.values(errors).find(err => err.message !== undefined)
+    if (formError && formError.message)
+      error(formError.message);
+  }, [fields]);
+
+  // ---- API Executing ----
+  const submit = useCallback((data: PostCreateFormData) => {
     const newPost = new Post();
     newPost.title = data.title
     newPost.content = data.content
 
     createPost(newPost);
-  }
+  }, []);
 
-  function getAlert(): JSX.Element | undefined {
-    const formError = Object.values(errors).find(err => err.message !== undefined)
-    if (formError !== undefined)
-      return <Alert severity="error">{ formError.message }</Alert>
-    if (isLoading)
-      return <Alert severity="info">Enviando...</Alert>
-    if (isSuccess)
-      return <Alert severity="success">Enviado com sucesso!</Alert>
-    if (isError)
-      return <Alert severity="error">{ mutateError.message }</Alert>
-    return undefined
-  }
+  // ---- Watch for state changes ----
+  useEffect(() => {
+    if (isLoading) info("Enviando...")
+  }, [isLoading]);
 
   return (
-    <section className="mx-auto w-2/3">
+    <section className="mx-auto w-4/5">
       <h1 className="text-white text-xl font-bold">Novo Post</h1>
       <form onSubmit={ handleSubmit(submit) } className="flex flex-col gap-y-4 mx-8">
         <div className="flex gap-x-5 w-full">        
@@ -88,7 +107,7 @@ export default function PostCreate() {
                     name="Categoria"
                     source={ categorySelectSource } hasSelectOption
                     containerClassName='flex flex-col'  
-                    labelClassName="text-white"                  
+                    labelClassName="text-white"
                     className={ 'input-text ' + (errors.categoryId ? ' bg-red-100 border-red-500' : ' bg-slate-200') } />
             ) }/>
         </div>
@@ -100,7 +119,7 @@ export default function PostCreate() {
                   labelClassName="text-white"  
                   className={ 'input-text' + (errors.content ? ' bg-red-100 border-red-500' : ' bg-slate-200') } />
             ) }/>
-        { getAlert() }
+        { alertElement }
         <div className="flex justify-end">
           <input value="Confirmar" type="submit"
               className={ "btn-r-md mt-3 bg-primary text-white" + (isLoading ? " disabled" : "") }            
