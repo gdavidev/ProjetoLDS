@@ -1,10 +1,11 @@
-import { createContext, PropsWithChildren, useState, useLayoutEffect, useEffect } from 'react';
-import Cookies from 'js-cookie'
-import CurrentUser from '@models/CurrentUser'
-import type { Config } from 'tailwindcss'
-import resolveConfig from 'tailwindcss/resolveConfig'
-import tailwindConfig from '@tailwind-config'
+import { createContext, PropsWithChildren, useEffect, useLayoutEffect, useState } from 'react';
+import Cookies from 'js-cookie';
+import CurrentUser from '@models/CurrentUser';
+import type { Config } from 'tailwindcss';
+import resolveConfig from 'tailwindcss/resolveConfig';
+import tailwindConfig from '@tailwind-config';
 import Notification, { NotificationProps } from '@shared/components/Notification.tsx';
+import { Role } from '@/hooks/usePermission.ts';
 
 export type MainContextProps = {
   getCurrentUser: () => CurrentUser | null,
@@ -76,10 +77,10 @@ export default function MainContextProvider({ children }: PropsWithChildren) {
 
 function createUserCookie(user: CurrentUser) {
   const userCookieObject: UserCookie = {
-    token: user.token!,
-    userName: user.userName!,
-    email: user.email!,
-    isAdmin: String(user.isAdmin!),
+    token: user.token,
+    userName: user.userName,
+    email: user.email,
+    isAdmin: String(user.role === Role.ADMIN),
   }
   Cookies.set('user', JSON.stringify(userCookieObject))
 }
@@ -94,7 +95,7 @@ function getUserFromCookieOrNull(): CurrentUser | null {
   const email: string = userCookieObject.email
   const isAdmin: string = userCookieObject.isAdmin
 
-  return new CurrentUser(userName, email, '', token, (isAdmin === 'true'))
+  return new CurrentUser(userName, token, email, (isAdmin === 'true' ? Role.ADMIN : Role.USER))
 }
 function dropUserCookie() {
   Cookies.remove('user') 

@@ -1,49 +1,28 @@
-import { UserRegisterDTO, UserLoginDTO, UserLoginResponseDTO } from "@models/data/UserDTOs";
+import { UserLoginResponseDTO } from '@models/data/UserDTOs';
+import { Role } from '@/hooks/usePermission.ts';
+import Thumbnail from '@models/utility/Thumbnail.ts';
 
 export default class CurrentUser {
-  isAdmin?: boolean
-  userName?: string
-  email?: string
-  password?: string
-  token?: string
-  profilePic?: File
+  userName: string
+  email: string
+  token: string
+  profilePic: Thumbnail | undefined
+  role: Role
 
-  constructor(userName?: string, email?: string, password?: string, token?: string, isAdmin?: boolean, profilePic?: File) {
+  constructor(userName: string, token: string, email: string, role: Role, profilePic?: Thumbnail) {
     this.userName   = userName;
     this.token      = token;
-    this.profilePic = profilePic || undefined;
     this.email      = email;
-    this.password   = password;
-    this.isAdmin    = isAdmin;
-  }
-
-  isAuth(): boolean {
-    return !!this.token
-  }
-
-  toRegisterDTO(): UserRegisterDTO {
-    return {
-      username: this.userName!,
-      email: this.email!,
-      password: this.password!,
-      imagem_perfil: this.profilePic,
-    }
-  }
-
-  toLoginDTO(): UserLoginDTO {
-    return {
-      email: this.email!,
-      password: this.password!,
-    }
+    this.role       = role;
+    this.profilePic = profilePic;
   }
 
   static fromLoginResponseDTO(dto: UserLoginResponseDTO): CurrentUser {
     return new CurrentUser(
       dto.user.username,
-      dto.user.email,
-      '',
       dto.token,
-      dto.user.admin
+      dto.user.email,
+      dto.user.admin ? Role.ADMIN : Role.USER,
     )
   }
 }

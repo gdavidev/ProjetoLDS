@@ -58,10 +58,10 @@ export default function ProfilePage() {
 
   function updateCurrentUser(dto: UserUpdateDTO) {
     const newUser: CurrentUser = new CurrentUser(
-      dto.username || user?.userName!,
-      dto.email    || user?.userName!,
-      '',
-      user?.token!
+      dto.username || user!.userName,
+      dto.email    || user!.email,
+      user!.token,
+      user!.role,
     );
     setUser(newUser);
     setAlertInfo({ message: "Usuário alterado com sucesso.", type: AlertType.SUCCESS })
