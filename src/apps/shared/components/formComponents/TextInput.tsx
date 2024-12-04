@@ -63,12 +63,13 @@ const LabelLessTextInput = forwardRef((props: TextInputProps, ref: React.Forward
 
       <input role="textbox"
           ref={ ref }
-          id={ formatedName } 
-          name={ formatedName } 
-          className={ makeInputClassName() } onChange={ props.onChange }
-          aria-label={ formatedName } 
-          placeholder={ props.name } 
-          type={ props.password ? "password" : "text" } 
+          id={ formatedName }
+          name={ formatedName }
+          className={ makeInputClassName() }
+          onChange={ props.onChange }
+          aria-label={ formatedName }
+          placeholder={ props.name }
+          type={ props.password ? "password" : "text" }
           defaultValue={ props.value } />
 
       { props.endDecoration }

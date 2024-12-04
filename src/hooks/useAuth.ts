@@ -94,7 +94,7 @@ export default function useAuth(options?: UseAuthOptions | UseAuthOptionsEvents)
   }
 }
 
-// Type guard to check if an object implements IUseAuthEvents
+// Type guard to check if an object implements UseAuthEvents
 const isUseAuthOptionsEvents = (obj: any): obj is UseAuthEvents => (
   obj &&
   typeof obj.onIsLoading === 'function' &&

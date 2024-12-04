@@ -25,6 +25,6 @@ export function usePost(id: number, options: UsePostsOptions<Post>): UseQueryRes
 export function useStorePost(token: string, options: UsePostsOptions<Post>) {
   return useMutation('MUTATE_POST',
       async (post: Post) =>  await PostApiService.store(post, token), {
-        ...options
+      ...options
     });
 }
