@@ -13,6 +13,8 @@ export enum CategoryType {
 type UseCategoriesOptions<T> = {
   onSuccess?: (categories: T) => void,
   onError?: (err: AxiosError | Error) => void,
+  staleTime?: number,
+  enabled?: boolean,
 }
 
 const endpoints = {
@@ -44,7 +46,9 @@ function useCategories(
     queryKey: resolvedDeps,
     queryFn: query,
     onSuccess: options?.onSuccess,
-    onError: options?.onError
+    onError: options?.onError,
+    enabled: options?.enabled ?? true,
+    staleTime: options?.staleTime ?? 5 * 60 * 1000 // five minutes
   });
 }
 
@@ -71,7 +75,9 @@ function useCategory(
     queryKey: resolvedDeps,
     queryFn: query,
     onSuccess: options?.onSuccess,
-    onError: options?.onError
+    onError: options?.onError,
+    enabled: options?.enabled ?? true,
+    staleTime: options?.staleTime ?? 5 * 60 * 1000 // five minutes
   });
 }
 

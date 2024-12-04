@@ -6,6 +6,8 @@ import { useMutation, useQuery, UseQueryResult } from "react-query";
 type UseEmulatorsOptions<T> = {
   onSuccess?: (emulators: T) => void,
   onError?: (err: AxiosError | Error) => void,
+  staleTime?: number,
+  enabled?: boolean,
 }
 
 export default function useEmulators(options?: UseEmulatorsOptions<Emulator[]>, deps?: any[]): UseQueryResult<Emulator[]> {
@@ -14,7 +16,8 @@ export default function useEmulators(options?: UseEmulatorsOptions<Emulator[]>, 
     queryFn: async () => await EmulatorApiService.getAll(),
     onSuccess: options?.onSuccess,
     onError: options?.onError,
-    staleTime: 5 * 60 * 1000 // five minutes
+    enabled: options?.enabled ?? true,
+    staleTime: options?.staleTime ?? 5 * 60 * 1000 // five minutes
   });
 }
 
@@ -24,7 +27,8 @@ export function useEmulator(id: number, options?: UseEmulatorsOptions<Emulator>,
     queryFn: async () => await EmulatorApiService.get(id),
     onSuccess: options?.onSuccess,
     onError: options?.onError,
-    staleTime: 5 * 60 * 1000 // five minutes
+    enabled: options?.enabled ?? true,
+    staleTime: options?.staleTime ?? 5 * 60 * 1000 // five minutes
   });
 }
 
