@@ -2,6 +2,7 @@ import * as DTO from "@models/data/GameDTOs";
 import Emulator from "@models/Emulator";
 import Category from "@models/Category";
 import Thumbnail from "@models/utility/Thumbnail";
+import imageNotFound from '@/media/image-not-found.png'
 
 export default class Game {
   id: number;
@@ -9,7 +10,7 @@ export default class Game {
   desc: string;
   emulator: Emulator;
   category: Category;
-  thumbnail: Thumbnail | null;
+  thumbnail: Thumbnail;
   file: File | null;
   
   constructor(id?: number, name?: string, desc?: string, emulator?: Emulator, thumbnail?: Thumbnail | null, file?: File | null, category?: Category) {
@@ -18,7 +19,7 @@ export default class Game {
     this.desc         = desc        || '';
     this.emulator     = emulator    || new Emulator();
     this.category     = category    || new Category();
-    this.thumbnail    = thumbnail   || null;
+    this.thumbnail    = thumbnail   || new Thumbnail({ url: imageNotFound });
     this.file         = file        || null;
   }
 
@@ -63,10 +64,10 @@ export default class Game {
       dto.id,
       dto.title,
       dto.description,
-      new Emulator(dto.emulador, '', '', dto.empresa),
-      new Thumbnail(dto.image_base64),
+      new Emulator(dto.emulador.id, dto.emulador.nome, dto.emulador.console, dto.emulador.empresa),
+      new Thumbnail({ base64: dto.image_base64 }),
       new File([], dto.file),
-      new Category(dto.categoria, dto.categoria_name),
+      new Category(dto.categoria.id, dto.categoria.nome),
     )
   }
 }

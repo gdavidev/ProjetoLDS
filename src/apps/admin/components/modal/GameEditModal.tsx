@@ -106,8 +106,8 @@ export default function GameEditModal(props: GameEditModalProps) {
     const emulator: Emulator = emulatorList.find((emu: Emulator) => data.emulatorId == emu.id)!;
     const category: Category = categoryList.find((cat: Category) => data.categoryId == cat.id)!;
 
-    if (data.thumbnail)
-      data.thumbnail.renameFile((new StringFormatter(data.name)).toUrlSafe());  
+    if (data.thumbnail && data.thumbnail.file)
+      data.thumbnail.file = FileUtil.renamed(data.thumbnail.file, (new StringFormatter(data.name)).toUrlSafe())
     if (data.file)
       data.file = FileUtil.renamed(data.file, (new StringFormatter(data.name)).toUrlSafe());
 
@@ -215,7 +215,7 @@ export default function GameEditModal(props: GameEditModalProps) {
                 render={ ({field}) => (
                 <FileInput {...field}
                     buttonText='Arquivo de imagem'
-                    onChange={ (e) => field.onChange(e ? new Thumbnail(e[0]) : undefined) }
+                    onChange={ (e) => field.onChange(e ? new Thumbnail({ file: e[0] }) : undefined) }
                     error={ errors.thumbnail !== undefined }
                     accept="image/*" />
               ) }/>
