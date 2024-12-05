@@ -2,7 +2,7 @@ import { usePost } from '@/hooks/usePosts.ts';
 import useTypeSafeSearchParams from '@/hooks/useTypeSafeSearchParams.ts';
 import { AxiosError } from 'axios';
 import { useLikePost } from '@/hooks/useLikePost.ts';
-import LikeButton from '@apps/main/pages/forum/LikeButton.tsx';
+import LikeButton from '@apps/main/components/LikeButton.tsx';
 import { useEffect, useState } from 'react';
 import useEmergencyExit from '@/hooks/useEmergencyExit.ts';
 

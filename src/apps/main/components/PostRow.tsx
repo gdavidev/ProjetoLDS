@@ -1,5 +1,5 @@
 import Post from "@/models/Post"
-import LikeButton from "../pages/forum/LikeButton"
+import LikeButton from "./LikeButton.tsx"
 import { useLikePost } from "@/hooks/useLikePost"
 import { useState } from "react"
 import { Link } from 'react-router-dom';
