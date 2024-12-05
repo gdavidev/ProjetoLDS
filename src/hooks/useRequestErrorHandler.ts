@@ -4,8 +4,8 @@ import useEnvironment from '@/hooks/useEnvironment.ts';
 
 type useRequestErrorHandlerErrorMapping = {
 	status: number | number[] | 'default',
-	userMessage?: string,
-	debugMessage?: string,
+	userMessage?: string | ((resData: any) => string),
+	debugMessage?: string | ((resData: any) => string),
 	log?: boolean
 }
 type useRequestErrorHandlerOptions = {
@@ -38,9 +38,10 @@ export default function useRequestErrorHandler(options?: useRequestErrorHandlerO
 					findMapping(err.response.status, options.mappings)
 
 			if (matchingMapping !== null) {
-				const finalUserMessage = matchingMapping.userMessage || ''
+				const finalUserMessage = resolveMessage(matchingMapping.userMessage, err.response.data);
+
 				if (matchingMapping.log && isDebug)
-					console.error(matchingMapping.debugMessage);
+					console.error(resolveMessage(matchingMapping.debugMessage, err.response.data));
 
 				setMessage(finalUserMessage);
 				options.onError?.(finalUserMessage)
@@ -60,6 +61,17 @@ export default function useRequestErrorHandler(options?: useRequestErrorHandlerO
 		message,
 		isError,
 		clear
+	}
+}
+
+function resolveMessage(message: string | ((resData: any) => string) | undefined, resData: any) {
+	if (message === undefined)
+		return ''
+
+	if (typeof message === 'function') {
+		return message(resData)
+	} else {
+		return message;
 	}
 }
 

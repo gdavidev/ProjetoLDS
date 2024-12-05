@@ -8,6 +8,7 @@ import FormGroup from "@apps/shared/components/formComponents/FormGroup.tsx";
 import { Controller, useForm } from "react-hook-form";
 import { IonIcon } from "@ionic/react";
 import PasswordHiddenToggle from "@apps/main/components/PasswordHiddenToggle.tsx";
+import useRequestErrorHandler from '@/hooks/useRequestErrorHandler.ts';
 
 type SignInLayoutProps = {
   onSuccess?: () => void,
@@ -20,27 +21,38 @@ interface IUserSignInFormData {
   password: string
   passwordConfirm: string
 }
-const defaultValues: IUserSignInFormData = {
-  email: '',
-  username: '',
-  password: '',
-  passwordConfirm: '',
-}
 
 export default function SignInLayout(props: PropsWithoutRef<SignInLayoutProps>): React.ReactElement {
   const [ isPasswordHidden       , setIsPasswordHidden        ] = useState<boolean>(true);
   const [ isPasswordConfirmHidden, setIsPasswordConfirmHidden ] = useState<boolean>(true);
   const { handleSubmit, watch, control } = useForm<IUserSignInFormData>({
-    defaultValues: defaultValues,
+    defaultValues: {
+      email: '',
+      username: '',
+      password: '',
+      passwordConfirm: '',
+    },
   });
   const fields: IUserSignInFormData = watch();
 
   const { register } = useAuth({      
     onSuccess: () => props.onSuccess?.(),
-    onError: (err: AxiosError | Error) => props.onError?.(handleRequestError(err)),
+    onError: (err: AxiosError | Error) => handleRequestError(err),
     onIsLoading: () => props.onStateChanged?.("Enviando...")
   });
-  
+
+  const { handleRequestError } = useRequestErrorHandler({
+    mappings: [{
+      status: 400,
+      userMessage: (resData: any): string => {
+        if (resData["username"]) return 'Nome de usuário indisponível.';
+        if (resData["email"   ]) return 'Este email ja está em uso.';
+        return 'Erro desconhecido';
+      }
+    }],
+    onError: (message: string) => props.onError?.(message)
+  })
+
   function submitForm(data: IUserSignInFormData): void {
     register({
       email: data.email,
@@ -51,8 +63,7 @@ export default function SignInLayout(props: PropsWithoutRef<SignInLayoutProps>):
 
   useEffect(() => {
     const error: string | undefined = getErrorMessageIfNotValid(fields);
-    if (error)
-      props.onError?.(error);
+    if (error) props.onError?.(error);
   }, []);
   
   return(
@@ -124,30 +135,4 @@ function getErrorMessageIfNotValid(data: IUserSignInFormData): string | undefine
   if (data.password !== data.passwordConfirm)
     return "A senha e a confirmação são diferentes.";
   return undefined;
-}
-
-function handleRequestError(err: AxiosError | Error): string {
-  const isDebugMode: boolean = process.env.NODE_ENV === 'development'
-  
-  if (err instanceof AxiosError) {
-    switch (err.response?.status) {
-      case 400:
-        const resData: any = err.response.data;
-        if (resData["username"])
-          return "Nome de usuário indisponível.";
-        if (resData["email"])
-          return "Este email ja está em uso.";
-        if (isDebugMode)
-          return resData.status + "Erro desconhecido."
-        break;
-      default:
-        if (isDebugMode)
-          return err.message;
-    }
-  } else if (isDebugMode) {
-    console.log(err.stack);
-    return err.name +  ": " + err.message;
-  }
-  
-  return "Por favor, tente novamente mais tarde.";
 }
