@@ -13,11 +13,13 @@ import { useNavigate } from 'react-router-dom';
 import useAlert from '@/hooks/feedback/useAlert.tsx';
 import useNotification, { useNotificationDefaults } from '@/hooks/feedback/useNotification.tsx';
 import useRequestErrorHandler from '@/hooks/useRequestErrorHandler.ts';
+import TagPicker from '@shared/components/formComponents/TagPicker.tsx';
 
 type PostCreateFormData = {
   categoryId: number,
   title: string,
   content: string
+  tags: string[]
 }
 
 export default function PostCreate() {
@@ -31,6 +33,7 @@ export default function PostCreate() {
       categoryId: -1,
       title: '',
       content: '',
+      tags: [],
     }
   });
   const fields = watch()
@@ -63,7 +66,7 @@ export default function PostCreate() {
     onError: (message: string) => error(message)
   });
 
-  // ---- Error handling ----
+  // ---- Form Error Handling ----
   useEffect(() => {
     const formError =
         Object.values(errors).find(err => err.message !== undefined)
@@ -119,6 +122,20 @@ export default function PostCreate() {
                   labelClassName="text-white"  
                   className={ 'input-text' + (errors.content ? ' bg-red-100 border-red-500' : ' bg-slate-200') } />
             ) }/>
+
+        <Controller
+            name="tags"
+            control={control}
+            rules={{ required: 'É necessário especificar algum conteúdo.' }}
+            render={({ field }) => (
+              <TagPicker
+                  {...field}
+                  name={'Tags'}
+                  source={['opt1', 'opt2']}
+                  labelClassName="text-white"
+              />
+            )} />
+
         { alertElement }
         <div className="flex justify-end">
           <input value="Confirmar" type="submit"
