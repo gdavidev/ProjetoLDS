@@ -13,11 +13,11 @@ type UseCurrentUserResult = {
 
 export default function useCurrentUser(options?: UseCurrentUserOptions): UseCurrentUserResult {
   const mainContext: MainContextProps = useContext(MainContext);
+  const navigate = useNavigate()
 
   if (!mainContext)
     throw new Error('useCurrentUser must be used within an MainContextProvider');
 
-  const navigate = useNavigate()
   if (options && options.targetUrlWhenNotAuth && mainContext.getCurrentUser() === null) {
     navigate(options?.targetUrlWhenNotAuth);
   }
