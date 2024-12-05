@@ -41,6 +41,7 @@ export type UserUpdateDTO = {
 	username?: string,
 	email?: string,
 	password?: string,
+	imagem_perfil?: File | undefined,
 }
 export type UserUpdateResponseDTO = {
 	username: string,
