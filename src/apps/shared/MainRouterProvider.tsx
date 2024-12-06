@@ -1,5 +1,5 @@
-import { lazy } from 'react'
-import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import { lazy } from 'react';
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { AuthPageMode } from '@/apps/main/pages/auth/AuthPage'
 
 /*Misc*/
@@ -60,6 +60,6 @@ const router = createBrowserRouter([
 
 export default function MainRouterProvider() {
   return (
-    <RouterProvider router={ router }  />
+    <RouterProvider router={ router } />
   )
 }

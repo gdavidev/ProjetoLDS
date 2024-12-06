@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
 import Game from '@models/Game';
 import { IonIcon } from '@ionic/react'
 import { add, createOutline, trashOutline, reloadOutline } from 'ionicons/icons';
@@ -20,7 +19,7 @@ export default function GamesView() {
     compare: (game1: Game, game2: Game) => game1.id === game2.id
   });
 
-  const { refetch: refechGames } = useGames({
+  const { refetch: refetchGames } = useGames({
     onSuccess: (games: Game[]) => gameList.set(games.sort((prev, curr) => prev.id - curr.id))
   });
   const { mutate: deleteGame } = useDeleteGame(user?.token!, {
@@ -70,7 +69,7 @@ export default function GamesView() {
           <div className="flex gap-x-2 ">
             <IconButton 
               size='small'              
-              onClick={ () => refechGames() } 
+              onClick={ () => refetchGames() }
             >
               <IonIcon style={{color: 'white'}} icon={ reloadOutline } />
             </IconButton>
@@ -133,7 +132,10 @@ function GameDataTableRow(props: GameDataTableRowProps): React.ReactElement {
   return (
     <tr className={ props.rowClassName }>
       <td className={ cellClassName }>         
-        <img className='max-w-16 min-h-16 bg-slate-600' src={ source } />
+        <img
+            alt={ game.name + ' thumbnail' }
+            className='max-w-16 min-h-16 bg-slate-600'
+            src={ source } />
       </td>
       <td className={ cellClassName }>{ game.id                     }</td>
       <td className={ cellClassName }>{ game.name                   }</td>
