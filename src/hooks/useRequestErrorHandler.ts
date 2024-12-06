@@ -6,11 +6,12 @@ type useRequestErrorHandlerErrorMapping = {
 	status: number | number[] | 'default',
 	userMessage?: string | ((resData: any) => string),
 	debugMessage?: string | ((resData: any) => string),
+	onError?: (message: string, resData: any) => void,
 	log?: boolean
 }
 type useRequestErrorHandlerOptions = {
 	mappings: useRequestErrorHandlerErrorMapping[],
-	onError?: (message: string, cause: number | number[] | string) => void,
+	onError?: (message: string, cause: number | number[] | string, resData: any | undefined) => void,
 }
 type useRequestErrorHandlerResult = {
 	handleRequestError: (err: AxiosError | Error) => void,
@@ -44,12 +45,13 @@ export default function useRequestErrorHandler(options?: useRequestErrorHandlerO
 					console.error(resolveMessage(matchingMapping.debugMessage, err.response.data));
 
 				setMessage(finalUserMessage);
-				options.onError?.(finalUserMessage, matchingMapping.status)
+				matchingMapping.onError?.(finalUserMessage, err.response.data)
+				options.onError?.(finalUserMessage, matchingMapping.status, err.response.data)
 				return finalUserMessage;
 			}
 		} else if (isDebug) {
 			console.error(err.stack);
-			options.onError?.(err.message, 'default')
+			options.onError?.(err.message, 'default', undefined)
 			return err.name + ": " + err.message;
 		}
 
