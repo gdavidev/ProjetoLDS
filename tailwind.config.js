@@ -21,7 +21,8 @@ export default {
       }
     },
     fontFamily: {
-      'rubik': ['Rubik', 'arial']
+      'rubik': ['Rubik', 'arial'],
+      'poppins': ['Poppins', 'sans-serif']
     }
   }
 }
