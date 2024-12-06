@@ -45,11 +45,19 @@ export type GameGetDTO = {
 export type GameGetResponseDTO = {
   description: string,
   id: number,
-  emulador: number,
-  categoria: number,
   image_base64: string,
   file: string,
   title: string,
+  emulador: {
+    nome: string,
+    console: string,
+    empresa: string,
+    id: number,
+  },
+  categoria: {
+    id: number,
+    nome: string,
+  },
 }
 
 

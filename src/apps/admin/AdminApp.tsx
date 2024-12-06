@@ -4,13 +4,14 @@ import { Suspense, useEffect } from 'react';
 import { CircularProgress } from "@mui/material";
 import useEmergencyExit from '@/hooks/useEmergencyExit.ts';
 import useCurrentUser from '@/hooks/useCurrentUser.ts';
+import { Role } from '@/hooks/usePermission.ts';
 
 export default function AdminApp() {
   const { user } = useCurrentUser();
   const { exit } = useEmergencyExit();
 
   useEffect(() => {
-    if (!user || !user.isAdmin)
+    if (!user || user.role !== Role.ADMIN)
       exit('/', 'Você não tem permissão para acessar essa pagina.');
   }, []);
 

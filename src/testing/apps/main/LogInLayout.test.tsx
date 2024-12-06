@@ -3,9 +3,9 @@ import { it, expect, describe, vi, suite } from 'vitest'
 import { render } from '@testing-library/react';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import { QueryService, QueryServiceProvider } from 'react-query';
-import LogInLayout from '@/apps/main/pages/auth/LogInLayout';
-import CurrentUser from '@/models/User';
-import { AlertInfo } from '@/apps/main/pages/auth/AuthPage';
+import LogInLayout from '@apps/main/pages/auth/LogInLayout.tsx';
+import CurrentUser from '@models/CurrentUser.ts';
+import { AlertInfo } from '@apps/main/pages/auth/AuthPage.tsx';
 import userEvent from '@testing-library/user-event'
 
 describe("LogInLayout", () => {

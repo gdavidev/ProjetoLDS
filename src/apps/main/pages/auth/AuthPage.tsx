@@ -1,5 +1,4 @@
-import React, { useState, PropsWithoutRef, useContext, useEffect } from "react";
-import { Alert, AlertColor } from "@mui/material";
+import React, { PropsWithoutRef, useContext, useCallback, useEffect } from 'react';
 import SignInLayout from "@/apps/main/pages/auth/SignInLayout";
 import LogInLayout from "@/apps/main/pages/auth/LogInLayout";
 import logo from '/icons/logo.png'
@@ -7,12 +6,8 @@ import CurrentUser from "@/models/CurrentUser";
 import { MainContext, MainContextProps } from "@/apps/shared/context/MainContextProvider";
 import { useNavigate } from "react-router-dom";
 import PasswordResetLayout from "./PasswordResetLayout";
-
-export enum AlertType { ERROR, SUCCESS, PROGRESS, HIDDEN }
-export type AlertInfo = {
-  message?: string,
-  type: AlertType,
-}
+import useAlert from '@/hooks/feedback/useAlert.tsx';
+import useNotification, { useNotificationDefaults } from '@/hooks/feedback/useNotification.tsx';
 
 export enum AuthPageMode {
   LOGIN,
@@ -26,55 +21,53 @@ export type AuthPageProps = {
 export default function AuthPage(props: PropsWithoutRef<AuthPageProps>): React.ReactElement {
   const navigate = useNavigate();
   const mainContext: MainContextProps = useContext(MainContext);
-  const [ alertInfo, setAlertInfo ] = useState<AlertInfo>({ message: '', type: AlertType.HIDDEN });
+  const { setNotification } = useNotification()
+  const { alertElement, info, error, clear: clearAlert } = useAlert()
 
   useEffect(() => {
-    setAlertInfo({ message: '', type: AlertType.HIDDEN })
-  }, [props.mode])
+    clearAlert()
+  }, []);
 
-  const loginUser = (user: CurrentUser) => {
-    setAlertInfo({ message: "Logado com sucesso!", type: AlertType.SUCCESS })
+  const loginUser = useCallback((user: CurrentUser) => {
+    setNotification({
+      ...useNotificationDefaults,
+      message: "Logado com sucesso!",
+      severity:'success',
+    })
     mainContext.setCurrentUser?.(user)
-    setTimeout(() => { navigate("/") }, 500);
-  }
-  const registeredSuccess = () => {
-    setAlertInfo({ message: "Registrado com sucesso!", type: AlertType.SUCCESS});
-  }
-  const passwordResetSuccess = () => {
-    setAlertInfo({ message: "Senha alterada com sucesso!", type: AlertType.SUCCESS});
-  }   
+    navigate("/");
+  }, []);
+  const registeredSuccess = useCallback(() => {
+    setNotification({
+      ...useNotificationDefaults,
+      message: "Registrado com sucesso!",
+      severity:'success',
+    })
+  }, []);
+  const passwordResetSuccess = useCallback(() => {
+    setNotification({
+      ...useNotificationDefaults,
+      message: "Senha alterada com sucesso!",
+      severity:'success',
+    })
+  }, []);
 
   return(
     <div className="flex flex-col gap-y-4 w-1/2 mx-auto mt-0 justify-center items-center">
       <img src={ logo } alt="logo" className="w-96" />    
-      { 
-        alertInfo.type !== AlertType.HIDDEN ?
-          getAlert(alertInfo) :
-          <></>
-      }
+      <div className='w-full'>
+        { alertElement }
+      </div>
       {
         {
-          0: <LogInLayout onError={ setAlertInfo } onSuccess={ loginUser } onStateChanged={ setAlertInfo } />,
-          1: <SignInLayout onError={ setAlertInfo } onSuccess={ registeredSuccess } onStateChanged={ setAlertInfo } />,
-          2: <PasswordResetLayout onError={ setAlertInfo } onSuccess={ passwordResetSuccess } onStateChanged={ setAlertInfo } />,
+          [AuthPageMode.LOGIN]:
+            <LogInLayout onError={ error } onSuccess={ loginUser } onStateChanged={ info } />,
+          [AuthPageMode.REGISTER]:
+            <SignInLayout onError={ error } onSuccess={ registeredSuccess } onStateChanged={ info } />,
+          [AuthPageMode.RESET_PASSWORD]:
+            <PasswordResetLayout onError={ error } onSuccess={ passwordResetSuccess } onStateChanged={ info } />,
         }[props.mode]
       }
     </div>
   );
-}
-
-function getAlert(alertFeedbackData: AlertInfo): React.ReactElement {
-  let style: AlertColor | undefined;
-  switch (alertFeedbackData.type) {
-    case AlertType.ERROR:     style = 'error' ;  break;
-    case AlertType.SUCCESS:   style = 'success';  break;
-    case AlertType.PROGRESS:  style = 'info';  break;
-    default: style = undefined; break;
-  }
-
-  return (
-    <Alert severity={ style } sx={{width: '100%'}} >
-      { alertFeedbackData.message }
-    </Alert>
-  )
 }

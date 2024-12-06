@@ -28,7 +28,7 @@ export default class Post {
       image?: Thumbnail | null)
   {
     this.id          = id          || 0;
-    this.owner       = owner       || new User();
+    this.owner       = owner       || new User(0, '');
     this.hasLiked    = hasLiked    || false;
     this.title       = title       || '';
     this.content     = content     || '';
@@ -63,12 +63,10 @@ export default class Post {
     return { topico_id: this.id }
   }
 
-  static fromGetDTO(dto: DTO.PostGetResponseDTO, categories?: Category[]): Post {
-    const category: Category | undefined = categories?.find((c) => c.id === dto.id_categoria);
-
+  static fromGetDTO(dto: DTO.PostGetResponseDTO): Post {
     return new Post(
       dto.id,
-      new User(dto.id_user),
+      new User(dto.id_user, dto.nome_user),
       dto.has_liked,
       dto.titulo,
       dto.descricao,
@@ -76,7 +74,7 @@ export default class Post {
       new Date(dto.updated_at),
       dto.tags,
       category,
-      new Thumbnail(dto.img_topico)
+      new Thumbnail({ base64: dto.img_topico })
     )
   }
 }

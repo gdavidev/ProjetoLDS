@@ -7,14 +7,16 @@ type PostContainerProps = {
 }
 
 export default function PostContainer(props: PostContainerProps) {
-  const posts: JSX.Element[] = props.posts.map(post => <PostRow post={ post } />)
+  const posts: JSX.Element[] = props.posts.map((post, i) => <PostRow key={i} post={ post } />)
 
   return (
-    <div className="bg-white rounded-sm w-full">
-      <h2 className="">{ props.title }</h2>
-      <div>
-        { posts }
-      </div>     
-    </div>
+      <div className='text-white'>
+        <h2 className='text-lg font-bold mb-2'>{props.title}</h2>
+        <table className="ms-3 w-full font-poppins">
+          <tbody>
+          {posts}
+          </tbody>
+        </table>
+      </div>
   )
 }

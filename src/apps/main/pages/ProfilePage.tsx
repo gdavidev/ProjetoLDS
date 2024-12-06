@@ -1,127 +1,207 @@
 import Category from '@/models/Category';
 import CurrentUser from '@/models/CurrentUser';
-import { Alert, FormControl } from '@mui/material';
+import { FormControl } from '@mui/material';
 import Chip from '@mui/material/Chip';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { AxiosError } from 'axios'
 import { UserUpdateDTO } from '@/models/data/UserDTOs';
 import Validation from '@/libs/Validation';
-import { AlertInfo, AlertType } from './auth/AuthPage';
 import useCurrentUser from '@/hooks/useCurrentUser';
 import useAuth from '@/hooks/useAuth';
 import { Controller, useForm } from 'react-hook-form';
 import TextInput from '@/apps/shared/components/formComponents/TextInput';
 import { IonIcon } from '@ionic/react';
-import { personOutline, mailOutline } from "ionicons/icons"
+import { personOutline, mailOutline } from 'ionicons/icons';
 import PasswordHiddenToggle from '../components/PasswordHiddenToggle';
+import useAlert from '@/hooks/feedback/useAlert.tsx';
+import useRequestErrorHandler from '@/hooks/useRequestErrorHandler.ts';
+import useEmergencyExit from '@/hooks/useEmergencyExit.ts';
+import FileInputImagePreview from '@shared/components/formComponents/FileInputImagePreview.tsx';
+import Thumbnail from '@models/utility/Thumbnail.ts';
+import userImageNotFound from '@/assets/media/user-image-not-found.webp'
+import useTailwindTheme from '@/hooks/configuration/useTailwindTheme.ts';
 
-type UserSignInFormData = {
+type UserProfileFormData = {
   email: string
   username: string
   password: string
   passwordConfirm: string
-}
-const defaultValues = {
-  email: '',
-  username: '',
-  password: '',
-  passwordConfirm: '',
+  profilePic: Thumbnail,
 }
 
 export default function ProfilePage() {
-  const [ alertInfo, setAlertInfo ] = useState<AlertInfo | undefined>({type: AlertType.HIDDEN});
+  const { alertElement, info, error, success } = useAlert();
   const [ isPasswordHidden       , setIsPasswordHidden        ] = useState<boolean>(true);
   const [ isPasswordConfirmHidden, setIsPasswordConfirmHidden ] = useState<boolean>(true);
   const preferencesArr: Category[] = [new Category(0, 'Action'), new Category(0, 'Adventure')];  
-  const { user, setUser } = useCurrentUser();
-  const { handleSubmit, watch, control, reset: setFormData } = useForm<UserSignInFormData>({
-    defaultValues: defaultValues,
-  });
-  const fields: UserSignInFormData = watch();
-
-  useEffect(() => {
-    if (!user) return;
-
-    setFormData({
-      email: user.email,
-      username: user.userName,
-      password: '',
-      passwordConfirm: '',
+  const { user, setUser, logout } = useCurrentUser();
+  const { handleSubmit, register, setValue, watch, control, reset: setFormData, formState: { errors }, getValues } =
+    useForm<UserProfileFormData>({
+      defaultValues: {
+        email: '',
+        username: '',
+        password: '',
+        passwordConfirm: '',
+        profilePic: new Thumbnail({ url: userImageNotFound })
+      },
     });
+  const fields: UserProfileFormData = watch();
+  const { exit } = useEmergencyExit()
+
+  // ---- Initialization ----
+  useEffect(() => {
+    if (user) {
+      setFormData({
+        email: user.email,
+        username: user.userName,
+        password: '',
+        passwordConfirm: '',
+        profilePic: user.profilePic,
+      });
+    }
   }, [user]);
 
+  useEffect(() => {
+    if (!user)
+      exit('/log-in', 'É preciso estar logado para acessar essa página')
+  }, []);
+
+  // ---- API Calls Setup ----
   const { update } = useAuth({
     onSuccess: (_, dto: UserUpdateDTO) => updateCurrentUser(dto),
-    onError: (err: AxiosError | Error) => setAlertInfo(handleRequestError(err)),
-    onIsLoading: () => setAlertInfo({ message: "Enviando...", type: AlertType.PROGRESS })
+    onError: (err: AxiosError | Error) => handleRequestError(err),
+    onIsLoading: () => info("Enviando...")
   });
 
-  function updateCurrentUser(dto: UserUpdateDTO) {
-    const newUser: CurrentUser = new CurrentUser(
-      dto.username || user?.userName!,
-      dto.email    || user?.userName!,
-      '',
-      user?.token!
-    );
-    setUser(newUser);
-    setAlertInfo({ message: "Usuário alterado com sucesso.", type: AlertType.SUCCESS })
-  }
-
-  function onSubmit(data: UserSignInFormData) {
-    const error: string | undefined = getErrorMessage(fields);
-    if (error) {
-      setAlertInfo({ message: error, type: AlertType.ERROR });
-      return;
+  // ---- API Calls Error Handling ----
+  const { handleRequestError } = useRequestErrorHandler({
+    mappings: [
+      { status: 400, userMessage: "Usuário ou senha incorretos." },
+      { status: 401, userMessage: 'Por favor faça o login novamente' },
+      { status: 'default', userMessage: "Por favor tente novamente mais tarde." }
+    ],
+    onError: (message: string, cause: number | number[] | string) => {
+      if (cause === 401) {
+        logout();
+        exit('/log-in', message);
+      } else {
+        error(message);
+      }
     }
-    
+  });
+
+  // ---- API Executing ----
+  function onSubmit(data: UserProfileFormData) {
     update({
       username: data.username !== user?.userName ? data.username : undefined,
       email: data.email !== user?.email ? data.email : undefined,
       password: data.password !== '' ? data.password : undefined,
-      token: user?.token!
+      token: user?.token!,
+      imagem_perfil: data.profilePic.file ?? undefined,
     })
   }
+
+  // ---- Updating Session ----
+  const updateCurrentUser = useCallback((dto: UserUpdateDTO) => {
+    setUser(new CurrentUser(
+        dto.username || user!.userName,
+        user!.token,
+        dto.email    || user!.email,
+        user!.role,
+        new Thumbnail({ file: dto.imagem_perfil }),
+    ));
+    success("Usuário alterado com sucesso.")
+  }, [user]);
+
+  // ---- Error handling ----
+  useEffect(() => {
+    const formError =
+        Object.values(errors).find(err => err.message !== undefined)
+    if (formError && formError.message) error(formError.message);
+  }, [fields]);
   
   return (
     <form onSubmit={ handleSubmit(onSubmit) } className="mx-auto md:w-1/2 w-96 overflow-y-auto rounded-md bg-layout-background">
-      <div id="banner" className="bg-primary w-full h-16" />
+      <div id="banner" className="bg-primary w-full h-24 px-4 pt-2 mb-10">
+        <FileInputImagePreview
+            rounded={true}
+            thumbnail={ watch('profilePic') }
+            className='w-[130px] absolute'
+            imgClassName="h-[130px] max-w-[130px]" />
+        <label className='text-white ms-[140px] mt-16 hover:underline absolute cursor-pointer'>
+          Mudar imagem
+          <input
+              { ...register('profilePic', {
+                  onChange: (e) => e !== undefined ?
+                      setValue('profilePic', new Thumbnail({ file: e.target.files[0] })) :
+                      setValue('profilePic', new Thumbnail({ url: userImageNotFound })),
+              })}
+              type="file"
+              accept="image/*"
+              className="hidden" />
+        </label>
+      </div>
       <div className='text-white flex flex-col gap-y-3 p-2'>
-        <Controller name="username" control={ control } render={ ({field}) => (
-          <TextInput {...field} 
+        <Controller
+          name="username"
+          control={ control }
+          render={ ({field}) => (
+            <TextInput {...field}
               name="Nome de Usuário"
-              inputClassName='bg-transparent text-white' 
+              inputClassName='bg-transparent text-white outline-none'
               inputContainerClassName="bg-transparent border-b-primary border-b-[1px]"
               endDecoration={ <IonIcon icon={personOutline} /> } />
         ) }/>
-        <Controller name="email" control={ control } render={ ({field}) => (
-          <TextInput {...field} 
-              name="Email" 
-              inputClassName='bg-transparent text-white' 
+        <Controller
+          name="email"
+          control={ control }
+          render={ ({field}) => (
+            <TextInput {...field}
+              name="Email"
+              inputClassName='bg-transparent text-white outline-none'
               inputContainerClassName="bg-transparent border-b-primary border-b-[1px]"
               endDecoration={ <IonIcon icon={mailOutline} /> } />
         ) }/>
 
         <div className='xl:flex md:block gap-3 w-full'>
-          <Controller name="password" control={ control } render={ ({field}) => (
-            <TextInput {...field} 
-                name="Senha" 
-                inputClassName='bg-transparent text-white' 
+          <Controller
+            name="password"
+            control={ control }
+            rules={{
+              validate: (value: string) => {
+                if (value !== '')
+                  return !Validation.isValidPassword(value) || "Senha inválida"
+              }
+            }}
+            render={ ({field}) => (
+              <TextInput {...field}
+                name="Senha"
+                inputClassName='bg-transparent text-white outline-none'
                 password={ isPasswordHidden }
                 containerClassName='w-full'
                 inputContainerClassName="bg-transparent border-b-primary border-b-[1px]"
-                endDecoration={ 
-                  <PasswordHiddenToggle initialState={ true } onChange={ setIsPasswordHidden }/> 
-                } />
+                endDecoration={
+                  <PasswordHiddenToggle initialState={ true } onChange={ setIsPasswordHidden }/>
+              } />
           ) }/>
-          <Controller name="passwordConfirm" control={ control } render={ ({field}) => (
-            <TextInput {...field} 
-                name="Confirmar Senha" 
-                inputClassName='bg-transparent text-white' 
+          <Controller
+            name="passwordConfirm"
+            control={ control }
+            rules={{
+              validate: (value: string) => {
+                if (getValues('password') !== '')
+                  return (getValues('password') !== value) || "As senhas não são iguais"
+              }
+            }}
+            render={ ({field}) => (
+              <TextInput {...field}
+                name="Confirmar Senha"
+                inputClassName='bg-transparent text-white outline-none'
                 password={ isPasswordConfirmHidden }
                 containerClassName='w-full'
                 inputContainerClassName="bg-transparent border-b-primary border-b-[1px]"
-                endDecoration={ 
-                  <PasswordHiddenToggle initialState={ true } onChange={ setIsPasswordConfirmHidden }/> 
+                endDecoration={
+                  <PasswordHiddenToggle initialState={ true } onChange={ setIsPasswordConfirmHidden }/>
                 } />
           ) }/>
         </div>
@@ -136,54 +216,21 @@ export default function ProfilePage() {
           <button className='btn-r-md bg-primary' type='submit'>Atualizar</button>
         </div>
       </div>
-      { getAlert(alertInfo) }      
+      { alertElement }
     </form>
   );
 }
 
-function getAlert(alertInfo?: AlertInfo) {
-  if (alertInfo === undefined || alertInfo.type === AlertType.HIDDEN) 
-    return null;
-
-  if (alertInfo.type === AlertType.ERROR)
-    return <Alert color='error'>{ alertInfo.message }</Alert>
-  if (alertInfo.type === AlertType.PROGRESS)
-    return <Alert color='warning'>{ alertInfo.message }</Alert>
-  if (alertInfo.type === AlertType.SUCCESS)
-    return <Alert color='success'>{ alertInfo.message }</Alert>
-}
-
 function categoryToChips(categoryArr: Category[]) {
-  return categoryArr.map(cat => <Chip label={cat.name} />);
-}
+  const { theme } = useTailwindTheme()
 
-function getErrorMessage(data: UserSignInFormData): string | undefined {
-  if (data.username === '')
-    return "Campo nome está vázio.";
-  if (data.email === '')
-    return "Campo email está vázio.";
-  if (data.passwordConfirm !== '' && data.password !== '')
-    if (data.password !== data.passwordConfirm)
-      return "As senhas não são iguais.";
-  if (!Validation.isValidEmail(data.email))
-    return "Email inválido.";
-  return undefined;
-}
-
-function handleRequestError(err: AxiosError | Error): AlertInfo {  
-  if (err instanceof AxiosError) {
-    switch (err.response?.status) {
-      case 401:
-      case 400:
-        return { message: "Usuário ou senha incorretos.", type: AlertType.ERROR };
-      default:
-        if (process.env.NODE_ENV === 'development')
-          return { message: err.message, type: AlertType.ERROR };        
-    }
-  } else if (process.env.NODE_ENV === 'development') {
-    console.log(err.stack);
-    return { message: err.name +  ": " + err.message, type: AlertType.ERROR };
-  }
-  
-  return { message: "Por favor, tente novamente mais tarde.", type: AlertType.ERROR };
+  return categoryArr.map((cat, i) =>
+      <Chip
+          key={i}
+          label={cat.name}
+          sx={{
+            color: 'white',
+            backgroundColor: theme.colors.primary
+      }} />
+  );
 }

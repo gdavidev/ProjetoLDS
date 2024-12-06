@@ -1,65 +1,76 @@
-import React, { PropsWithoutRef, useEffect, useState } from "react";
-import { AlertInfo, AlertType } from "./AuthPage.tsx";
+import { useEffect, useLayoutEffect, useState } from 'react';
 import TextInput, { TextInputStyle } from "@apps/shared/components/formComponents/TextInput.tsx";
-import { useMutation } from "react-query";
-import UserApiService from "@api/CurrentUserApiService.ts";
-import { UserResetPasswordDTO } from "@models/data/UserDTOs.ts";
-import { useSearchParams } from "react-router-dom";
 import { AxiosError } from 'axios';
 import PasswordHiddenToggle from "@apps/main/components/PasswordHiddenToggle.tsx";
 import { Controller, useForm } from "react-hook-form";
 import FormGroup from "@apps/shared/components/formComponents/FormGroup.tsx";
+import CurrentUser from '@models/CurrentUser.ts';
+import useAuth from '@/hooks/useAuth.ts';
+import useTypeSafeSearchParams from '@/hooks/useTypeSafeSearchParams.ts';
+import useRequestErrorHandler from '@/hooks/useRequestErrorHandler.ts';
 
-interface IPasswordResetLayoutProps {
+type PasswordResetLayoutProps = {
   onSuccess?: () => void
-  onError?: (alertData: AlertInfo) => void
-  onStateChanged?: (alertData: AlertInfo) => void
+  onError?: (message: string) => void
+  onStateChanged?: (message: string) => void
 }
-interface IPasswordResetLayoutFormData {
+type PasswordResetLayoutFormData = {
   password: string;
   confirmPassword: string;
 }
-const defaultValues: IPasswordResetLayoutFormData = {
+type PasswordResetLayoutParams = {
+  token: string;
+}
+const defaultValues: PasswordResetLayoutFormData = {
   password: '',
   confirmPassword: ''
 }
 
-export default function PasswordResetLayout(props: PropsWithoutRef<IPasswordResetLayoutProps>): React.ReactElement {
-  const [ params, _ ] = useSearchParams();
+export default function PasswordResetLayout(props: PasswordResetLayoutProps) {
+  const { params } = useTypeSafeSearchParams<PasswordResetLayoutParams>();
   const [ IsPasswordHidden       , setIsPasswordHidden        ] = useState<boolean>(true);
   const [ IsPasswordConfirmHidden, setIsPasswordConfirmHidden ] = useState<boolean>(true);
-  const { handleSubmit, watch, control } = useForm<IPasswordResetLayoutFormData>({
+  const { handleSubmit, watch, control, reset: setFormData, clearErrors } = useForm<PasswordResetLayoutFormData>({
     defaultValues: defaultValues,
   });
-  const fields: IPasswordResetLayoutFormData = watch();
+  const fields: PasswordResetLayoutFormData = watch();
 
-  const mutation = useMutation('LOGIN_USER',
-    async (dto: UserResetPasswordDTO) => {
-      const token: string | null = params.get('token')
-      if (token) {
-        const userApiService: UserApiService = new UserApiService()
-        return userApiService.resetPassword(dto, token);
-      }
-    }, {      
-      onSuccess: () => props.onSuccess?.(),
-      onError: (err: AxiosError | Error) => props.onError?.(handleRequestError(err))
-    }
-  )
+  // ---- Initialization ----
+  useLayoutEffect(() => {
+    clearErrors();
+    clearRequestErrors();
+    setFormData(defaultValues);
+  }, []);
 
-  useEffect(() => {
-    if (mutation.isLoading)
-      props.onStateChanged?.({ message: "Enviando...", type: AlertType.PROGRESS });
-  }, [mutation.isLoading]);
-  
-  useEffect(() => {
-    const error: string | undefined = getErrorMessage(fields);
-    if (error)
-      props.onError?.({ message: error, type: AlertType.ERROR });
-  }, [])
+  // ---- API Calls Setup ----
+  const { passwordReset } = useAuth({
+    onPasswordReset: {
+      onSuccess: (_: CurrentUser) => props.onSuccess,
+      onError: (err: AxiosError | Error) => handleRequestError(err)
+    },
+    onIsLoading: () => props.onStateChanged?.('Enviando...')
+  })
 
-  function submitForm(data: IPasswordResetLayoutFormData): void {
-    mutation.mutate({ newPassword: data.password });
+  // ---- API Calls Error Handling ----
+  const { handleRequestError, clear: clearRequestErrors } = useRequestErrorHandler({
+    mappings: [{ status: 'default', userMessage: "Por favor tente novamente mais tarde." }],
+    onError: props.onError
+  });
+
+  // ---- API Executing ----
+  function submitForm(data: PasswordResetLayoutFormData): void {
+    passwordReset({
+      newPassword: data.password,
+      token: params.token
+    });
   }
+
+  // ---- Error handling ----
+  useEffect(() => {
+    const message: string | undefined = getErrorMessage(fields);
+    if (message)
+      props.onError?.(message);
+  }, [fields]);
   
   return(
     <form onSubmit={ handleSubmit(submitForm) } className="flex flex-col gap-y-4 w-full mx-auto">
@@ -93,7 +104,7 @@ export default function PasswordResetLayout(props: PropsWithoutRef<IPasswordRese
   );
 }
 
-function getErrorMessage(data: IPasswordResetLayoutFormData): string | undefined {
+function getErrorMessage(data: PasswordResetLayoutFormData): string | undefined {
   if (data.password.trim() === '')
     return "Por favor, insira uma senha.";
   if (data.confirmPassword.trim() === '')
@@ -101,8 +112,4 @@ function getErrorMessage(data: IPasswordResetLayoutFormData): string | undefined
   if (data.confirmPassword.trim() !== data.password.trim())
     return "As senhas não são iguais.";
   return undefined;
-}
-
-function handleRequestError(err: AxiosError | Error): AlertInfo {
-  return { message: JSON.stringify(err), type: AlertType.ERROR }
 }
