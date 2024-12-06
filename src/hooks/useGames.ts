@@ -16,7 +16,7 @@ export default function useGames(options?: UseGameOptions<Game[]>): UseQueryResu
 }
 
 export function useGame(id: number, options?: UseGameOptions<Game>): UseQueryResult<Game> {
-  return useQuery('FETCH_GAME', {
+  return useQuery(['FETCH_GAME', id], {
     queryFn: async () => await GameApiService.get(id),
     ...options
   });
