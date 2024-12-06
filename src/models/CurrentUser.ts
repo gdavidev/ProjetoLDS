@@ -1,7 +1,7 @@
 import { UserLoginResponseDTO } from '@models/data/UserDTOs';
 import { Role } from '@/hooks/usePermission.ts';
 import Thumbnail from '@models/utility/Thumbnail.ts';
-import userImageNotFound from '@/media/user-image-not-found.webp'
+import userImageNotFound from '@/assets/media/user-image-not-found.webp'
 
 export default class CurrentUser {
   userName: string

@@ -12,7 +12,7 @@ import useRequestErrorHandler from '@/hooks/useRequestErrorHandler.ts';
 import FileInputImagePreview from '@shared/components/formComponents/FileInputImagePreview.tsx';
 import FileInput from '@shared/components/formComponents/FileInput.tsx';
 import Thumbnail from '@models/utility/Thumbnail.ts';
-import userImageNotFound from '@/media/user-image-not-found.webp'
+import userImageNotFound from '@/assets/media/user-image-not-found.webp'
 import Validation from '@libs/Validation.ts';
 
 type SignInLayoutProps = {

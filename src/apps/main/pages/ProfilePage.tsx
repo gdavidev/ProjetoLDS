@@ -18,7 +18,7 @@ import useRequestErrorHandler from '@/hooks/useRequestErrorHandler.ts';
 import useEmergencyExit from '@/hooks/useEmergencyExit.ts';
 import FileInputImagePreview from '@shared/components/formComponents/FileInputImagePreview.tsx';
 import Thumbnail from '@models/utility/Thumbnail.ts';
-import userImageNotFound from '@/media/user-image-not-found.webp'
+import userImageNotFound from '@/assets/media/user-image-not-found.webp'
 import useTailwindTheme from '@/hooks/configuration/useTailwindTheme.ts';
 
 type UserProfileFormData = {

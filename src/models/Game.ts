@@ -2,7 +2,7 @@ import * as DTO from "@models/data/GameDTOs";
 import Emulator from "@models/Emulator";
 import Category from "@models/Category";
 import Thumbnail from "@models/utility/Thumbnail";
-import imageNotFound from '@/media/image-not-found.png'
+import imageNotFound from '@/assets/media/image-not-found.png'
 
 export default class Game {
   id: number;

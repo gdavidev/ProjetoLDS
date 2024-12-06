@@ -1,5 +1,5 @@
 import Thumbnail from '@models/utility/Thumbnail.ts';
-import userImageNotFound from '@/media/user-image-not-found.webp'
+import userImageNotFound from '@/assets/media/user-image-not-found.webp'
 
 export default class User {
   id: number
