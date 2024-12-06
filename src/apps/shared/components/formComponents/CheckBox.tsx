@@ -5,6 +5,7 @@ type CheckBoxProps = {
   label: string
   isChecked?: boolean
   className?: string
+  labelClassName?: string
 }
 
 export default function CheckBox(props: CheckBoxProps) {
@@ -21,7 +22,7 @@ export default function CheckBox(props: CheckBoxProps) {
           defaultChecked={ isChecked }
           onClick={ (e) => e.stopPropagation() }/>
       <label htmlFor={ props.name }
-          className="cursor-pointer">
+          className={ 'cursor-pointer ' + props.labelClassName }>
         { props.label }
       </label>
     </div>

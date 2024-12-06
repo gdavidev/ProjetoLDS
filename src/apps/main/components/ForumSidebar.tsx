@@ -26,13 +26,14 @@ export default function ForumSidebar() {
 			<h3 className='font-bold text-xl text-white'>
 				Todas as categorias
 			</h3>
-			<div>
+			<div className='mt-2'>
 				{ categories &&
 						categories.map((cat, i) => (
 							<CheckBox
 								key={i}
 								name={cat.name}
 								label={cat.name}
+								labelClassName='text-white'
 							/>
 						))
 				}
