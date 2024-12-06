@@ -2,6 +2,7 @@ import { MainContext, MainContextProps } from "@/apps/shared/context/MainContext
 import CurrentUser from "@models/CurrentUser";
 import { useCallback, useContext } from 'react';
 import { useNavigate } from "react-router-dom";
+import useNotification, { useNotificationDefaults } from '@/hooks/feedback/useNotification.tsx';
 
 type UseCurrentUserOptions = {
   targetUrlWhenNotAuth?: string
@@ -9,11 +10,13 @@ type UseCurrentUserOptions = {
 type UseCurrentUserResult = {
   user: CurrentUser | null,
   setUser: (user: CurrentUser) => void
-  logout: () => void
+  logout: () => void,
+  askToLogin: (message: string) => void,
 }
 
 export default function useCurrentUser(options?: UseCurrentUserOptions): UseCurrentUserResult {
   const mainContext: MainContextProps = useContext(MainContext);
+  const { setNotification } = useNotification();
   const navigate = useNavigate()
 
   if (!mainContext)
@@ -29,9 +32,22 @@ export default function useCurrentUser(options?: UseCurrentUserOptions): UseCurr
     }
   }, [])
 
+  const askToLogin = useCallback((message: string) => {
+    setNotification({
+      ...useNotificationDefaults,
+      message:
+          <span>
+              { message }
+              <a href='/log-in' className='underline cursor-pointer ms-1'>Entrar</a>
+          </span>,
+      severity: 'warning'
+    })
+  }, [])
+
   return {
     user: mainContext.getCurrentUser(),
     setUser: mainContext.setCurrentUser,
-    logout: logout
+    logout: logout,
+    askToLogin: askToLogin
   };
 }
