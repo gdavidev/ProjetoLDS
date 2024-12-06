@@ -24,12 +24,15 @@ export default class Game {
   }
 
   getDesktopAppQueryString() {
-    return "emuhub://" +
-       this.emulator?.companyName + "|" +
-       this.emulator?.abbreviation.toUpperCase() + "|" +
-       this.file!.name;
+    const params = new URLSearchParams({
+      company: this.emulator.companyName,
+      abbreviation: this.emulator.abbreviation.toUpperCase(),
+      file: this.file!.name
+    })
+
+    return "emuhub://open" + params.toString()
   }
-  
+
   toCreateDTO(): DTO.GameCreateDTO {
     return {
       title: this.name,
