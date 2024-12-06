@@ -1,7 +1,4 @@
 import Post from "@/models/Post"
-import LikeButton from "./LikeButton.tsx"
-import { useLikePost } from "@/hooks/useLikePost"
-import { useState } from "react"
 import { Link } from 'react-router-dom';
 
 type PostRowProps = {
@@ -9,23 +6,17 @@ type PostRowProps = {
 }
 
 export default function PostRow(props: PostRowProps) {
-	const [ isLiked, setIsLiked ] = useState<boolean>(false)
-	const { mutate: likePost } = useLikePost({
-		onSuccess: () => setIsLiked(li => !li)
-	})
-
 	return (
-		<div>
-			<Link to={ '/forum/post/' + props.post.id }>
-				<h3>{props.post.title}</h3>
-			</Link>
-			<span>{ props.post.content }</span>
-			<LikeButton
-				onClick={ () => likePost({
-					currentState: isLiked,
-					postId: props.post.id,
-					userId: 1
-				}) } />
-		</div>
+		<tr className='block py-0.5 px-1 border-b-[1px] bg-[#5E5E5E] border-white'>
+			<td className='flex justify-between align-middle'>
+				<div className="flex flex-col justify-between">
+					<Link to={'/forum/post/' + props.post.id}>
+						<h3 className="font-bold text-lg">{props.post.title}</h3>
+					</Link>
+					<span>{props.post.content}</span>
+				</div>
+				<span>{props.post.updatedDate.toDateString()}</span>
+			</td>
+		</tr>
 	)
 }
