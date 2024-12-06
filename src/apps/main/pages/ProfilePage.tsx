@@ -75,19 +75,24 @@ export default function ProfilePage() {
 
   // ---- API Calls Error Handling ----
   const { handleRequestError } = useRequestErrorHandler({
-    mappings: [
-      { status: 400, userMessage: "Usuário ou senha incorretos." },
-      { status: 401, userMessage: 'Por favor faça o login novamente' },
-      { status: 'default', userMessage: "Por favor tente novamente mais tarde." }
-    ],
-    onError: (message: string, cause: number | number[] | string) => {
-      if (cause === 401) {
-        logout();
-        exit('/log-in', message);
-      } else {
-        error(message);
-      }
-    }
+    mappings: [{
+        status: 400,
+        userMessage: (resData: any) =>
+            resData['imagem_perfil'] !== undefined ?
+              'Arquivo de imagem enviado deve ser to tipo JPG ou PNG' :
+              'Usuário ou senha incorretos.'
+      }, {
+        status: 401,
+        userMessage: 'Por favor faça o login novamente',
+        onError: (message: string) => {
+          logout();
+          exit('/log-in', message);
+        }
+      }, {
+        status: 'default',
+        userMessage: "Por favor tente novamente mais tarde.",
+        onError: (message: string) => error(message)
+    }]
   });
 
   // ---- API Executing ----

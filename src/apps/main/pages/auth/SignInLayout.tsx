@@ -61,7 +61,8 @@ export default function SignInLayout(props: PropsWithoutRef<SignInLayoutProps>):
       status: 400,
       userMessage: (resData: any): string => {
         if (resData["username"]) return 'Nome de usuário indisponível.';
-        if (resData["email"   ]) return 'Este email ja está em uso.';
+        if (resData["email"]) return 'Este email ja está em uso.';
+        if (resData['imagem_perfil']) return 'Arquivo de imagem enviado deve ser to tipo JPG ou PNG'
         return 'Erro desconhecido';
       }
     }],
