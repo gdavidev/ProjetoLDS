@@ -11,8 +11,7 @@ type TextAreaProps = {
 }
 
 const TextArea = forwardRef((props: TextAreaProps, ref: ForwardedRef<HTMLTextAreaElement>) => {
-  const formatter: StringFormatter = new StringFormatter(props.name)
-  const formatedName: string = formatter.replaceAll(' ', '-').toLowerCase()
+  const formatedName: string = StringFormatter.replaceAll(props.name, ' ', '-').toLowerCase()
   
   return (
     <div className="flex flex-col">

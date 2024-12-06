@@ -107,9 +107,9 @@ export default function GameEditModal(props: GameEditModalProps) {
     const category: Category = categoryList.find((cat: Category) => data.categoryId == cat.id)!;
 
     if (data.thumbnail && data.thumbnail.file)
-      data.thumbnail.file = FileUtil.renamed(data.thumbnail.file, (new StringFormatter(data.name)).toUrlSafe())
+      data.thumbnail.file = FileUtil.renamed(data.thumbnail.file, StringFormatter.toUrlSafe(data.name))
     if (data.file)
-      data.file = FileUtil.renamed(data.file, (new StringFormatter(data.name)).toUrlSafe());
+      data.file = FileUtil.renamed(data.file, StringFormatter.toUrlSafe(data.name));
 
     storeGame(new Game(
       props.game.id,
