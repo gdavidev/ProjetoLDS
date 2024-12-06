@@ -10,7 +10,7 @@ type useRequestErrorHandlerErrorMapping = {
 }
 type useRequestErrorHandlerOptions = {
 	mappings: useRequestErrorHandlerErrorMapping[],
-	onError?: (message: string) => void,
+	onError?: (message: string, cause: number | number[] | string) => void,
 }
 type useRequestErrorHandlerResult = {
 	handleRequestError: (err: AxiosError | Error) => void,
@@ -44,12 +44,12 @@ export default function useRequestErrorHandler(options?: useRequestErrorHandlerO
 					console.error(resolveMessage(matchingMapping.debugMessage, err.response.data));
 
 				setMessage(finalUserMessage);
-				options.onError?.(finalUserMessage)
+				options.onError?.(finalUserMessage, matchingMapping.status)
 				return finalUserMessage;
 			}
 		} else if (isDebug) {
 			console.error(err.stack);
-			options.onError?.(err.message)
+			options.onError?.(err.message, 'default')
 			return err.name + ": " + err.message;
 		}
 

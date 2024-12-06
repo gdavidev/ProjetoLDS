@@ -34,7 +34,7 @@ export default function ProfilePage() {
   const [ isPasswordHidden       , setIsPasswordHidden        ] = useState<boolean>(true);
   const [ isPasswordConfirmHidden, setIsPasswordConfirmHidden ] = useState<boolean>(true);
   const preferencesArr: Category[] = [new Category(0, 'Action'), new Category(0, 'Adventure')];  
-  const { user, setUser } = useCurrentUser();
+  const { user, setUser, logout } = useCurrentUser();
   const { handleSubmit, register, setValue, watch, control, reset: setFormData, formState: { errors }, getValues } =
     useForm<UserProfileFormData>({
       defaultValues: {
@@ -76,10 +76,18 @@ export default function ProfilePage() {
   // ---- API Calls Error Handling ----
   const { handleRequestError } = useRequestErrorHandler({
     mappings: [
-      { status: [400, 401], userMessage: "Usuário ou senha incorretos." },
+      { status: 400, userMessage: "Usuário ou senha incorretos." },
+      { status: 401, userMessage: 'Por favor faça o login novamente' },
       { status: 'default', userMessage: "Por favor tente novamente mais tarde." }
     ],
-    onError: (message: string) => error(message)
+    onError: (message: string, cause: number | number[] | string) => {
+      if (cause === 401) {
+        logout();
+        exit('/log-in', message);
+      } else {
+        error(message);
+      }
+    }
   });
 
   // ---- API Executing ----
