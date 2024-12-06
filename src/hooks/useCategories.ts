@@ -12,8 +12,6 @@ export enum CategoryType {
 type UseCategoriesOptions<T> = {
   onSuccess?: (categories: T) => void,
   onError?: (err: AxiosError | Error) => void,
-  staleTime?: number,
-  enabled?: boolean,
 }
 
 const endpoints = {
@@ -34,26 +32,23 @@ function useCategories(categoryType: CategoryType, options?: UseCategoriesOption
     },
     onSuccess: options?.onSuccess,
     onError: options?.onError,
-    enabled: options?.enabled ?? true,
-    staleTime: options?.staleTime ?? 5 * 60 * 1000 // five minutes
   });
 }
 
 function useCategory(categoryType: CategoryType, id: number, options?: UseCategoriesOptions<Category>, deps?: any[]): UseQueryResult<Category> {
   return useQuery({
-    queryKey: resolveDependencyArray('FETCH_CATEGORY', categoryType, deps),
+    queryKey: resolveDependencyArray('FETCH_CATEGORY' + id, categoryType, deps),
     queryFn: async () => {
       const res: AxiosResponse<DTO.CategoryGetResponseDTO> = await ApiService.get(endpoints[categoryType].get, { data: { id: id } });
       return Category.fromGetDTO(res.data);
     },
     onSuccess: options?.onSuccess,
     onError: options?.onError,
-    enabled: options?.enabled ?? true,
-    staleTime: options?.staleTime ?? 5 * 60 * 1000 // five minutes
   });
 }
 
 function resolveDependencyArray(queryKey: string, categoryType: CategoryType, deps?: any[]): any[] {
+  // Dynamically change the query key based on categoryType to avoid mixing the cached values
   const resolvedQueryKey = queryKey + categoryType.toString();
   return deps === undefined ?
       [resolvedQueryKey, categoryType] :
