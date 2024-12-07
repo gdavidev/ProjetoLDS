@@ -4,13 +4,15 @@ import Thumbnail from '@models/utility/Thumbnail.ts';
 import userImageNotFound from '@/assets/media/user-image-not-found.webp'
 
 export default class CurrentUser {
-  userName: string
-  email: string
-  token: string
-  profilePic: Thumbnail
-  role: Role
+  id: number;
+  userName: string;
+  email: string;
+  token: string;
+  profilePic: Thumbnail;
+  role: Role;
 
-  constructor(userName: string, token: string, email: string, role: Role, profilePic?: Thumbnail) {
+  constructor(id: number, userName: string, token: string, email: string, role: Role, profilePic?: Thumbnail) {
+    this.id         = id;
     this.userName   = userName;
     this.token      = token;
     this.email      = email;
@@ -20,6 +22,7 @@ export default class CurrentUser {
 
   static fromLoginResponseDTO(dto: UserLoginResponseDTO): CurrentUser {
     return new CurrentUser(
+      dto.user.id,
       dto.user.username,
       dto.token,
       dto.user.email,

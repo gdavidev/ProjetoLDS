@@ -16,9 +16,12 @@ export type UserLoginDTO = {
 export type UserLoginResponseDTO = {
   token: string
 	user: {
+		id: number,
 		admin: boolean,
 		email: string,
-		username: string
+		username: string,
+		is_active: boolean,
+		is_banned: boolean,
 	}	
 }
 

@@ -22,6 +22,7 @@ const defaultMainContextProps: MainContextProps = {
 export const MainContext = createContext<MainContextProps>(defaultMainContextProps);
 
 type UserCookie = {
+  id: number
   token: string,
   userName: string,
   email: string,
@@ -77,6 +78,7 @@ export default function MainContextProvider({ children }: PropsWithChildren) {
 
 function createUserCookie(user: CurrentUser) {
   const userCookieObject: UserCookie = {
+    id: user.id,
     token: user.token,
     userName: user.userName,
     email: user.email,
@@ -90,12 +92,14 @@ function getUserFromCookieOrNull(): CurrentUser | null {
     return null
 
   const userCookieObject: UserCookie = JSON.parse(userCookieContent)
-  const token: string = userCookieObject.token
-  const userName: string = userCookieObject.userName
-  const email: string = userCookieObject.email
-  const isAdmin: string = userCookieObject.isAdmin
 
-  return new CurrentUser(userName, token, email, (isAdmin === 'true' ? Role.ADMIN : Role.USER))
+  return new CurrentUser(
+      userCookieObject.id,
+      userCookieObject.userName,
+      userCookieObject.token,
+      userCookieObject.email,
+      (userCookieObject.isAdmin === 'true' ? Role.ADMIN : Role.USER)
+  );
 }
 function dropUserCookie() {
   Cookies.remove('user') 
