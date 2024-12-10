@@ -1,5 +1,5 @@
-import { lazy } from 'react';
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { lazy, useEffect } from 'react';
+import { createBrowserRouter, Outlet, RouterProvider, useMatches } from 'react-router-dom';
 import { AuthPageMode } from '@/apps/main/pages/auth/AuthPage'
 
 /*Misc*/
@@ -9,7 +9,6 @@ import MainApp from '@apps/main/MainApp.tsx'
 import AdminApp from '@apps/admin/AdminApp.tsx'
 const HomePage = lazy(() => import('@apps/main/pages/HomePage.tsx'))
 const ProfilePage = lazy(() => import('@apps/main/pages/ProfilePage.tsx'))
-const LibraryPage = lazy(() => import('@apps/main/pages/LibraryPage.tsx'))
 const GamesPage = lazy(() => import('@apps/main/pages/GamesPage.tsx'))
 const AuthPage = lazy(() => import('@/apps/main/pages/auth/AuthPage'))
 const GameViewPage = lazy(() => import('@apps/main/pages/GameViewPage.tsx'))
@@ -24,37 +23,42 @@ const PostPage = lazy(() => import('@apps/main/pages/forum/PostPage'))
 const PostCreate = lazy(() => import('@apps/main/pages/forum/PostCreate'))
 
 const router = createBrowserRouter([
-  { errorElement: <ErrorPage code={ 404 } /> },
-  { 
-    path: '/',
-    element: <MainApp />,
-    children: [
-        { path: '/',                   element: <HomePage />                                   },
-        { path: '/library/:profileId', element: <LibraryPage />                                },
-        { path: '/games',              element: <GamesPage />                                  },        
-        { path: '/sign-in',            element: <AuthPage mode={AuthPageMode.REGISTER} />      },
-        { path: '/log-in',             element: <AuthPage mode={AuthPageMode.LOGIN} />         },
-        { path: '/reset-password',     element: <AuthPage mode={AuthPageMode.RESET_PASSWORD} />},
-        { path: '/profile',            element: <ProfilePage />                                },
-        { path: '/game/:gameId',       element: <GameViewPage />                               },
-        {
-          path: '/forum',
-          element: <ForumPage />,
-          children: [
-            { path: '/forum/feed',               element: <FeedPage />                                   },
-            { path: '/forum/post/:postId',       element: <PostPage />                                   },
-            { path: '/forum/post/new',           element: <PostCreate />                                 },
-          ]},
-      ]
-  },
   {
-    path: '/admin',
-    element: <AdminApp />,
+    path: '/',
+    element: <RouterRoot />,
     children: [
-      { path: '/admin/view-games',     element: <GamesView />      },
-      { path: '/admin/view-emulators', element: <EmulatorsView />  },
-      { path: '/admin/view-users',     element: <UsersView />      },
-    ]      
+      { handle: { title: 'Erro 404' }, errorElement: <ErrorPage code={ 404 } /> },
+      {
+        path: '/',
+        element: <MainApp />,
+        children: [
+            { handle: { title: 'Home'           }, path: '/',               element: <HomePage />                                   },
+            { handle: { title: 'Games'          }, path: '/games',          element: <GamesPage />                                  },
+            { handle: { title: 'Sign-in'        }, path: '/sign-in',        element: <AuthPage mode={AuthPageMode.REGISTER} />      },
+            { handle: { title: 'Login'          }, path: '/log-in',         element: <AuthPage mode={AuthPageMode.LOGIN} />         },
+            { handle: { title: 'Reset Password' }, path: '/reset-password', element: <AuthPage mode={AuthPageMode.RESET_PASSWORD} />},
+            { handle: { title: 'Profile'        }, path: '/profile',        element: <ProfilePage />                                },
+            { handle: { title: 'Game'           }, path: '/game/:gameId',   element: <GameViewPage />                               },
+            {
+              path: '/forum',
+              element: <ForumPage />,
+              children: [
+                { handle: { title: 'Feed'        }, path: '/forum/feed',         element: <FeedPage />   },
+                { handle: { title: 'Post'        }, path: '/forum/post/:postId', element: <PostPage />   },
+                { handle: { title: 'Create Post' }, path: '/forum/post/new',     element: <PostCreate /> },
+              ]},
+          ]
+      },
+      {
+        path: '/admin',
+        element: <AdminApp />,
+        children: [
+          { handle: { title: 'Games'     }, path: '/admin/view-games',     element: <GamesView />      },
+          { handle: { title: 'Emulators' }, path: '/admin/view-emulators', element: <EmulatorsView />  },
+          { handle: { title: 'Users'     }, path: '/admin/view-users',     element: <UsersView />      },
+        ]
+      }
+    ],
   }
 ]);
 
@@ -62,4 +66,17 @@ export default function MainRouterProvider() {
   return (
     <RouterProvider router={ router } />
   )
+}
+
+function RouterRoot() {
+  const matches = useMatches()
+  const handle: any = matches[matches.length - 1].handle
+  const title: string = handle.title ?? ''
+
+  useEffect(() => {
+    if (title)
+      document.title = title;
+  }, [title])
+
+  return <Outlet />
 }
