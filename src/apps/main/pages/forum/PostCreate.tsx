@@ -61,7 +61,7 @@ export default function PostCreate() {
   });
 
   // ---- API Calls Setup ----
-  const { mutate: createPost, isLoading } = useCreatePost(user?.token!, {
+  const { createPost, isCreatePostLoading } = useCreatePost(user?.token!, {
     onSuccess: (post: Post) => {
       notifySuccess('Post criado com sucesso!');
       navigate('/forum/post/' + post.id);
@@ -92,8 +92,8 @@ export default function PostCreate() {
 
   // ---- Watch for state changes ----
   useEffect(() => {
-    if (isLoading) info("Enviando...")
-  }, [isLoading]);
+    if (isCreatePostLoading) info("Enviando...")
+  }, [isCreatePostLoading]);
 
   // ---- Form Error Handling ----
   useEffect(() => {

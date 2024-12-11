@@ -11,12 +11,12 @@ type UsePostsOptions<T> = {
 }
 
 export default function usePosts(options: UsePostsOptions<Post[]>) {
-  const { data: posts, refetch: reFetchPosts, isLoading: isPostLoading, ...rest } =
+  const { data: posts, refetch: reFetchPosts, isLoading: isPostsLoading, ...rest } =
       useQuery('FETCH_POSTS', {
         queryFn: async () => await PostApiService.getAll(),
         ...options
       });
-  return { posts, reFetchPosts, isPostLoading, ...rest };
+  return { posts, reFetchPosts, isPostsLoading, ...rest };
 }
 
 export function usePost(id: number, options: UsePostsOptions<Post>) {
