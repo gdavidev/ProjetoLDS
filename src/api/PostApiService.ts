@@ -12,14 +12,15 @@ export default class PostApiService {
   };
 
   static async getAll(): Promise<Post[]> {
-    const data: DTO.PostGetResponseDTO[] = await ApiService.get(PostApiService.endpoints.get);
-    return data.map(dto => Post.fromGetDTO(dto));
+    const res  =
+        await ApiService.get<DTO.PostGetResponseDTO[]>(PostApiService.endpoints.get);
+    return res.data.map(dto => Post.fromGetDTO(dto));
   }
 
   static async get(id: number): Promise<Post> {
-    const data: DTO.PostGetResponseDTO = 
-        await ApiService.get(PostApiService.endpoints.detail, { data: {id: id} });
-    return Post.fromGetDTO(data);
+    const res =
+        await ApiService.get<DTO.PostGetResponseDTO>(PostApiService.endpoints.detail, { data: {id: id} });
+    return Post.fromGetDTO(res.data);
   }  
   
   public static async delete(post: Post, token: string): Promise<void> {
