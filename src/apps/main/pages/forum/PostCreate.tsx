@@ -14,6 +14,7 @@ import useAlert from '@/hooks/feedback/useAlert.tsx';
 import useNotification from '@/hooks/feedback/useNotification.tsx';
 import useRequestErrorHandler from '@/hooks/useRequestErrorHandler.ts';
 import TagPicker from '@shared/components/formComponents/TagPicker.tsx';
+import useEmergencyExit from '@/hooks/useEmergencyExit.ts';
 
 type PostCreateFormData = {
   categoryId: number,
@@ -28,7 +29,8 @@ export default function PostCreate() {
   const { notifySuccess } = useNotification();
   const navigate = useNavigate();
   const { user } = useCurrentUser();
-  const { handleSubmit, watch, control, formState: { errors } } = useForm<PostCreateFormData>({
+  const { exit } = useEmergencyExit();
+  const { handleSubmit, watch, control, formState: { errors }, getValues } = useForm<PostCreateFormData>({
     defaultValues: {
       categoryId: -1,
       title: '',
@@ -40,6 +42,11 @@ export default function PostCreate() {
 
   // ---- Initialization ----
   useCategories(CategoryType.POSTS, {
+  useEffect(() => {
+    if (!user)
+      exit('/log-in', 'É preciso estar logado para criar posts.')
+  }, [])
+
     onSuccess: (categories: Category[]) => {
       const source = categories.map(cat => ({ value: cat.id, name: cat.name }));
       setCategorySelectSource(source);

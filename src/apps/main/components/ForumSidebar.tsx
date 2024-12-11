@@ -3,10 +3,21 @@ import CheckBox from '@shared/components/formComponents/CheckBox.tsx';
 import { IonIcon } from '@ionic/react';
 import { add } from 'ionicons/icons';
 import { Link, useNavigate } from 'react-router-dom';
+import { useCallback } from 'react';
+import useCurrentUser from '@/hooks/useCurrentUser.tsx';
 
 export default function ForumSidebar() {
 	const navigate = useNavigate();
+	const { user, askToLogin } = useCurrentUser();
 	const { data: categories } = useCategories(CategoryType.POSTS);
+
+	const handleNavigateToPostCreate = useCallback(() => {
+		if (!user) {
+			askToLogin('É preciso estar logado para criar posts.')
+		} else {
+			navigate('/forum/post/new')
+		}
+	}, [])
 
 	return (
 		<aside className="min-w-72 flex flex-col px-2 pt-10 pb-4 bg-layout-background">
@@ -18,7 +29,7 @@ export default function ForumSidebar() {
 				</Link>
 				<button
 						className='btn-r-md bg-primary text-white'
-						onClick={ () => navigate('/forum/post/new') }>
+						onClick={ handleNavigateToPostCreate }>
 					<IonIcon icon={ add } />
 					Novo Post
 				</button>
