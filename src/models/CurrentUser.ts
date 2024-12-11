@@ -1,4 +1,4 @@
-import { UserLoginResponseDTO } from '@models/data/UserDTOs';
+import { UserLoginResponseDTO } from '@models/data/CurrentUserDTOs.ts';
 import { Role } from '@/hooks/usePermission.ts';
 import Thumbnail from '@models/utility/Thumbnail.ts';
 import userImageNotFound from '@/assets/media/user-image-not-found.webp'
@@ -27,6 +27,7 @@ export default class CurrentUser {
       dto.token,
       dto.user.email,
       dto.user.admin ? Role.ADMIN : Role.USER,
+      new Thumbnail({ base64: dto.user.img_perfil, fallbackUrl: userImageNotFound }),
     )
   }
 }

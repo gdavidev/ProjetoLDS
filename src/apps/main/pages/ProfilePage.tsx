@@ -4,7 +4,7 @@ import { FormControl } from '@mui/material';
 import Chip from '@mui/material/Chip';
 import { useCallback, useEffect, useState } from 'react';
 import { AxiosError } from 'axios'
-import { UserUpdateDTO } from '@/models/data/UserDTOs';
+import { UserUpdateDTO } from '@models/data/CurrentUserDTOs.ts';
 import Validation from '@/libs/Validation';
 import useCurrentUser from '@/hooks/useCurrentUser';
 import useAuth from '@/hooks/useAuth';

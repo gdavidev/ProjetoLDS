@@ -1,5 +1,5 @@
 import CurrentUser from "@models/CurrentUser";
-import * as DTO from '@models/data/UserDTOs';
+import * as DTO from '@models/data/CurrentUserDTOs.ts';
 import ApiService from './ApiService';
 
 export default class UserApiService {
