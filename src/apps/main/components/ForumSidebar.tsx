@@ -1,7 +1,6 @@
 import useCategories, { CategoryType } from '@/hooks/useCategories.ts';
-import CheckBox from '@shared/components/formComponents/CheckBox.tsx';
 import { IonIcon } from '@ionic/react';
-import { add } from 'ionicons/icons';
+import { add, arrowForward } from 'ionicons/icons';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCallback } from 'react';
 import useCurrentUser from '@/hooks/useCurrentUser.tsx';
@@ -37,15 +36,16 @@ export default function ForumSidebar() {
 			<h3 className='font-bold text-xl text-white'>
 				Todas as categorias
 			</h3>
-			<div className='mt-2'>
+			<div className='mt-2 flex flex-col'>
 				{ categories &&
 						categories.map((cat, i) => (
-							<CheckBox
-								key={i}
-								name={cat.name}
-								label={cat.name}
-								labelClassName='text-white'
-							/>
+							<Link
+									key={i}
+									className='flex items-center gap-x-2 text-white'
+									to={'/forum/feed?categoryId=' + cat.id }>
+								<IonIcon icon={ arrowForward } />
+								{ cat.name }
+							</Link>
 						))
 				}
 			</div>

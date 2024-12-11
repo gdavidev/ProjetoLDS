@@ -1,6 +1,6 @@
 import { Autocomplete, TextField, TextFieldProps } from '@mui/material';
 import useTailwindTheme from '@/hooks/configuration/useTailwindTheme.ts';
-import { ForwardedRef, forwardRef } from 'react';
+import { ForwardedRef, forwardRef, useState } from 'react';
 
 export const TextFieldStyled = (props: TextFieldProps) => {
 	const { theme, colors } = useTailwindTheme();
@@ -20,34 +20,45 @@ export const TextFieldStyled = (props: TextFieldProps) => {
 
 type TagPickerProps = {
 	name: string;
-	source: string[];
-	defaultValue?: string[];
-	onChange?: (value: string) => void;
+	source?: string[];
+	value?: string[];
+	onChange?: (value: string[]) => void;
 	getOptionLabel?: (option: string) => string;
 	labelClassName?: string;
 }
 
 const TagPicker =
 		forwardRef((props: TagPickerProps, ref: ForwardedRef<HTMLInputElement>) => {
-	return (
-		<div className='flex flex-col'>
-			<label htmlFor={props.name} className={props.labelClassName}>{props.name}:</label>
-			<Autocomplete
-					multiple
-					ref={ ref }
-					id={props.name}
-					options={props.source}
-					getOptionLabel={(data => data)}
-					defaultValue={props.defaultValue}
-					filterSelectedOptions
-					renderInput={(params) => (
-							<TextFieldStyled
-									{...params}
-									placeholder={props.name}
-							/>
-					)}
-			/>
-		</div>
-	);
-})
+			const [tags, setTags] = useState<string[]>([]);
+
+			return (
+					<div className='flex flex-col'>
+						<label htmlFor={props.name} className={props.labelClassName}>{props.name}:</label>
+						<Autocomplete
+								ref={ ref }
+								multiple
+								freeSolo
+								options={ props.source ?? [] }
+								value={ tags }
+								onChange={(_: any, value) => {
+									props.onChange?.(value);
+									setTags(value);
+								}}
+								renderInput={(params) => (
+										<TextFieldStyled
+												{...params}
+												placeholder="Digite suas Tags"
+										/>
+								)}
+								handleHomeEndKeys
+								filterOptions={(_: any, params) =>
+										params.inputValue ? [`Adicionar "${params.inputValue}"`] : []
+								}
+								autoCapitalize='words'
+								autoSelect
+
+						/>
+					</div>
+			);
+		})
 export default TagPicker

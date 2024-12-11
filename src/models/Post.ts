@@ -39,30 +39,6 @@ export default class Post {
     this.image       = image       || null;
   }
 
-  toCreateDTO(): DTO.PostCreateDTO {
-    return {
-      titulo: this.title,
-      descricao: this.content,
-      id_categoria: this.category.id,
-      id_user: this.owner.id,
-      tags: this.tags,
-    }
-  }
-
-  toUpdateDTO(): DTO.PostUpdateDTO {
-    return {
-      titulo: this.title,
-      descricao: this.content,
-      id_categoria: this.category.id,
-      id_user: this.owner.id,
-      tags: this.tags,
-    }
-  }
-
-  toDeleteDTO(): DTO.PostDeleteDTO {
-    return { topico_id: this.id }
-  }
-
   static fromGetDTO(dto: DTO.PostGetResponseDTO): Post {
     return new Post(
       dto.id,
@@ -73,7 +49,7 @@ export default class Post {
       new Date(dto.created_at),
       new Date(dto.updated_at),
       dto.tags,
-      category,
+      new Category(dto.id_categoria, dto.nome_categoria),
       new Thumbnail({ base64: dto.img_topico })
     )
   }

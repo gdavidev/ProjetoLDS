@@ -2,6 +2,7 @@ import PostApiService from "@/api/PostApiService";
 import Post from "@models/Post"
 import { AxiosError } from 'axios';
 import { useMutation, useQuery, UseQueryResult } from "react-query";
+import * as DTO from "@models/data/PostDTOs";
 
 type UsePostsOptions<T> = { 
   onSuccess?: (data: T) => void,
@@ -22,9 +23,22 @@ export function usePost(id: number, options: UsePostsOptions<Post>): UseQueryRes
   });
 }
 
-export function useStorePost(token: string, options: UsePostsOptions<Post>) {
-  return useMutation('MUTATE_POST',
-      async (post: Post) =>  await PostApiService.store(post, token), {
-      ...options
-    });
+export function useCreatePost(token: string, options: UsePostsOptions<Post>) {
+  return useMutation('CREATE_POST',
+        async (dto: DTO.PostCreateDTO) => {
+          const res: DTO.PostGetResponseDTO = await PostApiService.create(dto, token)
+          return Post.fromGetDTO(res);
+        }, {
+        ...options
+      });
+}
+
+export function useUpdatePost(token: string, options: UsePostsOptions<Post>) {
+  return useMutation('UPDATE_POST',
+        async (dto: DTO.PostUpdateDTO) => {
+          const res: DTO.PostGetResponseDTO = await PostApiService.update(dto, token);
+          return Post.fromGetDTO(res)
+        }, {
+        ...options
+      });
 }

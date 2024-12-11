@@ -5,6 +5,7 @@ export type PostCreateDTO = {
   id_categoria: number,
   id_user: number,
   tags: string[],
+  img_topico?: File
 }
 export type PostCreateResponseDTO = {
   id: number,
