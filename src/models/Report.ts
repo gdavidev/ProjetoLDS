@@ -71,26 +71,26 @@ export default class Report {
 		}
 	}
 
-	private static parseContentType(value: string): ReportContentType {
+	public static parseContentType(value: string): ReportContentType {
 		if (value.toLowerCase() === 'post') return ReportContentType.POST;
 		if (value.toLowerCase() === 'comment') return ReportContentType.COMMENT;
 		throw new Error(`Could not parse content type: '${ value }'`);
 	}
 
-	private static serializeContentType(value: ReportContentType): string {
+	public static serializeContentType(value: ReportContentType): string {
 		if (value === ReportContentType.POST) return 'post';
 		if (value === ReportContentType.COMMENT) return 'comment';
 		throw new Error(`Could not serialize content type: '${ value }'`);
 	}
 
-	private static parseStatus(value: string): ReportStatus {
+	public static parseStatus(value: string): ReportStatus {
 		if (value.toLowerCase() === 'cancelado') return ReportStatus.DEFERRED;
 		if (value.toLowerCase() === 'pendente') return ReportStatus.PENDING;
 		if (value.toLowerCase() === 'fechado') return ReportStatus.CLOSED;
 		throw new Error(`Could not parse status: '${ value }'`);
 	}
 
-	private static serializeStatus(value: ReportStatus): string {
+	public static serializeStatus(value: ReportStatus): string {
 		if (value === ReportStatus.DEFERRED) return 'cancelado';
 		if (value === ReportStatus.PENDING) return 'pendente';
 		if (value === ReportStatus.CLOSED) return 'fechado';
