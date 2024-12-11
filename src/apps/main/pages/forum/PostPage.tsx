@@ -1,10 +1,18 @@
 import useTypeSafeSearchParams from '@/hooks/useTypeSafeSearchParams.ts';
 import { useLikePost } from '@/hooks/useLikePost.ts';
-import LikeButton from '@apps/main/components/LikeButton.tsx';
-import { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import useEmergencyExit from '@/hooks/useEmergencyExit.ts';
 import { IonIcon } from '@ionic/react';
-import { reload, star } from 'ionicons/icons';
+import {
+  chatbubbleOutline,
+  flagOutline,
+  hammerOutline,
+  reload,
+  star,
+  trashOutline,
+  heart,
+  heartOutline,
+} from 'ionicons/icons';
 import User from '@models/User.ts';
 import DateFormatter from '@libs/DateFormatter.ts';
 import { Link } from 'react-router-dom';
@@ -84,6 +92,10 @@ export default function PostPage() {
   }, []);
 
   // ---- General Callbacks ----
+  const handleLikeButtonClick = useCallback(() => {
+    setLiked(li => !li);
+  }, []);
+
   const handleReportButtonClick =
       useCallback((contentType: ReportContentType, contentId: number) => {
         setReportContentData({
@@ -95,6 +107,18 @@ export default function PostPage() {
 
   if (isPostLoading || !post)
     return <Loading />;
+  const handleAnswerButtonClick = useCallback(() => {
+
+  }, []);
+
+  const handleBanButtonClick = useCallback(() => {
+
+  }, []);
+
+  const handleExcludeButtonClick = useCallback(() => {
+
+  }, []);
+
   return(
     <section className='text-white'>
       <div className="flex w-full gap-x-4 items-start">
@@ -148,7 +172,7 @@ export default function PostPage() {
         <h1 className="text-2xl font-bold mt-2">{ post.title }</h1>
         {
           post.image &&
-            <div className='w-fit mx-auto h-[50vh] rounded-md overflow-hidden'>
+            <div className='w-fit mx-auto mt-2 mb-4 h-[50vh] rounded-md overflow-hidden'>
               <img
                   className='h-full'
                   src={ post.image.toDisplayable() }
@@ -157,19 +181,19 @@ export default function PostPage() {
         }
         <p>{post.content}</p>
       </article>
-      <LikeButton
-          checked={liked}
-            onClick={(): void => {
-              likePost({
-                currentState: liked,
-                postId: params.postId,
-                userId: 1
-              });
-              setLiked(li => !li)
-            }}
-        />
 
-      <h2 className='text-xl font-bold'>Comentários</h2>
+      <PostActionBar
+          className='mt-8'
+          userIsPostOwner={ user?.id === post.owner.id }
+          user={ user }
+          isLiked={ liked }
+          onLikeClick={ handleLikeButtonClick }
+          onAnswerClick={ handleAnswerButtonClick }
+          onReportClick={ () => handleReportButtonClick(ReportContentType.POST, post.id) }
+          onBanClick={ handleBanButtonClick }
+          onExcludeClick={ handleExcludeButtonClick } />
+
+      <h2 className='text-xl mt-12 font-bold'>Comentários</h2>
       <form
           onSubmit={ handleSubmit(submitComment) }
           className='min-w-full flex items-end gap-x-2 flex-col lg:flex-row mb-4'>
@@ -182,7 +206,7 @@ export default function PostPage() {
                     {...field}
                     name="Comentário"
                     labelClassName='hidden'
-                    className={'input-text' + (errors.comment ? ' bg-red-100 border-red-500' : ' bg-slate-200')} />
+                    className={ (errors.comment ? ' bg-red-100 border-red-500' : ' bg-slate-200') } />
             )} />
         <button type='submit' className='btn-r-md h-10 bg-primary text-white'>
           Enviar
@@ -211,6 +235,67 @@ export default function PostPage() {
       />
     </section>
   );
+}
+
+type PostActionBarProps = {
+  userIsPostOwner: boolean;
+  user: CurrentUser | null;
+  isLiked: boolean;
+  onLikeClick: () => void;
+  onAnswerClick: () => void;
+  onReportClick: () => void;
+  onBanClick: () => void;
+  onExcludeClick: () => void;
+  className?: string;
+}
+
+function PostActionBar(props: PostActionBarProps) {
+  return (
+      <div className={'flex gap-x-2 w-full justify-start ' + props.className}>
+        <button
+            onClick={ props.onLikeClick }
+            className="cursor-pointer hover:bg-primary-dark text-primary-light flex items-center gap-x-1 py-0.5 px-2 rounded-full">
+          {
+            props.isLiked ?
+                <IonIcon icon={ heart } /> :
+                <IonIcon icon={ heartOutline } />
+          }
+          <span>Curtir</span>
+        </button>
+
+        <button
+            onClick={props.onAnswerClick}
+            className="cursor-pointer hover:bg-slate-600 flex items-center gap-x-1 py-0.5 px-2 rounded-full">
+          <IonIcon icon={ chatbubbleOutline } />
+          <span>Responder</span>
+        </button>
+        <button
+            onClick={props.onReportClick}
+            className="cursor-pointer hover:bg-red-600 flex items-center gap-x-1 py-0.5 px-2 rounded-full">
+          <IonIcon icon={ flagOutline } />
+          <span>Denunciar</span>
+        </button>
+
+        {
+            (props.user && [Role.ADMIN, Role.MODERATOR].includes(props.user.role)) &&
+            <button
+                onClick={props.onBanClick}
+                className="cursor-pointer hover:bg-red-600 flex items-center gap-x-1 py-0.5 px-2 rounded-full">
+              <IonIcon icon={ hammerOutline } />
+              <span>Banir Usuário</span>
+            </button>
+        }
+        {
+            (props.user && (props.userIsPostOwner || [Role.ADMIN, Role.MODERATOR].includes(props.user.role))) &&
+            <button
+                onClick={props.onExcludeClick}
+                className="cursor-pointer hover:bg-red-600 flex items-center gap-x-1 py-0.5 px-2 rounded-full">
+              <IonIcon icon={ trashOutline } />
+              <span>Apagar</span>
+            </button>
+        }
+      </div>
+  )
 }
 
 const mockCommentList: Comment[] = [
