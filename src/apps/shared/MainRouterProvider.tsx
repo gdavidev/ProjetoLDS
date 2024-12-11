@@ -23,11 +23,11 @@ const PostPage = lazy(() => import('@apps/main/pages/forum/PostPage'))
 const PostCreate = lazy(() => import('@apps/main/pages/forum/PostCreate'))
 
 const router = createBrowserRouter([
+  { handle: { title: 'Erro 404' }, errorElement: <ErrorPage code={ 404 } /> },
   {
     path: '/',
     element: <RouterRoot />,
     children: [
-      { handle: { title: 'Erro 404' }, errorElement: <ErrorPage code={ 404 } /> },
       {
         path: '/',
         element: <MainApp />,
