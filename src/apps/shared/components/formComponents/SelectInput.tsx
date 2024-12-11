@@ -11,6 +11,7 @@ export type SelectInputSource = {
 type SelectInputProps = {
   source: SelectInputSource
   name: string,
+  disabled?: boolean,
   className?: string,
   labelClassName?: string,
   styleType?: SelectInputStyle,
@@ -50,6 +51,7 @@ const LabelLessSelectInput = forwardRef((props: SelectInputProps, ref: React.For
         ref={ ref }
         onChange={ (e) => props.onChange?.(e.target.value) }
         defaultValue={ props.value }
+        disabled={ props.disabled }
         className={ props.className } >
       { 
         props.source.map((data, i) => <option key={i} value={ data.value }>{ data.name }</option>) 

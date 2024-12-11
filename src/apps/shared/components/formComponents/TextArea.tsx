@@ -3,7 +3,8 @@ import { ChangeEventHandler, ForwardedRef, forwardRef } from 'react';
 
 type TextAreaProps = {
   name: string,
-  className?: string
+  className?: string,
+  disabled?: boolean,
   labelClassName?: string,
   value?: string,
   resize?: ['none', 'both', 'vertical', 'horizontal'],
@@ -24,7 +25,8 @@ const TextArea = forwardRef((props: TextAreaProps, ref: ForwardedRef<HTMLTextAre
           ref={ ref }
           id={ formatedName }
           name={ formatedName }
-          className={ "text-input " + props.className }
+          disabled={ props.disabled }
+          className={ "input-text " + props.className }
           onChange={ props.onChange }
           defaultValue={ props.value }
       />
