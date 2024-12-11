@@ -7,7 +7,7 @@ import { MainContext, MainContextProps } from "@/apps/shared/context/MainContext
 import { useNavigate } from "react-router-dom";
 import PasswordResetLayout from "./PasswordResetLayout";
 import useAlert from '@/hooks/feedback/useAlert.tsx';
-import useNotification, { useNotificationDefaults } from '@/hooks/feedback/useNotification.tsx';
+import useNotification from '@/hooks/feedback/useNotification.tsx';
 
 export enum AuthPageMode {
   LOGIN,
@@ -21,7 +21,7 @@ export type AuthPageProps = {
 export default function AuthPage(props: PropsWithoutRef<AuthPageProps>): React.ReactElement {
   const navigate = useNavigate();
   const mainContext: MainContextProps = useContext(MainContext);
-  const { setNotification } = useNotification()
+  const { notifySuccess } = useNotification()
   const { alertElement, info, error, clear: clearAlert } = useAlert()
 
   useEffect(() => {
@@ -29,27 +29,15 @@ export default function AuthPage(props: PropsWithoutRef<AuthPageProps>): React.R
   }, []);
 
   const loginUser = useCallback((user: CurrentUser) => {
-    setNotification({
-      ...useNotificationDefaults,
-      message: "Logado com sucesso!",
-      severity:'success',
-    })
+    notifySuccess("Logado com sucesso!")
     mainContext.setCurrentUser?.(user)
     navigate("/");
   }, []);
   const registeredSuccess = useCallback(() => {
-    setNotification({
-      ...useNotificationDefaults,
-      message: "Registrado com sucesso!",
-      severity:'success',
-    })
+    notifySuccess("Registrado com sucesso!")
   }, []);
   const passwordResetSuccess = useCallback(() => {
-    setNotification({
-      ...useNotificationDefaults,
-      message: "Senha alterada com sucesso!",
-      severity:'success',
-    })
+    notifySuccess("Senha alterada com sucesso!")
   }, []);
 
   return(

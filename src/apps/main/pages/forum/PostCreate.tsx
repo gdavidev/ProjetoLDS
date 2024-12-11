@@ -11,7 +11,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import useAlert from '@/hooks/feedback/useAlert.tsx';
-import useNotification, { useNotificationDefaults } from '@/hooks/feedback/useNotification.tsx';
+import useNotification from '@/hooks/feedback/useNotification.tsx';
 import useRequestErrorHandler from '@/hooks/useRequestErrorHandler.ts';
 import TagPicker from '@shared/components/formComponents/TagPicker.tsx';
 
@@ -25,7 +25,7 @@ type PostCreateFormData = {
 export default function PostCreate() {
   const [ categorySelectSource, setCategorySelectSource ] = useState<SelectInputSource>([])
   const { alertElement, error, info } = useAlert();
-  const { setNotification } = useNotification();
+  const { notifySuccess } = useNotification();
   const navigate = useNavigate();
   const { user } = useCurrentUser();
   const { handleSubmit, watch, control, formState: { errors } } = useForm<PostCreateFormData>({
@@ -56,6 +56,7 @@ export default function PostCreate() {
         severity: 'success'
       })
       navigate('/forum/post/' + post.id)
+      notifySuccess('Post criado com sucesso!');
     },
     onError: (err: AxiosError | Error) => handleRequestError(err)
   });
