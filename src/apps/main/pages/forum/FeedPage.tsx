@@ -15,16 +15,16 @@ export default function FeedPage() {
 
   const mockPostContainer: Post[] =
       Array(3).fill(new Post(
-          0,
-          new User(0, 'Name usuer'),
-          false,
           'Postname',
+          new User(0, 'Name usuer'),
+          new Category(8, 'Emuladores'),
           'lorem inpsumaaaaaaaaaaaaaaaaa sdad wwasaw as daw dasd aw sad as dwad asd awd asd aw dasd aws daw asd asd awd asdasdsdsada wda s dsadsad a dwasdsadas awd asdsad wad',
+          ['item', 'hardware', 'emulador'],
+          new Thumbnail({ url: '/backgrounds/login-page.png' }),
+          0,
+          false,
           new Date(Date.now() + 30 * 60 * 60 * 1000),
           new Date(Date.now() + 40 * 60 * 60 * 1000),
-          ['item', 'hardware', 'emulador'],
-          new Category(8, 'Emuladores'),
-          new Thumbnail({ url: '/backgrounds/login-page.png' })
       ))
 
   if (isLoading)

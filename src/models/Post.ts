@@ -16,41 +16,59 @@ export default class Post {
   hasLiked: boolean;
 
   constructor(
-      id?: number,
-      owner?: User,
-      hasLiked?: boolean,
-      title?: string,
-      content?: string,
-      createdDate?: Date,
-      updatedDate?: Date,
-      tags?: string[],
-      category?: Category,
-      image?: Thumbnail | null)
+      title: string,
+      owner: User,
+      category: Category,
+      content: string,
+      tags: string[],
+      image?: Thumbnail)
+  constructor(
+      title: string,
+      owner: User,
+      category: Category,
+      content: string,
+      tags: string[],
+      image: Thumbnail | null,
+      id: number,
+      hasLiked: boolean,
+      createdDate: Date,
+      updatedDate: Date)
+  constructor(
+      title: string,
+      owner: User,
+      category: Category,
+      content: string,
+      tags: string[],
+      image: Thumbnail | null = null,
+      id: number = 0,
+      hasLiked: boolean = false,
+      createdDate: Date = new Date(0),
+      updatedDate: Date = new Date(0))
   {
-    this.id          = id          || 0;
-    this.owner       = owner       || new User(0, '');
-    this.hasLiked    = hasLiked    || false;
-    this.title       = title       || '';
-    this.content     = content     || '';
-    this.createdDate = createdDate || new Date();
-    this.updatedDate = updatedDate || new Date();
-    this.tags        = tags        || [];
-    this.category    = category    || new Category();
-    this.image       = image       || null;
+    this.title       = title;
+    this.owner       = owner;
+    this.category    = category;
+    this.content     = content;
+    this.tags        = tags;
+    this.image       = image;
+    this.id          = id;
+    this.hasLiked    = hasLiked;
+    this.createdDate = createdDate;
+    this.updatedDate = updatedDate;
   }
 
   static fromGetDTO(dto: DTO.PostGetResponseDTO): Post {
     return new Post(
-      dto.id,
-      new User(dto.id_user, dto.nome_user),
-      dto.has_liked,
       dto.titulo,
+      new User(dto.id_user, dto.nome_user),
+      new Category(dto.id_categoria, dto.nome_categoria),
       dto.descricao,
+      dto.tags,
+      new Thumbnail({ base64: dto.img_topico }),
+      dto.id,
+      dto.has_liked,
       new Date(dto.created_at),
       new Date(dto.updated_at),
-      dto.tags,
-      new Category(dto.id_categoria, dto.nome_categoria),
-      new Thumbnail({ base64: dto.img_topico })
     )
   }
 }
