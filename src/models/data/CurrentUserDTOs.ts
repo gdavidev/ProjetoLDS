@@ -20,6 +20,7 @@ export type UserLoginResponseDTO = {
 		admin: boolean,
 		email: string,
 		username: string,
+		img_perfil: string,
 		is_active: boolean,
 		is_banned: boolean,
 	}	
