@@ -14,15 +14,12 @@ type useReportOptions<T> = {
 	onError?: (err: AxiosError | Error) => void,
 }
 
-export default function useSendReport(token: string, options?: useReportOptions<Report>) {
+export default function useSendReport(token: string, options?: useReportOptions<any>) {
 	return useMutation('SEND_REPORT',
-			async (report: Report) => {
-				const resp =
-						await ApiService.post<DTO.ReportCreateResponseDTO>(endpoints.post,
-								report.toCreateDTO(),
-								{ headers: { 'Authorization': 'Bearer ' + token } });
-				report.id = resp.data.id;
-				return report;
+			async (dto: DTO.ReportCreateDTO) => {
+				return await ApiService.post<DTO.ReportCreateResponseDTO>(endpoints.post,
+						dto,
+						{ headers: { 'Authorization': 'Bearer ' + token } });
 			}, {
 				onSuccess: options?.onSuccess,
 				onError: options?.onError
