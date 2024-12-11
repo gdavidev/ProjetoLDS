@@ -18,6 +18,7 @@ import FileInputImagePreview from '@shared/components/formComponents/FileInputIm
 import FileInput from '@shared/components/formComponents/FileInput.tsx';
 import Thumbnail from '@models/utility/Thumbnail.ts';
 import useEmergencyExit from '@/hooks/useEmergencyExit.ts';
+import User from '@models/User.ts';
 
 type PostCreateFormData = {
   categoryId: number,
@@ -78,14 +79,15 @@ export default function PostCreate() {
   const submit = useCallback((data: PostCreateFormData) => {
     if (!user || !categories) return
 
-    createPost({
-      titulo: data.title,
-      descricao: data.content,
-      id_categoria: data.categoryId,
-      id_user: user.id,
-      tags: data.tags,
-      img_topico: data.image?.file ?? undefined
-    });
+    const category: Category = categories.find(cat => cat.id == data.categoryId)!
+    createPost(new Post(
+      data.title,
+      new User(user.id, user.userName),
+      category,
+      data.content,
+      data.tags,
+      data.image,
+    ));
   }, []);
 
   // ---- Watch for state changes ----

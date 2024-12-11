@@ -56,7 +56,7 @@ export default function PostPage() {
   const { mutate: likePost } = useLikePost({
     onError: (error: AxiosError | Error) => handleRequestError(error)
   });
-  const { data: post, isLoading } = usePost(params.postId, {
+  const { post, isPostLoading } = usePost(params.postId, {
     onError: (err: AxiosError | Error) => {
       exit('/forum/feed', 'Post não encontrado');
       console.log(err.message) }
@@ -93,7 +93,7 @@ export default function PostPage() {
         setIsReportModalOpen(true);
       }, []);
 
-  if (isLoading || !post)
+  if (isPostLoading || !post)
     return <Loading />;
   return(
     <section className='text-white'>

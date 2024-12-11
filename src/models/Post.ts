@@ -71,4 +71,26 @@ export default class Post {
       new Date(dto.updated_at),
     )
   }
+
+  public toCreateDTO(): DTO.PostCreateDTO {
+    return {
+      titulo: this.title,
+      descricao: this.content,
+      id_categoria: this.category.id,
+      id_user: this.owner.id,
+      tags: this.tags,
+      img_topico: this.image?.file ?? undefined,
+    }
+  }
+
+  public toUpdateDTO(): DTO.PostUpdateDTO {
+    return {
+      titulo: this.title,
+      descricao: this.content,
+      id_categoria: this.category.id,
+      id_user: this.owner.id,
+      tags: this.tags,
+      img_topico: this.image?.file ?? undefined,
+    }
+  }
 }

@@ -27,6 +27,7 @@ export type PostUpdateDTO = {
   id_categoria?: number,
   id_user?: number,
   tags?: string[],
+  img_topico?: File
 }
 export type PostUpdateResponseDTO = {
   id: number,
