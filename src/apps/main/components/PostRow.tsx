@@ -4,8 +4,12 @@ import LikeButton from '@apps/main/components/LikeButton.tsx';
 import { useCallback, useState } from 'react';
 import { useLikePost } from '@/hooks/useLikePost.ts';
 import useCurrentUser from '@/hooks/useCurrentUser';
-import useNotification from '@/hooks/feedback/useNotification.tsx';
 import DateFormatter from '@libs/DateFormatter.ts';
+import usePosts from '@/hooks/usePosts.ts';
+import useRequestErrorHandler from '@/hooks/useRequestErrorHandler.ts';
+import useNotification from '@/hooks/feedback/useNotification.tsx';
+import { AxiosError } from 'axios';
+import Loading from '@shared/components/Loading.tsx';
 
 type PostRowProps = {
 	post: Post
@@ -13,7 +17,6 @@ type PostRowProps = {
 
 export default function PostRow(props: PostRowProps) {
 	const { user, askToLogin } = useCurrentUser();
-	const { notifyWarning } = useNotification();
 	const [ isLiked, setLiked ] = useState<boolean>(props.post.hasLiked);
 	const { mutate: toggleLike } = useLikePost({
 		onError: () => setLiked(props.post.hasLiked)
