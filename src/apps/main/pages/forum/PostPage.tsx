@@ -26,11 +26,14 @@ import useCurrentUser from '@/hooks/useCurrentUser.tsx';
 import ReportContentModal from '@apps/main/components/modal/ReportContentModal.tsx';
 import { ReportContentType } from '@models/Report.ts';
 import { AxiosError } from 'axios';
-import { usePost } from '@/hooks/usePosts.ts';
-import Loading from '@shared/components/Loading.tsx';
 import useRequestErrorHandler from '@/hooks/useRequestErrorHandler.ts';
 import useNotification from '@/hooks/feedback/useNotification.tsx';
 import { useCreateComment } from '@/hooks/useComment.ts';
+import Post from '@models/Post.ts';
+import Category from '@models/Category.ts';
+import Thumbnail from '@models/utility/Thumbnail.ts';
+import CurrentUser from '@models/CurrentUser.ts';
+import { Role } from '@/hooks/usePermission.ts';
 
 type PostPageParams = {
   postId: number;
@@ -55,23 +58,23 @@ export default function PostPage() {
       });
 
   // Initialization
-  useEffect(() => {
-    if (params.postId === undefined)
-      exit('/forum/feed', 'Post não encontrado');
-  }, []);
+  // useEffect(() => {
+  //   if (params.postId === undefined)
+  //     exit('/forum/feed', 'Post não encontrado');
+  // }, []);
 
   // ---- API Calls Setup ----
   const { mutate: likePost } = useLikePost({
     onError: (error: AxiosError | Error) => handleRequestError(error)
   });
-  const { post, isPostLoading } = usePost(params.postId, {
-    onError: (err: AxiosError | Error) => {
-      exit('/forum/feed', 'Post não encontrado');
-      console.log(err.message) }
-  });
+  // const { post, isPostLoading } = usePost(params.postId, {
+  //   onError: (err: AxiosError | Error) => {
+  //     exit('/forum/feed', 'Post não encontrado');
+  //     console.log(err.message) }
+  // });
   const { createComment } = useCreateComment({
     onError: (error: AxiosError | Error) => handleRequestError(error)
-  })
+  });
 
   // ---- API Calls Error Handling ----
   const { handleRequestError } = useRequestErrorHandler({
@@ -105,8 +108,6 @@ export default function PostPage() {
         setIsReportModalOpen(true);
       }, []);
 
-  if (isPostLoading || !post)
-    return <Loading />;
   const handleAnswerButtonClick = useCallback(() => {
 
   }, []);
@@ -119,6 +120,9 @@ export default function PostPage() {
 
   }, []);
 
+
+  // if (isPostLoading || !post)
+  //   return <Loading />;
   return(
     <section className='text-white'>
       <div className="flex w-full gap-x-4 items-start">
@@ -297,6 +301,19 @@ function PostActionBar(props: PostActionBarProps) {
       </div>
   )
 }
+
+const post: Post = new Post(
+    'Postname',
+    new User(0, 'Name usuer'),
+    new Category(8, 'Emuladores'),
+    'lorem inpsumaaaaaaaaaaaaaaaaa sdad wwasaw as daw dasd aw sad as dwad asd awd asd aw dasd aws daw asd asd awd asdasdsdsada wda s dsadsad a dwasdsadas awd asdsad wad',
+    ['item', 'hardware', 'emulador'],
+    new Thumbnail({ url: '/backgrounds/login-page.png' }),
+    0,
+    false,
+    new Date(Date.now() + 30 * 60 * 60 * 1000),
+    new Date(Date.now() + 40 * 60 * 60 * 1000),
+)
 
 const mockCommentList: Comment[] = [
   new Comment(

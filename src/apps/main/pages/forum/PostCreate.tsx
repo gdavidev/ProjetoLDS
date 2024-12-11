@@ -179,8 +179,8 @@ export default function PostCreate() {
           <input
              value="Confirmar"
              type="submit"
-             className={"btn-r-md mt-3 bg-primary text-white" + (isLoading ? " disabled" : "")}
-             disabled={isLoading} />
+             className={"btn-r-md mt-3 bg-primary text-white" + (isCreatePostLoading ? " disabled" : "")}
+             disabled={isCreatePostLoading} />
         </div>
       </form>
     </section>
