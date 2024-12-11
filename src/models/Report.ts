@@ -8,7 +8,7 @@ export enum ReportContentType {
 export enum ReportStatus {
 	DEFERRED,
 	PENDING,
-	CLOSED
+	INFERRED
 }
 
 export default class Report {
@@ -23,18 +23,34 @@ export default class Report {
 	createdDate: Date;
 	updatedDate: Date;
 
-	public constructor(
-			id: number,
-			reportedBy: number,
-			contentType: ReportContentType,
+	constructor(
 			contentId: number,
+			contentType: ReportContentType,
+			reportedBy: number,
+			reason: string)
+	constructor(
+			contentId: number,
+			contentType: ReportContentType,
+			reportedBy: number,
 			reason: string,
+			id: number,
 			status: ReportStatus,
 			reviewedBy: number,
 			resolution: string,
 			createdDate: Date,
-			updatedDate: Date
-	) {
+			updatedDate: Date)
+	constructor(
+			contentId: number,
+			contentType: ReportContentType,
+			reportedBy: number,
+			reason: string,
+			id: number = 0,
+			status: ReportStatus = ReportStatus.PENDING,
+			reviewedBy: number = 0,
+			resolution: string = '',
+			createdDate: Date = new Date(),
+			updatedDate: Date = new Date())
+	{
 		this.id 				 = id;
 		this.reportedBy	 = reportedBy;
 		this.contentType = contentType;
@@ -49,11 +65,11 @@ export default class Report {
 
 	public static fromGetDTO(dto: DTO.ReportGetResponseDTO): Report {
 		return new Report(
-				dto.id,
-				dto.reported_by,
-				Report.parseContentType(dto.content_type),
 				dto.content_id,
+				Report.parseContentType(dto.content_type),
+				dto.reported_by,
 				dto.reason,
+				dto.id,
 				Report.parseStatus(dto.status),
 				dto.reviewed_by,
 				dto.resolution,
@@ -71,6 +87,18 @@ export default class Report {
 		}
 	}
 
+	public toResolveDTO(): DTO.ReportResolveDTO {
+		return {
+			reported_by: this.reportedBy,
+			content_type: Report.serializeContentType(this.contentType),
+			content_id: this.contentId,
+			reason: this.reason,
+			status: Report.serializeStatus(this.status),
+			reviewed_by: this.reviewedBy,
+			resolution: this.resolution,
+		}
+	}
+
 	public static parseContentType(value: string): ReportContentType {
 		if (value.toLowerCase() === 'post') return ReportContentType.POST;
 		if (value.toLowerCase() === 'comment') return ReportContentType.COMMENT;
@@ -84,16 +112,16 @@ export default class Report {
 	}
 
 	public static parseStatus(value: string): ReportStatus {
-		if (value.toLowerCase() === 'cancelado') return ReportStatus.DEFERRED;
+		if (value.toLowerCase() === 'deferido') return ReportStatus.DEFERRED;
 		if (value.toLowerCase() === 'pendente') return ReportStatus.PENDING;
-		if (value.toLowerCase() === 'fechado') return ReportStatus.CLOSED;
+		if (value.toLowerCase() === 'indeferido') return ReportStatus.INFERRED;
 		throw new Error(`Could not parse status: '${ value }'`);
 	}
 
 	public static serializeStatus(value: ReportStatus): string {
-		if (value === ReportStatus.DEFERRED) return 'cancelado';
+		if (value === ReportStatus.DEFERRED) return 'deferido';
 		if (value === ReportStatus.PENDING) return 'pendente';
-		if (value === ReportStatus.CLOSED) return 'fechado';
+		if (value === ReportStatus.INFERRED) return 'indeferido';
 		throw new Error(`Could not serialize status: '${ value }'`);
 	}
 }

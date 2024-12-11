@@ -5,8 +5,9 @@ export type ReportCreateDTO = {
 	content_id: number,
 	reason: string,
 }
-export type ReportCreateResponseDTO = {
-	id: number,
+
+/* RESOLVE */
+export type ReportResolveDTO = {
 	reported_by: number,
 	content_type: string,
 	content_id: number,
@@ -14,17 +15,16 @@ export type ReportCreateResponseDTO = {
 	status: string,
 	reviewed_by: number,
 	resolution: string,
-	created_at: number,
-	updated_at: number,
 }
 
 /* DELETE */
 export type ReportDeleteDTO = {
+	id: number,
 }
-export type ReportDeleteResponseDTO = {}
 
 /* GET */
 export type ReportGetDTO = {
+	id: number,
 }
 export type ReportGetResponseDTO = {
 	id: number,

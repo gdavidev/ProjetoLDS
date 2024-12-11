@@ -15,7 +15,7 @@ const GameViewPage = lazy(() => import('@apps/main/pages/GameViewPage.tsx'))
 /*Admin*/
 const GamesView = lazy(() => import('@apps/admin/pages/GamesView.tsx'))
 const EmulatorsView = lazy(() => import('@apps/admin/pages/EmulatorsView'))
-const UsersView = lazy(() => import('@apps/admin/pages/UsersView'))
+const ReportView = lazy(() => import('@apps/admin/pages/ReportsView.tsx'))
 /*Forum*/
 const ForumPage = lazy(() => import('@apps/main/pages/forum/ForumPage'))
 const FeedPage = lazy(() => import('@apps/main/pages/forum/FeedPage'))
@@ -55,7 +55,7 @@ const router = createBrowserRouter([
         children: [
           { handle: { title: 'Games'     }, path: '/admin/view-games',     element: <GamesView />      },
           { handle: { title: 'Emulators' }, path: '/admin/view-emulators', element: <EmulatorsView />  },
-          { handle: { title: 'Users'     }, path: '/admin/view-users',     element: <UsersView />      },
+          { handle: { title: 'Denúncias' }, path: '/admin/view-reports',   element: <ReportView />      },
         ]
       }
     ],
