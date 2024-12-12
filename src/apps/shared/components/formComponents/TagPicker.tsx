@@ -41,8 +41,11 @@ const TagPicker =
 								options={ props.source ?? [] }
 								value={ tags }
 								onChange={(_: any, value) => {
-									props.onChange?.(value);
-									setTags(value);
+									const cleanedTags = value.map((tag) =>
+											tag.startsWith('Adicionar "') ? tag.slice('Adicionar "'.length, -1) : tag
+									);
+									props.onChange?.(cleanedTags);
+									setTags(cleanedTags);
 								}}
 								renderInput={(params) => (
 										<TextFieldStyled
