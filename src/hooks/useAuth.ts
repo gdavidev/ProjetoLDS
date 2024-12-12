@@ -8,6 +8,7 @@ type UseAuthEvents = {
   onSuccess: (data: any, variables: any) => void
   onError: (err: AxiosError | Error) => void
 }
+
 type UseAuthOptionsEvents = {
   onIsLoading?: () => void,
 } & UseAuthEvents
@@ -20,6 +21,7 @@ type UseAuthOptions = {
   onUpdate?: UseAuthEvents
   onIsLoading?: () => void
 }
+
 type UseAuthResult = {
   login: (data: DTO.UserLoginDTO) => void
   register: (data: DTO.UserRegisterDTO) => void
@@ -73,7 +75,13 @@ export default function useAuth(options?: UseAuthOptions | UseAuthOptionsEvents)
     setIsLoading(newState);
     if (newState)
       options?.onIsLoading?.()
-  }, [loginMutation.isLoading, forgotPasswordMutation.isLoading, registerMutation.isLoading, passwordResetMutation.isLoading]);
+  }, [
+    loginMutation.isLoading,
+    forgotPasswordMutation.isLoading,
+    registerMutation.isLoading,
+    passwordResetMutation.isLoading,
+    updateUserMutation.isLoading
+  ]);
 
   const reset = useCallback((): void => {
     loginMutation.reset()
