@@ -123,7 +123,7 @@ export default function LogInLayout(props: PropsWithRef<LogInLayoutProps>): Reac
         <button
             type='submit'
             onClick={ handleSubmit(doLogin) }
-            className="btn-r-md bg-primary hover:bg-primary-dark shadow-md shadow-slate-950">
+            className="btn-primary shadow-md shadow-slate-950">
           Entrar
         </button>
         <div className="flex text-white justify-between gap-x-2">
