@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import CurrentUser from '@models/CurrentUser.ts';
 
-export enum Role {	ADMIN,	MODERATOR,	USER,	GUEST }
+export enum Role {	ADMIN,	MODERATOR,	USER,	GUEST, BANNED_USER }
 export enum ActionType {	VIEW,	CREATE,	UPDATE,	DELETE }
 export enum ActionContext { ITS_OWN,	OTHER }
 export enum PermissionCase {
@@ -45,6 +45,10 @@ const permissionMap: PermissionMap = {
 		]
 	},
 	[Role.GUEST]: {
+		[PermissionCase.COMMENT]: { action: ActionType.VIEW, context: 'all' },
+		[PermissionCase.POST]: { action: ActionType.VIEW, context: 'all' },
+	},
+	[Role.BANNED_USER]: {
 		[PermissionCase.COMMENT]: { action: ActionType.VIEW, context: 'all' },
 		[PermissionCase.POST]: { action: ActionType.VIEW, context: 'all' },
 	},
