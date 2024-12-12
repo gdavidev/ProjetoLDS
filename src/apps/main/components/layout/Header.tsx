@@ -30,7 +30,7 @@ export default function Header() {
           { 
             user && user.token !== '' ?
               <LoggedUserDropdown user={ user } logoutFn={ logout } /> :
-              <LoginSigninButtons />
+              <LoginSignupButtons />
           }
         </div>
       </div>
@@ -101,22 +101,22 @@ function LoggedUserDropdown(props: { user: CurrentUser, logoutFn: () => void }) 
   )
 }
 
-function LoginSigninButtons() {
+function LoginSignupButtons() {
   const currentPath: string = useLocation().pathname
   const pathToLogin: string = "/log-in"
-  const pathToSignin: string = "/sign-in"
+  const pathToSignup: string = "/sign-up"
 
   return(
     <>
       <Link to={ pathToLogin } aria-label="login-button" role="link"
           className={ "btn-r-md bg-primary-light hover:bg-primary-lighter " +
             (currentPath === pathToLogin ? "text-white" : "text-primary") }>
-        Login
+        Entrar
       </Link>
-      <Link to={ pathToSignin } aria-label="signin-button" role="link"
+      <Link to={ pathToSignup } aria-label="signup-button" role="link"
           className={ "btn-r-md bg-primary-light hover:bg-primary-lighter " + 
-            (currentPath === pathToSignin ? "text-white" : "text-primary") }>
-        Sign-in
+            (currentPath === pathToSignup ? "text-white" : "text-primary") }>
+        Registar-se
       </Link>
     </>
   )

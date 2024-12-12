@@ -48,13 +48,13 @@ export default function EmulatorsView() {
 		<>
 			<div className='flex flex-col'>
 				<div className='mx-5 flex items-center justify-between text-white'>
-					<h2 className='font-rubik font-bold'>Lista de Jogos</h2>
+					<h2 className='font-rubik font-bold'>Lista de Emuladores</h2>
 					<div className='flex gap-x-2'>
 						<IconButton onClick={() => reload()}>
 							<IonIcon icon={reloadOutline} />
 						</IconButton>
 						<button className='btn-r-md bg-primary text-white hover:bg-primary-dark' onClick={addEmulator}>
-							<IonIcon icon={add} /> Novo Jogo
+							<IonIcon icon={add} /> Novo Emulador
 						</button>
 					</div>
 				</div>

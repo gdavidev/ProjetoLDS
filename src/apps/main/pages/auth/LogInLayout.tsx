@@ -1,5 +1,5 @@
 import React, { PropsWithRef, useCallback, useEffect, useLayoutEffect, useState } from 'react';
-import FormGroup from "@apps/shared/components/formComponents/FormGroup.tsx"
+import FormGroup from "@apps/shared/components/formComponents/FormGroup.tsx";
 import TextInput, { TextInputStyle } from "@apps/shared/components/formComponents/TextInput.tsx";
 import CurrentUser from "@models/CurrentUser.ts";
 import { Link } from "react-router-dom";
@@ -7,7 +7,7 @@ import PasswordResetEmailSentModal from "@apps/main/components/modal/PasswordRes
 import { AxiosError } from 'axios';
 import { Controller, useForm } from "react-hook-form";
 import { IonIcon } from "@ionic/react";
-import { mailOutline } from "ionicons/icons"
+import { mailOutline } from "ionicons/icons";
 import PasswordHiddenToggle from "@apps/main/components/PasswordHiddenToggle.tsx";
 import useAuth from "@/hooks/useAuth.ts";
 import useRequestErrorHandler from '@/hooks/useRequestErrorHandler.ts';
@@ -135,7 +135,7 @@ export default function LogInLayout(props: PropsWithRef<LogInLayoutProps>): Reac
           </button>
           <span className="flex gap-x-2">
             Não tem uma conta?
-            <Link to="/sign-in" className="underline hover:text-primary">
+            <Link to="/sign-up" className="underline hover:text-primary">
               Registrar-se
             </Link>
           </span>

@@ -10,7 +10,7 @@ export default function App() {
 	const currentPath: string = useLocation().pathname;
 	let backgroundClass: string;
 	switch (currentPath) {
-		case '/sign-in':
+		case '/sign-up':
 		case '/log-in':
 		case '/reset-password':
 			backgroundClass = ' bg-cover bg-login-page';

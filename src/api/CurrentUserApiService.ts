@@ -1,5 +1,5 @@
 import CurrentUser from "@models/CurrentUser";
-import * as DTO from '@models/data/UserDTOs';
+import * as DTO from '@models/data/CurrentUserDTOs.ts';
 import ApiService from './ApiService';
 
 export default class UserApiService {
@@ -14,7 +14,12 @@ export default class UserApiService {
   }
 
   public static async register(dto: DTO.UserRegisterDTO): Promise<string> {
-    const response = await ApiService.post(UserApiService.endpoints.register, dto);
+    const response =
+        await ApiService.post(
+          UserApiService.endpoints.register,
+          dto,
+          { headers: { 'Content-Type': 'multipart/form-data' } }
+        );
     return response.data;
   }
     
@@ -31,7 +36,7 @@ export default class UserApiService {
     await ApiService.post(
       UserApiService.endpoints.resetPassword,
       { password: dto.newPassword },
-      { headers:  { 'Authorization': 'Bearer ' + token }     
+      { headers:  { 'Authorization': 'Bearer ' + token }
     })
   }
 
@@ -39,6 +44,9 @@ export default class UserApiService {
     await ApiService.put(
       UserApiService.endpoints.put,
       dto,
-      { headers: { 'Authorization': 'Bearer ' + token } });
+      { headers: {
+        'Authorization': 'Bearer ' + token,
+        'Content-Type': 'multipart/form-data'
+      }});
   }
 }

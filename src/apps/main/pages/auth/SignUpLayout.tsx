@@ -15,12 +15,12 @@ import Thumbnail from '@models/utility/Thumbnail.ts';
 import userImageNotFound from '@/assets/media/user-image-not-found.webp'
 import Validation from '@libs/Validation.ts';
 
-type SignInLayoutProps = {
+type SignUpLayoutProps = {
   onSuccess?: () => void,
   onError?: (message: string) => void,
   onStateChanged?: (message: string) => void,
 }
-interface IUserSignInFormData {
+interface IUserSignUpFormData {
   email: string
   username: string
   password: string
@@ -28,10 +28,10 @@ interface IUserSignInFormData {
   profilePic: Thumbnail
 }
 
-export default function SignInLayout(props: PropsWithoutRef<SignInLayoutProps>): React.ReactElement {
+export default function SignUpLayout(props: PropsWithoutRef<SignUpLayoutProps>): React.ReactElement {
   const [ isPasswordHidden       , setIsPasswordHidden        ] = useState<boolean>(true);
   const [ isPasswordConfirmHidden, setIsPasswordConfirmHidden ] = useState<boolean>(true);
-  const { handleSubmit, watch, getValues, control, formState: { errors }, clearErrors } = useForm<IUserSignInFormData>({
+  const { handleSubmit, watch, getValues, control, formState: { errors }, clearErrors } = useForm<IUserSignUpFormData>({
     defaultValues: {
       email: '',
       username: '',
@@ -40,7 +40,7 @@ export default function SignInLayout(props: PropsWithoutRef<SignInLayoutProps>):
       profilePic: new Thumbnail({ url: userImageNotFound })
     },
   });
-  const fields: IUserSignInFormData = watch();
+  const fields: IUserSignUpFormData = watch();
 
   // ---- Initialization ----
   useLayoutEffect(() => {
@@ -61,7 +61,8 @@ export default function SignInLayout(props: PropsWithoutRef<SignInLayoutProps>):
       status: 400,
       userMessage: (resData: any): string => {
         if (resData["username"]) return 'Nome de usuário indisponível.';
-        if (resData["email"   ]) return 'Este email ja está em uso.';
+        if (resData["email"]) return 'Este email ja está em uso.';
+        if (resData['imagem_perfil']) return 'Arquivo de imagem enviado deve ser to tipo JPG ou PNG'
         return 'Erro desconhecido';
       }
     }],
@@ -69,7 +70,7 @@ export default function SignInLayout(props: PropsWithoutRef<SignInLayoutProps>):
   })
 
   // ---- API Executing ----
-  const submitForm = useCallback((data: IUserSignInFormData): void => {
+  const submitForm = useCallback((data: IUserSignUpFormData): void => {
     register({
       email: data.email,
       username: data.username,

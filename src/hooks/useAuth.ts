@@ -1,5 +1,5 @@
 import UserApiService from '@/api/CurrentUserApiService';
-import * as DTO from '@models/data/UserDTOs';
+import * as DTO from '@models/data/CurrentUserDTOs.ts';
 import { AxiosError } from 'axios';
 import { useCallback, useEffect, useState } from 'react';
 import { useMutation } from 'react-query';

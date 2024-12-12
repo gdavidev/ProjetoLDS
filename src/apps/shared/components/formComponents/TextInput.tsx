@@ -41,8 +41,7 @@ const RegularTextInput = forwardRef((props: TextInputProps, ref: React.Forwarded
 })
 
 const LabelLessTextInput = forwardRef((props: TextInputProps, ref: React.ForwardedRef<HTMLInputElement>) => {
-  const formatter: StringFormatter = new StringFormatter(props.name)
-  const formatedName: string = formatter.replaceAll(' ', '-').toLowerCase()
+  const formatedName: string = StringFormatter.replaceAll(props.name, ' ', '-').toLowerCase()
 
   const makeInputClassName = (): string => 
     (props.inputClassName ?? '')

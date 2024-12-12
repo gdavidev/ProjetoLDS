@@ -6,11 +6,14 @@ export default class FileUtil {
     })
   }
 
-  static fileToBase64(file: File): Promise<string> {
+  static fileToBase64(file: File, addPrefix?: boolean): Promise<string> {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = () => {
-        resolve(reader.result as string);
+        let result = reader.result as string;
+        if (!addPrefix) // Prefix is added by the reader
+          result = result.replace('data:image/jpeg;base64,', '')
+        resolve(result);
       };
       reader.onerror = () => {
         reject(new Error("Error reading file"));
@@ -43,8 +46,12 @@ export default class FileUtil {
   }
 
   static renamed(file: File, name: string) {
-    const fileExtension: string = file?.name.substring(file?.name.indexOf('.'), file?.name.length)!
-    return file = new File([file], name + fileExtension);
+    const extensionPointIndex: number = file.name.indexOf('.');
+    if (extensionPointIndex >= 0) {
+      const fileExtension: string | undefined = file.name.substring(extensionPointIndex, file.name.length)
+      return new File([file], name + fileExtension);
+    }
+    return new File([file], name);
   }
 
   static createFileList(file: File | File[]): FileList {

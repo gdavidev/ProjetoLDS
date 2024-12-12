@@ -34,7 +34,7 @@ export default class EmulatorApiService {
 
   public static async delete(emulator: Emulator, token: string): Promise<void> {
     await ApiService.delete(EmulatorApiService.endpoints.delete, {
-       params: emulator.toDeleteDTO(),
+       data: emulator.toDeleteDTO(),
        headers: { 'Authorization': "Bearer " + token }
       });
   }

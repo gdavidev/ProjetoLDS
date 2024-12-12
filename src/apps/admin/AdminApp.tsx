@@ -3,7 +3,7 @@ import SideMenu from "@apps/admin/components/layout/SideMenu"
 import { Suspense, useEffect } from 'react';
 import { CircularProgress } from "@mui/material";
 import useEmergencyExit from '@/hooks/useEmergencyExit.ts';
-import useCurrentUser from '@/hooks/useCurrentUser.ts';
+import useCurrentUser from '@/hooks/useCurrentUser';
 import { Role } from '@/hooks/usePermission.ts';
 
 export default function AdminApp() {

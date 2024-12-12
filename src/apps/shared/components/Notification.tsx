@@ -2,7 +2,7 @@ import { Alert, Snackbar } from '@mui/material';
 
 export type NotificationProps = {
 	severity: 'info' | 'warning' | 'success' | 'error',
-	message: string,
+	message: string | JSX.Element | JSX.Element[],
 	anchorOrigin?: {
 		vertical: 'top' | 'bottom',
 		horizontal: 'left' | 'right',

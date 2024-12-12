@@ -30,4 +30,12 @@ export default class Thumbnail {
       return this.fallbackUrl;
     return '';
   }
+
+  async getBase64(): Promise<string | null> {
+    if (this.base64 !== null)
+     return this.base64
+    else if (this.file !== null)
+      return await FileUtil.fileToBase64(this.file)
+    return null;
+  }
 }
