@@ -32,20 +32,20 @@ const router = createBrowserRouter([
         path: '/',
         element: <MainApp />,
         children: [
-            { handle: { title: 'Home'           }, path: '/',               element: <HomePage />                                   },
-            { handle: { title: 'Games'          }, path: '/games',          element: <GamesPage />                                  },
-            { handle: { title: 'Sign-in'        }, path: '/sign-in',        element: <AuthPage mode={AuthPageMode.REGISTER} />      },
-            { handle: { title: 'Login'          }, path: '/log-in',         element: <AuthPage mode={AuthPageMode.LOGIN} />         },
-            { handle: { title: 'Reset Password' }, path: '/reset-password', element: <AuthPage mode={AuthPageMode.RESET_PASSWORD} />},
-            { handle: { title: 'Profile'        }, path: '/profile',        element: <ProfilePage />                                },
-            { handle: { title: 'Game'           }, path: '/game/:gameId',   element: <GameViewPage />                               },
+            { handle: { title: 'Home'          }, path: '/',               element: <HomePage />                                   },
+            { handle: { title: 'Games'         }, path: '/games',          element: <GamesPage />                                  },
+            { handle: { title: 'Registro'      }, path: '/sign-up',        element: <AuthPage mode={AuthPageMode.SIGNUP} />        },
+            { handle: { title: 'Entrar'        }, path: '/log-in',         element: <AuthPage mode={AuthPageMode.LOGIN} />         },
+            { handle: { title: 'Alterar Senha' }, path: '/reset-password', element: <AuthPage mode={AuthPageMode.RESET_PASSWORD} />},
+            { handle: { title: 'Perfil'        }, path: '/profile',        element: <ProfilePage />                                },
+            { handle: { title: 'Game'          }, path: '/game/:gameId',   element: <GameViewPage />                               },
             {
               path: '/forum',
               element: <ForumPage />,
               children: [
-                { handle: { title: 'Feed'        }, path: '/forum/feed',         element: <FeedPage />   },
-                { handle: { title: 'Post'        }, path: '/forum/post/:postId', element: <PostPage />   },
-                { handle: { title: 'Create Post' }, path: '/forum/post/new',     element: <PostCreate /> },
+                { handle: { title: 'Feed'       }, path: '/forum/feed',         element: <FeedPage />   },
+                { handle: { title: 'Post'       }, path: '/forum/post/:postId', element: <PostPage />   },
+                { handle: { title: 'Criar Post' }, path: '/forum/post/new',     element: <PostCreate /> },
               ]},
           ]
       },
@@ -53,9 +53,9 @@ const router = createBrowserRouter([
         path: '/admin',
         element: <AdminApp />,
         children: [
-          { handle: { title: 'Games'     }, path: '/admin/view-games',     element: <GamesView />      },
-          { handle: { title: 'Emulators' }, path: '/admin/view-emulators', element: <EmulatorsView />  },
-          { handle: { title: 'Denúncias' }, path: '/admin/view-reports',   element: <ReportView />      },
+          { handle: { title: 'Games'      }, path: '/admin/view-games',     element: <GamesView />      },
+          { handle: { title: 'Emuladores' }, path: '/admin/view-emulators', element: <EmulatorsView />  },
+          { handle: { title: 'Denúncias'  }, path: '/admin/view-reports',   element: <ReportView />     },
         ]
       }
     ],

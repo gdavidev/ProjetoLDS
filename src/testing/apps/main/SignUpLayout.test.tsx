@@ -5,9 +5,9 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import { QueryService, QueryServiceProvider } from 'react-query';
 import { AlertInfo } from '@apps/main/pages/auth/AuthPage.tsx';
 import userEvent from '@testing-library/user-event'
-import SignInLayout from '@apps/main/pages/auth/SignInLayout.tsx';
+import SignUpLayout from '@apps/main/pages/auth/SignUpLayout.tsx';
 
-describe("SignInLayout", () => {
+describe("SignUpLayout", () => {
   const callbacks = {
     success: () => console.log('succ'),
     error: (_: AlertInfo) => console.log('err'),
@@ -18,7 +18,7 @@ describe("SignInLayout", () => {
   const mockedQueryService: QueryService = new QueryService();
   const mockedBrowserRouter = createBrowserRouter([{
     path: '/',
-    element: <SignInLayout onError={ callbacks.error } onSuccess={ callbacks.success } />
+    element: <SignUpLayout onError={ callbacks.error } onSuccess={ callbacks.success } />
   }]);
 
   let emailInput: HTMLElement

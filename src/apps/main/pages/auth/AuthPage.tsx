@@ -1,5 +1,5 @@
 import React, { PropsWithoutRef, useContext, useCallback, useEffect } from 'react';
-import SignInLayout from "@/apps/main/pages/auth/SignInLayout";
+import SignUpLayout from "@apps/main/pages/auth/SignUpLayout.tsx";
 import LogInLayout from "@/apps/main/pages/auth/LogInLayout";
 import logo from '/icons/logo.png'
 import CurrentUser from "@/models/CurrentUser";
@@ -11,7 +11,7 @@ import useNotification from '@/hooks/feedback/useNotification.tsx';
 
 export enum AuthPageMode {
   LOGIN,
-  REGISTER,
+  SIGNUP,
   RESET_PASSWORD,
 }
 export type AuthPageProps = {
@@ -50,8 +50,8 @@ export default function AuthPage(props: PropsWithoutRef<AuthPageProps>): React.R
         {
           [AuthPageMode.LOGIN]:
             <LogInLayout onError={ error } onSuccess={ loginUser } onStateChanged={ info } />,
-          [AuthPageMode.REGISTER]:
-            <SignInLayout onError={ error } onSuccess={ registeredSuccess } onStateChanged={ info } />,
+          [AuthPageMode.SIGNUP]:
+            <SignUpLayout onError={ error } onSuccess={ registeredSuccess } onStateChanged={ info } />,
           [AuthPageMode.RESET_PASSWORD]:
             <PasswordResetLayout onError={ error } onSuccess={ passwordResetSuccess } onStateChanged={ info } />,
         }[props.mode]

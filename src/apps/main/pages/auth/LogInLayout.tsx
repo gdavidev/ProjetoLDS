@@ -135,7 +135,7 @@ export default function LogInLayout(props: PropsWithRef<LogInLayoutProps>): Reac
           </button>
           <span className="flex gap-x-2">
             Não tem uma conta?
-            <Link to="/sign-in" className="underline hover:text-primary">
+            <Link to="/sign-up" className="underline hover:text-primary">
               Registrar-se
             </Link>
           </span>
