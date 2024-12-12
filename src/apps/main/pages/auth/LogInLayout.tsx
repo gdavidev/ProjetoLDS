@@ -65,9 +65,20 @@ export default function LogInLayout(props: PropsWithRef<LogInLayoutProps>): Reac
 
   // ---- API Executing ----
   const doLogin = useCallback((data: ILogInLayoutFormData) => {
+    const emailMessage: string = validateEmail(data.email);
+    const passwordMessage: string = validatePassword(data.password);
+    if (emailMessage)
+      return props.onError?.(emailMessage);
+    if (passwordMessage)
+      return props.onError?.(passwordMessage);
+
     login({ email: data.email, password: data.password })
   }, []);  
   const doSendEmailPasswordReset = useCallback((data: ILogInLayoutFormData) => {
+    const emailMessage: string | undefined = validateEmail(data.email);
+    if (emailMessage)
+      return props.onError?.(emailMessage)
+
     forgotPassword({ email: data.email })
   }, []);
  
@@ -85,18 +96,24 @@ export default function LogInLayout(props: PropsWithRef<LogInLayoutProps>): Reac
     props.onStateChanged?.('Email enviado.')
   }, []);
 
+  const validateEmail = useCallback((value: string) => {
+    if (!value) return "Por favor, insira seu email."
+    if (!Validation.isValidEmail(value)) return "O Email esta em um formato inválido"
+    return ''
+  }, []);
+
+  const validatePassword = useCallback((value: string) => {
+    if (!value) return "Por favor, insira sua senha."
+    return ''
+  }, [])
+
   return(
     <>
       <form className="flex flex-col gap-y-4 w-full mx-auto">
         <FormGroup>
           <Controller
               name="email"
-              control={control}
-              rules={{
-                required: "Por favor, insira seu email.",
-                validate: (value: string) =>
-                    Validation.isValidEmail(value) || "O Email esta em um formato inválido"
-              }}
+              control={ control }
               render={({field}) => (
                 <TextInput {...field}
                     name="Email"
@@ -106,8 +123,7 @@ export default function LogInLayout(props: PropsWithRef<LogInLayoutProps>): Reac
               )}/>
           <Controller
               name="password"
-              control={control}
-              rules={{ required: "Por favor, insira sua senha." }}
+              control={ control }
               render={({field}) => (
                 <TextInput {...field}
                     name="Senha"
@@ -141,8 +157,11 @@ export default function LogInLayout(props: PropsWithRef<LogInLayoutProps>): Reac
           </span>
         </div>
       </form>
-      <PasswordResetEmailSentModal onCloseRequest={ () => setIsPasswordResetModalOpen(false) }
-          email={ getValues('email') } isOpen={ isPasswordResetModalOpen } />
+      <PasswordResetEmailSentModal
+          onCloseRequest={ () => setIsPasswordResetModalOpen(false) }
+          email={ getValues('email') }
+          isOpen={ isPasswordResetModalOpen }
+      />
     </>
   );
 }
