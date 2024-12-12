@@ -46,8 +46,12 @@ export default class FileUtil {
   }
 
   static renamed(file: File, name: string) {
-    const fileExtension: string = file?.name.substring(file?.name.indexOf('.'), file?.name.length)!
-    return file = new File([file], name + fileExtension);
+    const extensionPointIndex: number = file.name.indexOf('.');
+    if (extensionPointIndex >= 0) {
+      const fileExtension: string | undefined = file.name.substring(extensionPointIndex, file.name.length)
+      return new File([file], name + fileExtension);
+    }
+    return new File([file], name);
   }
 
   static createFileList(file: File | File[]): FileList {
