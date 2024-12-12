@@ -1,5 +1,5 @@
 import React, { PropsWithRef, useCallback, useEffect, useLayoutEffect, useState } from 'react';
-import FormGroup from "@apps/shared/components/formComponents/FormGroup.tsx"
+import FormGroup from "@apps/shared/components/formComponents/FormGroup.tsx";
 import TextInput, { TextInputStyle } from "@apps/shared/components/formComponents/TextInput.tsx";
 import CurrentUser from "@models/CurrentUser.ts";
 import { Link } from "react-router-dom";
@@ -7,7 +7,7 @@ import PasswordResetEmailSentModal from "@apps/main/components/modal/PasswordRes
 import { AxiosError } from 'axios';
 import { Controller, useForm } from "react-hook-form";
 import { IonIcon } from "@ionic/react";
-import { mailOutline } from "ionicons/icons"
+import { mailOutline } from "ionicons/icons";
 import PasswordHiddenToggle from "@apps/main/components/PasswordHiddenToggle.tsx";
 import useAuth from "@/hooks/useAuth.ts";
 import useRequestErrorHandler from '@/hooks/useRequestErrorHandler.ts';

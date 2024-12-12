@@ -2,36 +2,46 @@ import '@testing-library/jest-dom/vitest'
 import { it, expect, describe, vi, suite } from 'vitest'
 import { render } from '@testing-library/react';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
-import { QueryService, QueryServiceProvider } from 'react-query';
-import { AlertInfo } from '@apps/main/pages/auth/AuthPage.tsx';
 import userEvent from '@testing-library/user-event'
 import SignUpLayout from '@apps/main/pages/auth/SignUpLayout.tsx';
+import useAuth from '@/hooks/useAuth.ts';
+
+vi.mock("@/hooks/useAuth.ts");
 
 describe("SignUpLayout", () => {
-  const callbacks = {
-    success: () => console.log('succ'),
-    error: (_: AlertInfo) => console.log('err'),
-    stateChanged: (_: AlertInfo) => console.log('stat'),
-  }
-  const errorCallbackSpy = vi.spyOn(callbacks, 'error')
-  const successCallbackSpy = vi.spyOn(callbacks, 'success')
-  const mockedQueryService: QueryService = new QueryService();
-  const mockedBrowserRouter = createBrowserRouter([{
-    path: '/',
-    element: <SignUpLayout onError={ callbacks.error } onSuccess={ callbacks.success } />
-  }]);
+  const mockRegister = vi.fn();
+  const mockReset = vi.fn();
+  beforeEach(() => {
+    vi.resetAllMocks();
+
+    vi.mocked(useAuth).mockReturnValue({
+      login: vi.fn(),
+      register: mockRegister,
+      forgotPassword: vi.fn(),
+      passwordReset: vi.fn(),
+      update: vi.fn(),
+      reset: mockReset,
+      isLoading: false
+    })
+  });
 
   let emailInput: HTMLElement
   let userNameInput: HTMLElement
   let passInput: HTMLElement
   let confirmPassInput: HTMLElement
   let submitButton: HTMLElement
+  const mockSuccess = vi.fn();
+  const mockError = vi.fn();
+  const mockStateChanged = vi.fn();
   beforeEach(() => {
+    const mockedBrowserRouter = createBrowserRouter([{
+      path: '/',
+      element: <SignUpLayout onError={ mockError } onSuccess={ mockSuccess } onStateChanged={ mockStateChanged } />
+    }]);
     const { getByRole } = render(
-      <QueryServiceProvider Service={ mockedQueryService }>
-        <RouterProvider router={ mockedBrowserRouter } />
-      </QueryServiceProvider>
+      <RouterProvider router={ mockedBrowserRouter } />
     );
+
     emailInput = getByRole('textbox', { name: /email/i });
     userNameInput = getByRole('textbox', { name: /nome/i })
     passInput = getByRole('textbox', { name: /^senha$/i });
@@ -47,39 +57,54 @@ describe("SignUpLayout", () => {
     expect(submitButton).toBeInTheDocument();
   });
 
-  suite("Correct error messages", () => {
+  suite("Success cases", () => {
+    beforeEach(async () => {
+      await userEvent.type(emailInput, 'gabriel@gmail.com');
+      await userEvent.type(passInput, 'Abc@1234');
+      await userEvent.type(confirmPassInput, 'Abc@1234');
+      await userEvent.type(userNameInput, 'UserName');
+    });
+
+    it('Should call register', async () => {
+      await userEvent.click(submitButton);
+      expect(mockRegister).toHaveBeenCalledTimes(1);
+    });
+  })
+
+  suite("Error cases", () => {
     afterEach(async () => {
       await userEvent.click(submitButton);
 
-      expect(errorCallbackSpy).toHaveBeenCalled();
-      expect(successCallbackSpy).not.toHaveBeenCalled();
+      expect(mockError).toHaveBeenCalledTimes(1);
+      expect(mockSuccess).not.toHaveBeenCalled();
+      expect(mockStateChanged).not.toHaveBeenCalled();
     });
 
-    it("Missing email message", async () => {
+    it("Trigger error when missing email", async () => {
       await userEvent.type(passInput, '123456789');
       await userEvent.type(confirmPassInput, '123456789');
       await userEvent.type(userNameInput, 'Nome Usuário');
     })
 
-    it("Missing password message", async () => {
+    it("Trigger error when missing password", async () => {
       await userEvent.type(emailInput, 'gabriel@gmail.com');
       await userEvent.type(confirmPassInput, '123456789');
       await userEvent.type(userNameInput, 'Nome Usuário');
     });
 
-    it("Missing password confimation message", async () => {
+    it("Trigger error when missing password confirmation", async () => {
       await userEvent.type(emailInput, 'gabriel@gmail.com');
       await userEvent.type(passInput, '123456789');
       await userEvent.type(userNameInput, 'Nome Usuário');
     });
 
-    it("Missing user name", async () => {
+    it("Trigger error when missing user name", async () => {
       await userEvent.type(emailInput, 'gabriel@gmail.com');
       await userEvent.type(passInput, '123456789');
       await userEvent.type(confirmPassInput, '123456789');
     });
 
-    it("Passwords doesn't match message", async () => {
+    it("Trigger error when Passwords doesn't match", async () => {
       await userEvent.type(emailInput, 'gabriel@gmail.com');
       await userEvent.type(passInput, '123456789');
       await userEvent.type(confirmPassInput, '987654321');
