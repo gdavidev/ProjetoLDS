@@ -221,9 +221,12 @@ export default function GameEditModal(props: GameEditModalProps) {
               ) }/>
           </div>
         </div>
-        <input value="Confirmar" type="submit"
-            className={ "btn-r-md mx-auto w-60 mt-3 bg-primary text-white" + (storeIsLoading ? " disabled" : "") }            
-            disabled={ storeIsLoading } />
+        <input
+            value="Confirmar"
+            type="submit"
+            className='btn-primary mx-auto w-60 mt-3'
+            disabled={ storeIsLoading }
+        />
       </form>      
     </ModalPopup>
   );

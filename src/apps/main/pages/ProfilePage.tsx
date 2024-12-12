@@ -224,7 +224,7 @@ export default function ProfilePage() {
           </div>
         </FormControl>
         <div className='w-full flex justify-end'>
-          <button className='btn-r-md bg-primary' type='submit'>Atualizar</button>
+          <button className='btn-primary' type='submit'>Atualizar</button>
         </div>
       </div>
       { alertElement }

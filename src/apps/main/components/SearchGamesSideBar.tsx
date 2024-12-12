@@ -34,7 +34,7 @@ export default function SearchGamesSideBar() {
           ) }
         </AccordionDetails>
       </AccordionStyled>
-      <button className='btn-r-md bg-primary text-white gap-x-2 mt-2 self-end'>
+      <button className='btn-primary gap-x-2 mt-2 self-end'>
         <IonIcon style={{color: 'white'}} icon={ filterOutline } />
         Filtrar
       </button>

@@ -73,7 +73,8 @@ export default function GamesView() {
             >
               <IonIcon style={{color: 'white'}} icon={ reloadOutline } />
             </IconButton>
-            <button className='btn-r-md bg-primary hover:bg-primary-dark text-white'
+            <button
+                className='btn-primary'
                 onClick={ addGame }>
               <IonIcon icon={ add } /> Novo Jogo
             </button>

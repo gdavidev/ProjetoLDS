@@ -62,7 +62,7 @@ export default function ReportContentModal(props: ReportContentModalProps) {
 							)} />
 					<button
 							type='submit'
-							className='btn-r-md text-white bg-primary'
+							className='btn-primary'
 							onClick={ props.onCloseRequest }
 					>
 						Enviar

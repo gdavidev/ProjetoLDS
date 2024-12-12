@@ -53,7 +53,7 @@ export default function EmulatorsView() {
 						<IconButton onClick={() => reload()}>
 							<IonIcon icon={reloadOutline} />
 						</IconButton>
-						<button className='btn-r-md bg-primary text-white hover:bg-primary-dark' onClick={addEmulator}>
+						<button className='btn-primary' onClick={addEmulator}>
 							<IonIcon icon={add} /> Novo Emulador
 						</button>
 					</div>

@@ -110,12 +110,12 @@ function LoginSignupButtons() {
     <>
       <Link to={ pathToLogin } aria-label="login-button" role="link"
           className={ "btn-r-md bg-primary-light hover:bg-primary-lighter " +
-            (currentPath === pathToLogin ? "text-white" : "text-primary") }>
+            (currentPath === pathToLogin ? "text-white" : "text-primary-dark") }>
         Entrar
       </Link>
       <Link to={ pathToSignup } aria-label="signup-button" role="link"
           className={ "btn-r-md bg-primary-light hover:bg-primary-lighter " + 
-            (currentPath === pathToSignup ? "text-white" : "text-primary") }>
+            (currentPath === pathToSignup ? "text-white" : "text-primary-dark") }>
         Registar-se
       </Link>
     </>

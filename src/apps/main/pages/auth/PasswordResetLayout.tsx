@@ -97,7 +97,7 @@ export default function PasswordResetLayout(props: PasswordResetLayoutProps) {
         )}/>
       </FormGroup>
 
-      <button className="btn-r-md bg-primary hover:bg-primary-dark shadow-md shadow-slate-950">
+      <button className="btn-primary">
         Confirmar
       </button>
     </form>

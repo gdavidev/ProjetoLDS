@@ -107,10 +107,10 @@ export default function CommentRow(props: CommentRowProps) {
 										<div className='flex gap-x-2'>
 											<button
 													onClick={ () => setIsAnswerInputOpen(false) }
-													className="btn-r-md bg-secondary text-white">
+													className="btn-secondary">
 												Cancelar
 											</button>
-											<button className="btn-r-md bg-primary text-white">
+											<button className="btn-primary">
 												Enviar
 											</button>
 										</div>

@@ -212,7 +212,7 @@ export default function PostPage() {
                     labelClassName='hidden'
                     className={ (errors.comment ? ' bg-red-100 border-red-500' : ' bg-slate-200') } />
             )} />
-        <button type='submit' className='btn-r-md h-10 bg-primary text-white'>
+        <button type='submit' className='btn-primary h-10'>
           Enviar
         </button>
       </form>
