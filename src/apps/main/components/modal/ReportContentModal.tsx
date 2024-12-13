@@ -17,7 +17,7 @@ type ReportContentModalFormData = {
 }
 
 export default function ReportContentModal(props: ReportContentModalProps) {
-	const { user } = useCurrentUser();
+	const { user, askToLogin } = useCurrentUser();
 	const { notifySuccess, notifyError } = useNotification();
 	const { handleSubmit, control } = useForm<ReportContentModalFormData>({
 		defaultValues: {
@@ -25,7 +25,7 @@ export default function ReportContentModal(props: ReportContentModalProps) {
 		}
 	});
 
-	const { mutate: sendReport } = useSendReport(user?.token!, {
+	const { sendReport } = useSendReport(user?.token!, {
 		onSuccess: () => {
 			notifySuccess('Denúncia enviada com sucesso.')
 			props.onCloseRequest?.()
@@ -34,22 +34,29 @@ export default function ReportContentModal(props: ReportContentModalProps) {
 	});
 
 	const submitForm = useCallback((data: ReportContentModalFormData) => {
-		sendReport({
-			reported_by: user!.id,
-			content_type: Report.serializeContentType(props.contentType),
-			content_id: props.contentId,
-			reason: data.reportText,
-		})
-	}, [])
+		if (!user) {
+			props.onCloseRequest?.();
+			return askToLogin('Para criar denuncias é preciso esta logado.')
+		}
+
+		sendReport(new Report(
+				props.contentId,
+				props.contentType,
+				user.id,
+				data.reportText,
+		));
+	}, [user])
 
 	return (
 			<ModalPopup
 					isOpen={ props.isOpen }
-					title="Recuperação de Senha"
+					title="Reportar Conteúdo"
 					onCloseRequest={ props.onCloseRequest }
-					className='bg-layout-background'
-			>
-				<form onSubmit={ handleSubmit(submitForm) }>
+					className='bg-layout-background'>
+				<form
+						onSubmit={ handleSubmit(submitForm) }
+						className='flex flex-col gap-4 justify-end'
+				>
 					<Controller
 							name="reportText"
 							control={control}
@@ -58,13 +65,13 @@ export default function ReportContentModal(props: ReportContentModalProps) {
 											{...field}
 											name='reportText'
 											labelClassName='hidden'
+											className='min-h-48 w-96 bg-slate-200'
 									/>
 							)} />
 					<button
 							type='submit'
 							className='btn-primary'
-							onClick={ props.onCloseRequest }
-					>
+							onClick={ props.onCloseRequest }>
 						Enviar
 					</button>
 				</form>
