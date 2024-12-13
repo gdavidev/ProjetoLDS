@@ -5,7 +5,7 @@ import ApiService from "./ApiService";
 export default class PostApiService {
   private static readonly endpoints = {
     get: 'api/topicos/list/',
-    detail: 'api/topicos/details/',
+    detail: 'api/topicos/detail/',
     post: 'api/topicos/create/',
     put: 'api/topicos/update/',
     delete: 'api/topicos/delete/',
@@ -19,7 +19,7 @@ export default class PostApiService {
 
   static async get(id: number): Promise<Post> {
     const res =
-        await ApiService.get<DTO.PostGetResponseDTO>(PostApiService.endpoints.detail, { data: {id: id} });
+        await ApiService.get<DTO.PostGetResponseDTO>(PostApiService.endpoints.detail, { params: {topico_id: id} });
     return Post.fromGetDTO(res.data);
   }  
   
@@ -27,7 +27,7 @@ export default class PostApiService {
     await ApiService.delete(
       PostApiService.endpoints.delete,
       {
-        data: { id: post.id },
+        data: { topico_id: post.id },
         headers: { 'Authorization': 'Bearer ' + token }
       }
     );
@@ -37,7 +37,10 @@ export default class PostApiService {
     const res = await ApiService.post<DTO.PostGetResponseDTO>(
       PostApiService.endpoints.post,
       dto,
-      { headers: { 'Authorization': 'Bearer ' + token } }
+      { headers: {
+        'Authorization': 'Bearer ' + token,
+        'Content-Type': 'multipart/form-data'
+      }}
     );
     return res.data
   }
@@ -46,7 +49,10 @@ export default class PostApiService {
     const res = await ApiService.put<DTO.PostGetResponseDTO>(
       PostApiService.endpoints.put,
       dto,
-      { headers: { 'Authorization': 'Bearer ' + token } }
+      { headers: {
+        'Authorization': 'Bearer ' + token,
+        'Content-Type': 'multipart/form-data'
+      }}
     );
     return res.data
   }

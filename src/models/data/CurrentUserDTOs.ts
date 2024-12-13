@@ -1,19 +1,19 @@
 /* REGISTER */
-export type UserRegisterDTO = {
+export type CurrentUserRegisterDTO = {
   username: string,
 	email: string,
 	password: string,
 	imagem_perfil?: File | undefined,
 }
-export type UserRegisterResponseDTO = {
+export type CurrentUserRegisterResponseDTO = {
 }
 
 /* LOGIN */
-export type UserLoginDTO = {
+export type CurrentUserLoginDTO = {
   email: string,
 	password: string,
 }
-export type UserLoginResponseDTO = {
+export type CurrentUserLoginResponseDTO = {
   token: string
 	user: {
 		id: number,
@@ -27,27 +27,27 @@ export type UserLoginResponseDTO = {
 }
 
 /* RESET PASSWORD */
-export type UserResetPasswordDTO = {
+export type CurrentUserResetPasswordDTO = {
 	newPassword: string
 }
-export type UserResetPasswordResponseDTO = {
+export type CurrentUserResetPasswordResponseDTO = {
 }
 
 /* FORGOT PASSWORD */
-export type UserForgotPasswordDTO = {
+export type CurrentUserForgotPasswordDTO = {
 	email: string
 }
-export type UserForgotPasswordResponseDTO = {
+export type CurrentUserForgotPasswordResponseDTO = {
 }
 
 /* UPDATE */
-export type UserUpdateDTO = {
+export type CurrentUserUpdateDTO = {
 	username?: string,
 	email?: string,
 	password?: string,
 	imagem_perfil?: File | undefined,
 }
-export type UserUpdateResponseDTO = {
+export type CurrentUserUpdateResponseDTO = {
 	username: string,
 	email: string,
 	password: string,

@@ -27,7 +27,7 @@ export default function ForumSidebar() {
 					</h2>
 				</Link>
 				<button
-						className='btn-r-md bg-primary text-white'
+						className='btn-primary'
 						onClick={ handleNavigateToPostCreate }>
 					<IonIcon icon={ add } />
 					Novo Post

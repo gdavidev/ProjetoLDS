@@ -13,7 +13,7 @@ export default class UserApiService {
     delete: 'api/users/delete/',
   }
 
-  public static async register(dto: DTO.UserRegisterDTO): Promise<string> {
+  public static async register(dto: DTO.CurrentUserRegisterDTO): Promise<string> {
     const response =
         await ApiService.post(
           UserApiService.endpoints.register,
@@ -23,16 +23,16 @@ export default class UserApiService {
     return response.data;
   }
     
-  public static async login(dto: DTO.UserLoginDTO): Promise<CurrentUser> {
+  public static async login(dto: DTO.CurrentUserLoginDTO): Promise<CurrentUser> {
     const response = await ApiService.post(UserApiService.endpoints.login, dto);
     return CurrentUser.fromLoginResponseDTO(response.data);
   }
 
-  public static async forgotPassword(dto: DTO.UserForgotPasswordDTO): Promise<void> {    
+  public static async forgotPassword(dto: DTO.CurrentUserForgotPasswordDTO): Promise<void> {
     await ApiService.post(UserApiService.endpoints.forgotPassword, dto);
   }
 
-  public static async resetPassword(dto: DTO.UserResetPasswordDTO, token: string) {
+  public static async resetPassword(dto: DTO.CurrentUserResetPasswordDTO, token: string) {
     await ApiService.post(
       UserApiService.endpoints.resetPassword,
       { password: dto.newPassword },
@@ -40,7 +40,7 @@ export default class UserApiService {
     })
   }
 
-  public static async update(dto: DTO.UserUpdateDTO, token: string): Promise<void> {
+  public static async update(dto: DTO.CurrentUserUpdateDTO, token: string): Promise<void> {
     await ApiService.put(
       UserApiService.endpoints.put,
       dto,

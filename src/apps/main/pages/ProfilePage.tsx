@@ -4,7 +4,7 @@ import { FormControl } from '@mui/material';
 import Chip from '@mui/material/Chip';
 import { useCallback, useEffect, useState } from 'react';
 import { AxiosError } from 'axios'
-import { UserUpdateDTO } from '@models/data/CurrentUserDTOs.ts';
+import { CurrentUserUpdateDTO } from '@models/data/CurrentUserDTOs.ts';
 import Validation from '@/libs/Validation';
 import useCurrentUser from '@/hooks/useCurrentUser';
 import useAuth from '@/hooks/useAuth';
@@ -68,9 +68,9 @@ export default function ProfilePage() {
 
   // ---- API Calls Setup ----
   const { update } = useAuth({
-    onSuccess: (_, dto: UserUpdateDTO) => updateCurrentUser(dto),
+    onSuccess: (_, dto: CurrentUserUpdateDTO) => updateCurrentUser(dto),
     onError: (err: AxiosError | Error) => handleRequestError(err),
-    onIsLoading: () => info("Enviando...")
+    onIsLoading: () => info("Enviando..."),
   });
 
   // ---- API Calls Error Handling ----
@@ -78,9 +78,9 @@ export default function ProfilePage() {
     mappings: [{
         status: 400,
         userMessage: (resData: any) =>
-            resData['imagem_perfil'] !== undefined ?
-              'Arquivo de imagem enviado deve ser to tipo JPG ou PNG' :
-              'Usuário ou senha incorretos.'
+            resData['imagem_perfil'] ?
+                'Arquivo de imagem enviado deve ser to tipo JPG ou PNG' :
+                'Por favor tente novamente mais tarde.'
       }, {
         status: 401,
         userMessage: 'Por favor faça o login novamente',
@@ -90,7 +90,7 @@ export default function ProfilePage() {
         }
       }, {
         status: 'default',
-        userMessage: "Por favor tente novamente mais tarde.",
+        userMessage: 'Por favor tente novamente mais tarde.',
         onError: (message: string) => error(message)
     }]
   });
@@ -107,7 +107,7 @@ export default function ProfilePage() {
   }
 
   // ---- Updating Session ----
-  const updateCurrentUser = useCallback(async (dto: UserUpdateDTO) => {
+  const updateCurrentUser = useCallback(async (dto: CurrentUserUpdateDTO) => {
     if (!user)
       return exit('/', 'Por favor faça o login novamente')
 
@@ -156,6 +156,7 @@ export default function ProfilePage() {
         <Controller
           name="username"
           control={ control }
+          rules={{ required: 'Nome de usuário não pode ser vázio.' }}
           render={ ({field}) => (
             <TextInput {...field}
               name="Nome de Usuário"
@@ -166,6 +167,7 @@ export default function ProfilePage() {
         <Controller
           name="email"
           control={ control }
+          rules={{ required: 'Email não pode ser vázio.' }}
           render={ ({field}) => (
             <TextInput {...field}
               name="Email"
@@ -174,14 +176,14 @@ export default function ProfilePage() {
               endDecoration={ <IonIcon icon={mailOutline} /> } />
         ) }/>
 
-        <div className='xl:flex md:block gap-3 w-full'>
+        <div className='xl:flex flex-col md:flex-row gap-3 w-full'>
           <Controller
             name="password"
             control={ control }
             rules={{
               validate: (value: string) => {
                 if (value !== '')
-                  return !Validation.isValidPassword(value) || "Senha inválida"
+                  return Validation.isValidPassword(value) || "Senha inválida"
               }
             }}
             render={ ({field}) => (
@@ -201,7 +203,7 @@ export default function ProfilePage() {
             rules={{
               validate: (value: string) => {
                 if (getValues('password') !== '')
-                  return (getValues('password') !== value) || "As senhas não são iguais"
+                  return (getValues('password') === value) || "As senhas não são iguais"
               }
             }}
             render={ ({field}) => (
@@ -224,7 +226,7 @@ export default function ProfilePage() {
           </div>
         </FormControl>
         <div className='w-full flex justify-end'>
-          <button className='btn-r-md bg-primary' type='submit'>Atualizar</button>
+          <button className='btn-primary' type='submit'>Atualizar</button>
         </div>
       </div>
       { alertElement }

@@ -130,12 +130,9 @@ export default function ReportResolveModal(props: ReportResolveModalProps) {
 						props.report?.status === ReportStatus.PENDING &&
 							<input
 									type='submit'
-									disabled={isResolveReportLoading}
+									disabled={ isResolveReportLoading }
 									value='Confirmar'
-									className={
-										'btn-r-md mt-4 w-full bg-primary text-white'
-										+ (isResolveReportLoading ? ' disabled' : '')
-									}
+									className='btn-primary mt-4 w-full'
 							/>
 					}
 				</form>

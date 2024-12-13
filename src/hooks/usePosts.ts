@@ -55,3 +55,16 @@ export function useUpdatePost(token: string, options: UsePostsOptions<Post>) {
       );
   return { updatePost, isUpdatePostLoading, ...rest };
 }
+
+export function useDeletePost(token: string, options: UsePostsOptions<void>) {
+  const sendDeletePost = useCallback(async (post: Post) => {
+    return PostApiService.delete(post, token);
+  }, []);
+
+  const { mutate: deletePost, isLoading: isDeletePostLoading, ...rest } =
+      useMutation('DELETE_POST',
+          sendDeletePost,
+          {...options}
+      );
+  return { deletePost, isDeletePostLoading, ...rest };
+}

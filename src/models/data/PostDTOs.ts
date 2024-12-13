@@ -7,18 +7,6 @@ export type PostCreateDTO = {
   tags: string[],
   img_topico?: File
 }
-export type PostCreateResponseDTO = {
-  id: number,
-  titulo: string,
-  img_topico: string,
-  descricao: string,
-  id_categoria: number,
-  id_user: number,
-  tags: string[],
-  created_at: number,
-  updated_at: number,
-  has_liked: boolean,
-}
 
 /* UPDATE */
 export type PostUpdateDTO = {
@@ -29,24 +17,11 @@ export type PostUpdateDTO = {
   tags?: string[],
   img_topico?: File
 }
-export type PostUpdateResponseDTO = {
-  id: number,
-  titulo: string,
-  img_topico: string,
-  descricao: string,
-  id_categoria: number,
-  id_user: number,
-  tags: string[],
-  created_at: number,
-  updated_at: number,
-  has_liked: boolean,
-}
 
 /* DELETE */
 export type PostDeleteDTO = {
   topico_id: number
 }
-export type PostDeleteResponseDTO = {}
 
 /* GET */
 export type PostGetDTO = {  
@@ -54,14 +29,27 @@ export type PostGetDTO = {
   id_usuario: string,
 }
 export type PostGetResponseDTO = {
-  id: number,
-  titulo: string,
-  img_topico: string,
-  descricao: string,
-  id_categoria: number,
-  id_user: number,
-  tags: string[],
-  created_at: number,
-  updated_at: number,
-  has_liked: boolean,
+  categoria: {
+    id: 1,
+    nome: string;
+  }
+  comentarios: number;
+  created_at: Date;
+  descricao: string;
+  has_liked: boolean;
+  id: 1;
+  img_topico64: string;
+  likes: number;
+  tags: string[] | null;
+  titulo: string;
+  updated_at: Date;
+  user: {
+    admin: boolean;
+    email: string;
+    id: 1;
+    img_perfil: string;
+    is_active: boolean;
+    is_banned: boolean;
+    username: string;
+  }
 }

@@ -105,9 +105,9 @@ export default function EmulatorEditModal(props: EmulatorEditModalProps) {
 				</div>
 				<input
 					type='submit'
-					disabled={isSendingEmulator}
+					disabled={ isSendingEmulator }
 					value='Confirmar'
-					className={'btn-r-md mt-4 w-full bg-primary text-white' + (isSendingEmulator ? ' disabled' : '')}
+					className='btn-primary mt-4 w-full'
 				/>
 			</form>
 		</ModalPopup>

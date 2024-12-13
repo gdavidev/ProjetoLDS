@@ -14,6 +14,8 @@ export default class Post {
   updatedDate: Date;
   image: Thumbnail | null;
   hasLiked: boolean;
+  likeCount: number;
+  commentCount: number;
 
   constructor(
       title: string,
@@ -31,6 +33,8 @@ export default class Post {
       image: Thumbnail | null,
       id: number,
       hasLiked: boolean,
+      likeCount: number,
+      commentCount: number,
       createdDate: Date,
       updatedDate: Date)
   constructor(
@@ -42,31 +46,37 @@ export default class Post {
       image: Thumbnail | null = null,
       id: number = 0,
       hasLiked: boolean = false,
+      likeCount: number = 0,
+      commentCount: number = 0,
       createdDate: Date = new Date(0),
       updatedDate: Date = new Date(0))
   {
-    this.title       = title;
-    this.owner       = owner;
-    this.category    = category;
-    this.content     = content;
-    this.tags        = tags;
-    this.image       = image;
-    this.id          = id;
-    this.hasLiked    = hasLiked;
-    this.createdDate = createdDate;
-    this.updatedDate = updatedDate;
+    this.title        = title;
+    this.owner        = owner;
+    this.category     = category;
+    this.content      = content;
+    this.tags         = tags;
+    this.image        = image;
+    this.id           = id;
+    this.hasLiked     = hasLiked;
+    this.likeCount    = likeCount;
+    this.commentCount = commentCount;
+    this.createdDate  = createdDate;
+    this.updatedDate  = updatedDate;
   }
 
   static fromGetDTO(dto: DTO.PostGetResponseDTO): Post {
     return new Post(
       dto.titulo,
-      new User(dto.id_user, dto.nome_user),
-      new Category(dto.id_categoria, dto.nome_categoria),
+      new User(dto.user.id, dto.user.username, new Thumbnail({ base64: dto.user.img_perfil })),
+      new Category(dto.categoria.id, dto.categoria.nome),
       dto.descricao,
-      dto.tags,
-      new Thumbnail({ base64: dto.img_topico }),
+      dto.tags ?? [],
+      new Thumbnail({ base64: dto.img_topico64 }),
       dto.id,
       dto.has_liked,
+      dto.likes,
+      dto.comentarios,
       new Date(dto.created_at),
       new Date(dto.updated_at),
     )

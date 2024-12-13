@@ -1,38 +1,26 @@
 import Post from "@/models/Post"
 import { Link } from 'react-router-dom';
-import LikeButton from '@apps/main/components/LikeButton.tsx';
-import { useCallback, useState } from 'react';
-import { useLikePost } from '@/hooks/useLikePost.ts';
+import { useCallback } from 'react';
 import useCurrentUser from '@/hooks/useCurrentUser';
 import DateFormatter from '@libs/DateFormatter.ts';
-import usePosts from '@/hooks/usePosts.ts';
-import useRequestErrorHandler from '@/hooks/useRequestErrorHandler.ts';
-import useNotification from '@/hooks/feedback/useNotification.tsx';
-import { AxiosError } from 'axios';
-import Loading from '@shared/components/Loading.tsx';
+import { ReportContentType } from '@models/Report.ts';
+import PostActionBar from '@apps/main/components/PostActionBar.tsx';
 
 type PostRowProps = {
 	post: Post
+	onReportClick: (contentType: ReportContentType, contentId: number) => void
+	onLikeClick: (newState: boolean, post: Post) => void
+	onAnswerClick: (targetPostId: number) => void
+	onBanClick: (userId: number) => void
+	onExcludeClick: (post: Post) => void
 }
 
 export default function PostRow(props: PostRowProps) {
-	const { user, askToLogin } = useCurrentUser();
-	const [ isLiked, setLiked ] = useState<boolean>(props.post.hasLiked);
-	const { mutate: toggleLike } = useLikePost({
-		onError: () => setLiked(props.post.hasLiked)
-	});
+	const { user } = useCurrentUser();
 
-	const handleToggleLike = useCallback(() => {
-		if (!user)
-			return askToLogin('É preciso estar logado para curtir posts.')
-
-		toggleLike({
-			currentState: isLiked,
-			postId: props.post.id,
-			token: user!.token,
-		});
-		setLiked(li => !li)
-	}, [isLiked, props.post])
+	const handleLike = useCallback(() => {
+		props.onLikeClick(!props.post.hasLiked, props.post)
+	}, [props.post]);
 
 	return (
 			<div className="flex gap-x-4 items-start grow">
@@ -52,6 +40,20 @@ export default function PostRow(props: PostRowProps) {
 						<h3 className="line-clamp-1 underline font-bold text-lg">{props.post.title}</h3>
 					</Link>
 					<p className="line-clamp-2">{props.post.content}</p>
+
+					<PostActionBar
+							className='mt-8'
+							userIsPostOwner={ user?.id === props.post.owner.id }
+							user={ user }
+							isLiked={ props.post.hasLiked }
+							likeCount={ props.post.likeCount }
+							commentCount={ props.post.commentCount }
+							onLikeClick={ handleLike }
+							onAnswerClick={ () => props.onAnswerClick(props.post.id) }
+							onReportClick={ () => props.onReportClick(ReportContentType.POST, props.post.id) }
+							onBanClick={ () => props.onBanClick(props.post.owner.id) }
+							onExcludeClick={ () => props.onExcludeClick(props.post) }
+					/>
 				</div>
 				{
 						props.post.image &&
@@ -62,12 +64,6 @@ export default function PostRow(props: PostRowProps) {
 									alt={ props.post.title } />
 							</div>
 				}
-
-				<LikeButton
-						className='self-center'
-						onClick={handleToggleLike}
-						checked={isLiked}
-				/>
 			</div>
 	)
 }

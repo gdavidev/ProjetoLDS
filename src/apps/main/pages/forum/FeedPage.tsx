@@ -7,28 +7,25 @@ import { AxiosError } from 'axios';
 import useRequestErrorHandler from '@/hooks/useRequestErrorHandler.ts';
 import Post from '@models/Post.ts';
 import { useState } from 'react';
-import User from '@models/User.ts';
-import Thumbnail from '@models/utility/Thumbnail.ts';
 
 export default function FeedPage() {
-  const [ postsByCategory, setPostsByCategory] =
-      useState<{ category: Category, posts: Post[] }[] | null>(mockPostContainer);
+  const [ postsByCategory, setPostsByCategory ] = useState<{ category: Category, posts: Post[] }[] | null>(null);
   const { exit } = useEmergencyExit();
 
-  // const { isPostsLoading } = usePosts({
-  //   onSuccess: (posts: Post[]) => {
-  //     setPostsByCategory(getPostsByCategoryArray(posts));
-  //   },
-  //   onError: (err: AxiosError | Error) => handleRequestError(err)
-  // })
+  const { isPostsLoading } = usePosts({
+    onSuccess: (posts: Post[]) => {
+      setPostsByCategory(getPostsByCategoryArray(posts));
+    },
+    onError: (err: AxiosError | Error) => handleRequestError(err)
+  })
 
   const { handleRequestError } = useRequestErrorHandler({
     mappings: [{ status: 'default', userMessage: "Por favor tente novamente mais tarde." }],
     onError: (message: string) => exit('/', message)
   });
 
-  // if (isPostsLoading || !postsByCategory)
-  //   return <Loading />
+  if (isPostsLoading || !postsByCategory)
+    return <Loading />
   return(
       <div className="flex flex-col gap-y-16">
         { postsByCategory &&
@@ -70,38 +67,3 @@ function getPostsByCategoryArray(posts: Post[]): { category: Category, posts: Po
 
   return postsByCategory;
 }
-
-const mockPostContainer: { category: Category, posts: Post[] }[] = [
-  {
-    category: new Category(8, 'Emuladores'),
-    posts: Array(3).fill(
-      new Post(
-          'Postname',
-          new User(0, 'Name usuer'),
-          new Category(8, 'Emuladores'),
-          'lorem inpsumaaaaaaaaaaaaaaaaa sdad wwasaw as daw dasd aw sad as dwad asd awd asd aw dasd aws daw asd asd awd asdasdsdsada wda s dsadsad a dwasdsadas awd asdsad wad',
-          ['item', 'hardware', 'emulador'],
-          new Thumbnail({ url: '/backgrounds/login-page.png' }),
-          0,
-          false,
-          new Date(Date.now() + 30 * 60 * 60 * 1000),
-          new Date(Date.now() + 40 * 60 * 60 * 1000),
-      ))
-  },
-  {
-    category: new Category(8, 'Suporte'),
-    posts: Array(6).fill(
-        new Post(
-            'Postname',
-            new User(0, 'Name usuer'),
-            new Category(8, 'Suporte'),
-            'lorem inpsumaaaaaaaaaaaaaaaaa sdad wwasaw as daw dasd aw sad as dwad asd awd asd aw dasd aws daw asd asd awd asdasdsdsada wda s dsadsad a dwasdsadas awd asdsad wad',
-            ['Tag', 'Nintendo', 'emulador'],
-            null,
-            0,
-            false,
-            new Date(Date.now() + 20 * 60 * 60 * 1000),
-            new Date(Date.now() + 90 * 60 * 60 * 1000),
-        ))
-  }
-]

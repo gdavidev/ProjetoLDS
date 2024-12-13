@@ -15,6 +15,8 @@ export default {
         'primary-light': '#9754CB',
         'primary-lighter': '#DEACF5',
         'secondary': '#5E5454',
+        'secondary-light': '#9A8989',
+        'secondary-dark': '#564C4C',
         'tertiary': '#865151',
         'background': '#333',
         'layout-background': '#262626',

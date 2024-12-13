@@ -177,7 +177,7 @@ export default function SignUpLayout(props: PropsWithoutRef<SignUpLayoutProps>):
         </div>
       </div>
 
-      <button className="btn-r-md bg-primary hover:bg-primary-dark shadow-md shadow-slate-950">
+      <button className="btn-primary shadow-md shadow-slate-950">
         Registrar
       </button>
 

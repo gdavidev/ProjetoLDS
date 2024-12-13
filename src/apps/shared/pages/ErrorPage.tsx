@@ -19,7 +19,7 @@ export default function ErrorPage(props: PropsWithoutRef<ErrorPageProps>) {
         </span>
       </div>
       <Link to="/" aria-label="home-button" role="link" 
-          className="btn-r-md bg-primary text-white">
+          className="btn-primary">
         Voltar para home
       </Link>
     </div>
