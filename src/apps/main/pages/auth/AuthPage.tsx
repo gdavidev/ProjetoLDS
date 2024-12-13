@@ -4,7 +4,7 @@ import LogInLayout from "@/apps/main/pages/auth/LogInLayout";
 import logo from '/icons/logo.png'
 import CurrentUser from "@/models/CurrentUser";
 import { MainContext, MainContextProps } from "@/apps/shared/context/MainContextProvider";
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import PasswordResetLayout from "./PasswordResetLayout";
 import useAlert from '@/hooks/feedback/useAlert.tsx';
 import useNotification from '@/hooks/feedback/useNotification.tsx';
@@ -19,8 +19,8 @@ export type AuthPageProps = {
 }
 
 export default function AuthPage(props: PropsWithoutRef<AuthPageProps>): React.ReactElement {
+  const location = useLocation();
   const navigate = useNavigate();
-  const [ params ] = useSearchParams();
   const mainContext: MainContextProps = useContext(MainContext);
   const { notifySuccess } = useNotification()
   const { alertElement, info, error, clear: clearAlert } = useAlert()
@@ -32,8 +32,8 @@ export default function AuthPage(props: PropsWithoutRef<AuthPageProps>): React.R
   const loginSuccess = useCallback((user: CurrentUser) => {
     notifySuccess("Logado com sucesso!")
     mainContext.setCurrentUser?.(user)
-    if (params.get('redirected') === 'true')
-      return navigate(-1);
+    if (location.state.from)
+      return navigate(location.state.from, { replace: true });
     navigate("/");
   }, []);
   const registeredSuccess = useCallback(() => {
