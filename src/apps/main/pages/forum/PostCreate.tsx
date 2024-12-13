@@ -33,28 +33,29 @@ export default function PostCreate() {
   const { alertElement, error, info } = useAlert();
   const { notifySuccess } = useNotification();
   const navigate = useNavigate();
-  const { user } = useCurrentUser();
+  const { user, forceLogin } = useCurrentUser();
   const { exit } = useEmergencyExit();
-  const { handleSubmit, watch, control, formState: { errors }, getValues } = useForm<PostCreateFormData>({
-    defaultValues: {
-      categoryId: -1,
-      title: '',
-      content: '',
-      tags: [],
-      image: undefined
-    }
-  });
+  const { handleSubmit, watch, control, formState: { errors }, getValues } =
+      useForm<PostCreateFormData>({
+        defaultValues: {
+          categoryId: -1,
+          title: '',
+          content: '',
+          tags: [],
+          image: undefined
+        }
+      });
   const fields = watch()
 
   // ---- Initialization ----
   useEffect(() => {
     if (!user)
       exit('/log-in', 'É preciso estar logado para criar posts.')
-  }, [])
+  }, []);
 
   const { data: categories } = useCategories(CategoryType.POSTS, {
     onSuccess: (categories: Category[]) => {
-      const source = categories.map(cat => ({ value: cat.id, name: cat.name }));
+      const source: SelectInputSource = categories.map(cat => ({ value: cat.id, name: cat.name }));
       setCategorySelectSource(source);
     },
     onError: (err: AxiosError | Error) => alert(err.message)
@@ -71,7 +72,10 @@ export default function PostCreate() {
 
   // ---- API Calls Error Handling ----
   const { handleRequestError } = useRequestErrorHandler({
-    mappings: [{ status: 'default', userMessage: "Por favor tente novamente mais tarde." }],
+    mappings: [
+        { status: 401, onError: () => forceLogin("Por favor faça login novamente") },
+        { status: 'default', userMessage: "Por favor tente novamente mais tarde."  }
+    ],
     onError: (message: string) => error(message)
   });
 
@@ -174,7 +178,7 @@ export default function PostCreate() {
               )} />
         </div>
 
-        {alertElement}
+        { alertElement }
         <div className="flex justify-end">
           <input
              value="Confirmar"
