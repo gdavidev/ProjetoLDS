@@ -1,21 +1,11 @@
-import useTypeSafeSearchParams from '@/hooks/useTypeSafeSearchParams.ts';
 import { useLikePost } from '@/hooks/useLikePost.ts';
-import React, { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import useEmergencyExit from '@/hooks/useEmergencyExit.ts';
 import { IonIcon } from '@ionic/react';
-import {
-  chatbubbleOutline,
-  flagOutline,
-  hammerOutline,
-  reload,
-  star,
-  trashOutline,
-  heart,
-  heartOutline,
-} from 'ionicons/icons';
+import { reload, star } from 'ionicons/icons';
 import User from '@models/User.ts';
 import DateFormatter from '@libs/DateFormatter.ts';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import Chip from '@mui/material/Chip';
 import useTailwindTheme from '@/hooks/configuration/useTailwindTheme.ts';
 import Comment, { CommentParent, CommentParentType } from '@models/Comment.ts';
@@ -29,28 +19,26 @@ import { AxiosError } from 'axios';
 import useRequestErrorHandler from '@/hooks/useRequestErrorHandler.ts';
 import useNotification from '@/hooks/feedback/useNotification.tsx';
 import { useCreateComment } from '@/hooks/useComment.ts';
-import Post from '@models/Post.ts';
-import Category from '@models/Category.ts';
-import Thumbnail from '@models/utility/Thumbnail.ts';
-import CurrentUser from '@models/CurrentUser.ts';
-import { Role } from '@/hooks/usePermission.ts';
+import { usePost } from '@/hooks/usePosts.ts';
+import Loading from '@shared/components/Loading.tsx';
+import PostActionBar from '@apps/main/components/PostActionBar.tsx';
 
 type PostPageParams = {
-  postId: number;
+  postId: string;
 }
 
 export default function PostPage() {
+  const params = useParams<PostPageParams>();
   const [ liked            , setLiked             ] = useState<boolean>(false);
-  const [ isReportModalOpen, setIsReportModalOpen ] = useState<boolean>(false);
   const { notifyError } = useNotification();
   const { user, askToLogin } = useCurrentUser();
-  const { params }  = useTypeSafeSearchParams<PostPageParams>();
   const { theme } = useTailwindTheme()
   const { exit } = useEmergencyExit();
   const { handleSubmit, control, formState: { errors } } =
       useForm<{ comment: string }>({
         defaultValues: { comment: '' },
       });
+  const [ isReportModalOpen, setIsReportModalOpen ] = useState<boolean>(false);
   const [ reportContentData, setReportContentData ] =
       useState<{type: ReportContentType, id: number}>({
         type: ReportContentType.POST,
@@ -58,20 +46,20 @@ export default function PostPage() {
       });
 
   // Initialization
-  // useEffect(() => {
-  //   if (params.postId === undefined)
-  //     exit('/forum/feed', 'Post não encontrado');
-  // }, []);
+  useEffect(() => {
+    if (params.postId === undefined)
+      exit('/forum/feed', 'Post não encontrado');
+  }, []);
 
   // ---- API Calls Setup ----
-  const { mutate: likePost } = useLikePost({
+  const { likePost } = useLikePost(user?.token!, {
     onError: (error: AxiosError | Error) => handleRequestError(error)
   });
-  // const { post, isPostLoading } = usePost(params.postId, {
-  //   onError: (err: AxiosError | Error) => {
-  //     exit('/forum/feed', 'Post não encontrado');
-  //     console.log(err.message) }
-  // });
+  const { post, isPostLoading } = usePost(Number(params.postId), {
+    onError: (err: AxiosError | Error) => {
+      exit('/forum/feed', 'Post não encontrado');
+      console.log(err.message) }
+  });
   const { createComment } = useCreateComment({
     onError: (error: AxiosError | Error) => handleRequestError(error)
   });
@@ -121,8 +109,8 @@ export default function PostPage() {
   }, []);
 
 
-  // if (isPostLoading || !post)
-  //   return <Loading />;
+  if (isPostLoading || !post)
+    return <Loading />;
   return(
     <section className='text-white'>
       <div className="flex w-full gap-x-4 items-start">
@@ -240,80 +228,6 @@ export default function PostPage() {
     </section>
   );
 }
-
-type PostActionBarProps = {
-  userIsPostOwner: boolean;
-  user: CurrentUser | null;
-  isLiked: boolean;
-  onLikeClick: () => void;
-  onAnswerClick: () => void;
-  onReportClick: () => void;
-  onBanClick: () => void;
-  onExcludeClick: () => void;
-  className?: string;
-}
-
-function PostActionBar(props: PostActionBarProps) {
-  return (
-      <div className={'flex gap-x-2 w-full justify-start ' + props.className}>
-        <button
-            onClick={ props.onLikeClick }
-            className="cursor-pointer hover:bg-primary-dark text-primary-light flex items-center gap-x-1 py-0.5 px-2 rounded-full">
-          {
-            props.isLiked ?
-                <IonIcon icon={ heart } /> :
-                <IonIcon icon={ heartOutline } />
-          }
-          <span>Curtir</span>
-        </button>
-
-        <button
-            onClick={props.onAnswerClick}
-            className="cursor-pointer hover:bg-slate-600 flex items-center gap-x-1 py-0.5 px-2 rounded-full">
-          <IonIcon icon={ chatbubbleOutline } />
-          <span>Responder</span>
-        </button>
-        <button
-            onClick={props.onReportClick}
-            className="cursor-pointer hover:bg-red-600 flex items-center gap-x-1 py-0.5 px-2 rounded-full">
-          <IonIcon icon={ flagOutline } />
-          <span>Denunciar</span>
-        </button>
-
-        {
-            (props.user && [Role.ADMIN, Role.MODERATOR].includes(props.user.role)) &&
-            <button
-                onClick={props.onBanClick}
-                className="cursor-pointer hover:bg-red-600 flex items-center gap-x-1 py-0.5 px-2 rounded-full">
-              <IonIcon icon={ hammerOutline } />
-              <span>Banir Usuário</span>
-            </button>
-        }
-        {
-            (props.user && (props.userIsPostOwner || [Role.ADMIN, Role.MODERATOR].includes(props.user.role))) &&
-            <button
-                onClick={props.onExcludeClick}
-                className="cursor-pointer hover:bg-red-600 flex items-center gap-x-1 py-0.5 px-2 rounded-full">
-              <IonIcon icon={ trashOutline } />
-              <span>Apagar</span>
-            </button>
-        }
-      </div>
-  )
-}
-
-const post: Post = new Post(
-    'Postname',
-    new User(0, 'Name usuer'),
-    new Category(8, 'Emuladores'),
-    'lorem inpsumaaaaaaaaaaaaaaaaa sdad wwasaw as daw dasd aw sad as dwad asd awd asd aw dasd aws daw asd asd awd asdasdsdsada wda s dsadsad a dwasdsadas awd asdsad wad',
-    ['item', 'hardware', 'emulador'],
-    new Thumbnail({ url: '/backgrounds/login-page.png' }),
-    0,
-    false,
-    new Date(Date.now() + 30 * 60 * 60 * 1000),
-    new Date(Date.now() + 40 * 60 * 60 * 1000),
-)
 
 const mockCommentList: Comment[] = [
   new Comment(
