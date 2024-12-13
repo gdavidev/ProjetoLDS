@@ -4,7 +4,7 @@ import LogInLayout from "@/apps/main/pages/auth/LogInLayout";
 import logo from '/icons/logo.png'
 import CurrentUser from "@/models/CurrentUser";
 import { MainContext, MainContextProps } from "@/apps/shared/context/MainContextProvider";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import PasswordResetLayout from "./PasswordResetLayout";
 import useAlert from '@/hooks/feedback/useAlert.tsx';
 import useNotification from '@/hooks/feedback/useNotification.tsx';
@@ -20,6 +20,7 @@ export type AuthPageProps = {
 
 export default function AuthPage(props: PropsWithoutRef<AuthPageProps>): React.ReactElement {
   const navigate = useNavigate();
+  const [ params ] = useSearchParams();
   const mainContext: MainContextProps = useContext(MainContext);
   const { notifySuccess } = useNotification()
   const { alertElement, info, error, clear: clearAlert } = useAlert()
@@ -28,13 +29,17 @@ export default function AuthPage(props: PropsWithoutRef<AuthPageProps>): React.R
     clearAlert()
   }, []);
 
-  const loginUser = useCallback((user: CurrentUser) => {
+  const loginSuccess = useCallback((user: CurrentUser) => {
     notifySuccess("Logado com sucesso!")
     mainContext.setCurrentUser?.(user)
+    if (params.get('redirected') === 'true')
+      return navigate(-1);
     navigate("/");
   }, []);
   const registeredSuccess = useCallback(() => {
-    notifySuccess("Registrado com sucesso!")
+    clearAlert();
+    notifySuccess("Registrado com sucesso! Você pode fazer seu login agora.");
+    navigate("/log-in");
   }, []);
   const passwordResetSuccess = useCallback(() => {
     notifySuccess("Senha alterada com sucesso!")
@@ -49,7 +54,7 @@ export default function AuthPage(props: PropsWithoutRef<AuthPageProps>): React.R
       {
         {
           [AuthPageMode.LOGIN]:
-            <LogInLayout onError={ error } onSuccess={ loginUser } onStateChanged={ info } />,
+            <LogInLayout onError={ error } onSuccess={ loginSuccess } onStateChanged={ info } />,
           [AuthPageMode.SIGNUP]:
             <SignUpLayout onError={ error } onSuccess={ registeredSuccess } onStateChanged={ info } />,
           [AuthPageMode.RESET_PASSWORD]:
