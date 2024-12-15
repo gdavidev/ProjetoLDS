@@ -17,6 +17,7 @@ type TextInputProps = {
   password?: boolean,
   styleType?: TextInputStyle,
   onChange?: ChangeEventHandler<HTMLInputElement>,
+  disabled?: boolean,
 }
 
 const TextInput = forwardRef((props: TextInputProps, ref: React.ForwardedRef<HTMLInputElement>) => {
@@ -60,7 +61,8 @@ const LabelLessTextInput = forwardRef((props: TextInputProps, ref: React.Forward
     <div className={ makeContainerClassName() }>
       { props.startDecoration }
 
-      <input role="textbox"
+      <input
+          role="textbox"
           ref={ ref }
           id={ formatedName }
           name={ formatedName }
@@ -68,6 +70,7 @@ const LabelLessTextInput = forwardRef((props: TextInputProps, ref: React.Forward
           onChange={ props.onChange }
           aria-label={ formatedName }
           placeholder={ props.name }
+          disabled={ props.disabled }
           type={ props.password ? "password" : "text" }
           defaultValue={ props.value } />
 
