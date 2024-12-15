@@ -8,9 +8,12 @@ type GameCardProps = {
 export default function GameCard(props: GameCardProps) {
 	return (
 		<Link to={'/game/' + props.game.id}>
-			<div className="flex flex-col min-w-48 min-h-72 select-none rounded-lg overflow-hidden">
-				<div className="overflow-x-hidden grow flex items-center bg-black">
-					<img className="h-72" src={props.game.thumbnail?.toDisplayable()} alt="" />
+			<div className="flex flex-col select-none rounded-lg overflow-hidden">
+				<div className="overflow-hidden grow flex items-center bg-black">
+					<img
+							className="object-cover h-80 w-full"
+							src={ props.game.thumbnail?.toDisplayable() }
+							alt={ props.game.name } />
 				</div>
 				<div className="flex flex-col flex-none justify-between align-middle bg-primary px-2 py-1">
 					<h3 className="font-bold text-white">{props.game.name}</h3>

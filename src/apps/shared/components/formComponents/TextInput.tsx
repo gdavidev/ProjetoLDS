@@ -45,7 +45,7 @@ const LabelLessTextInput = forwardRef((props: TextInputProps, ref: React.Forward
 
   const makeInputClassName = (): string => 
     (props.inputClassName ?? '')
-    + ' py-2 front-lg text-black flex-grow'
+    + ' py-2 front-lg text-black grow'
     + (props.styleType === TextInputStyle.LABEL_LESS ? ' focus:outline-none' : '')
     + (!props.endDecoration ? ' pe-3' : '')
     + (!props.startDecoration ? ' ps-3' : '');
