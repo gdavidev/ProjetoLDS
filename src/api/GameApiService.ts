@@ -7,7 +7,7 @@ export default class GameApiService {
   private static readonly endpoints = {
     get: 'api/roms/',
     detail: 'api/roms/detail/',
-		search: 'api/roms/search',
+		search: 'api/roms/search/',
     post: 'api/roms/create/',
     put: 'api/roms/update/',
     delete: 'api/roms/delete/'
