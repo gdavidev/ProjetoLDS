@@ -60,7 +60,7 @@ export default function useRequestErrorHandler(options: UseRequestErrorHandlerOp
 			}
 		} else if (isDebug) {
 			console.error(err.stack);
-			options.onError?.(err.message, 'default', undefined)
+			options.onError?.(err.name + ": " + err.message, 'default', undefined)
 			return err.name + ": " + err.message;
 		}
 
