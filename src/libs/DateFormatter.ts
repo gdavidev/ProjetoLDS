@@ -25,12 +25,27 @@ export default class DateFormatter {
 	}
 
 	static relativeDate(date: Date): string {
-		if (DateInformation.diffMinutes(new Date(), date) < 5)
-			return 'Agora'
-		if (DateInformation.diffHours(new Date(), date) < 1)
-			return 'Ultima hora'
-		if (DateInformation.diffDays(new Date(), date) < 1)
-			return 'Hoje'
+		const currentDate: Date = new Date();
+		const diffMinutes: number = DateInformation.diffMinutes(date, currentDate);
+		const diffHours: number = DateInformation.diffHours(date, currentDate);
+		const diffDays: number = DateInformation.diffDays(date, currentDate);
+
+		if (currentDate.getTime() < date.getTime()) // Date is in the future
+			return DateFormatter.dateToString(date)
+
+		if (diffMinutes < 1)
+			return 'Agora';
+		if (diffMinutes < 60)
+			return `Há ${diffMinutes} minutos`;
+		if (diffHours < 2)
+			return 'Na ultima hora';
+		if (date.getDate() === currentDate.getDate())
+			return 'Hoje';
+		if (date.getDate() === (currentDate.getDate() - 1))
+			return 'Ontem';
+		if (diffDays < 5)
+			return 'Há 5 dias';
+
 		return DateFormatter.dateToString(date)
 	}
 }
