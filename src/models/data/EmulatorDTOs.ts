@@ -9,7 +9,6 @@ export type EmulatorCreateDTO = {
   nome: string,
   console: string,
   empresa: string,
-  emu_file: File,
 }
 
 /* UPDATE */
@@ -18,7 +17,6 @@ export type EmulatorUpdateDTO = {
   nome: string,
   console: string,
   empresa: string,
-  emu_file?: File
 }
 export type EmulatorUpdateResponseDTO = {}
 
