@@ -5,7 +5,7 @@ import Report, { ReportContentType } from '@models/Report.ts';
 import useSendReport from '@/hooks/useReport.ts';
 import useCurrentUser from '@/hooks/useCurrentUser.tsx';
 import useNotification from '@/hooks/feedback/useNotification.tsx';
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 
 type ReportContentModalProps = {
 	contentType: ReportContentType;
@@ -17,15 +17,20 @@ type ReportContentModalFormData = {
 }
 
 export default function ReportContentModal(props: ReportContentModalProps) {
-	const { user } = useCurrentUser();
-	const { notifySuccess, notifyError } = useNotification();
-	const { handleSubmit, control } = useForm<ReportContentModalFormData>({
+	const { user, askToLogin } = useCurrentUser();
+	const { notifySuccess, notifyError, notifyInfo } = useNotification();
+	const { handleSubmit, control, reset } = useForm<ReportContentModalFormData>({
 		defaultValues: {
 			reportText: ''
 		}
 	});
 
-	const { mutate: sendReport } = useSendReport(user?.token!, {
+	useEffect(() => {
+		if (props.isOpen)
+			reset();
+	}, [props.isOpen]);
+
+	const { sendReport, isSendReportLoading } = useSendReport(user?.token!, {
 		onSuccess: () => {
 			notifySuccess('Denúncia enviada com sucesso.')
 			props.onCloseRequest?.()
@@ -34,22 +39,34 @@ export default function ReportContentModal(props: ReportContentModalProps) {
 	});
 
 	const submitForm = useCallback((data: ReportContentModalFormData) => {
-		sendReport({
-			reported_by: user!.id,
-			content_type: Report.serializeContentType(props.contentType),
-			content_id: props.contentId,
-			reason: data.reportText,
-		})
-	}, [])
+		if (!user) {
+			props.onCloseRequest?.();
+			return askToLogin('Para criar denuncias é preciso esta logado.')
+		}
+
+		sendReport(new Report(
+				props.contentId,
+				props.contentType,
+				user.id,
+				data.reportText,
+		));
+	}, [user])
+
+	useEffect(() => {
+		if (isSendReportLoading)
+			notifyInfo('Enviando...')
+	}, [isSendReportLoading]);
 
 	return (
 			<ModalPopup
 					isOpen={ props.isOpen }
-					title="Recuperação de Senha"
+					title="Reportar Conteúdo"
 					onCloseRequest={ props.onCloseRequest }
-					className='bg-layout-background'
-			>
-				<form onSubmit={ handleSubmit(submitForm) }>
+					className='bg-layout-background'>
+				<form
+						onSubmit={ handleSubmit(submitForm) }
+						className='flex flex-col gap-4 justify-end'
+				>
 					<Controller
 							name="reportText"
 							control={control}
@@ -58,13 +75,13 @@ export default function ReportContentModal(props: ReportContentModalProps) {
 											{...field}
 											name='reportText'
 											labelClassName='hidden'
+											className='min-h-48 w-96 bg-slate-200'
 									/>
 							)} />
 					<button
 							type='submit'
-							className='btn-primary'
-							onClick={ props.onCloseRequest }
-					>
+							disabled={ isSendReportLoading }
+							className='btn-primary'>
 						Enviar
 					</button>
 				</form>

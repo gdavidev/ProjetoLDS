@@ -1,43 +1,32 @@
-import CheckBox from '@shared/components/formComponents/CheckBox.tsx';
-import { AccordionDetails } from '@mui/material';
 import { IonIcon } from '@ionic/react';
-import { filterOutline } from 'ionicons/icons';
+import { arrowForward } from 'ionicons/icons';
 import useCategories, { CategoryType } from '@/hooks/useCategories.ts';
-import useEmulators from '@/hooks/useEmulators.ts';
-import { AccordionStyled, AccordionSummaryStyled } from '@shared/components/MuiStyled/Accordion.tsx';
 
-export default function SearchGamesSideBar() {
+type SearchGamesSideBar = {
+  onCategoryClick: (categoryName: string) => void;
+}
+
+export default function SearchGamesSideBar(props: SearchGamesSideBar) {
   const { data: categories } = useCategories(CategoryType.GAMES);
-  const { data: emulators  } = useEmulators();
 
   return (
     <aside className="min-w-72 flex flex-col px-2 pt-10 pb-4 bg-layout-background">
-      <AccordionStyled>
-        <AccordionSummaryStyled>Emulador</AccordionSummaryStyled>
-        <AccordionDetails>
-          { emulators && emulators.map((em, i) =>
-              <CheckBox key={i} 
-                  className=""
-                  name={ em.console } 
-                  label={ em.console } />
-          ) }
-        </AccordionDetails>
-      </AccordionStyled>
-      <AccordionStyled>
-        <AccordionSummaryStyled>Categorias</AccordionSummaryStyled>
-        <AccordionDetails>
-          { categories && categories.map((cat, i) =>
-              <CheckBox key={i}
-                  className=""
-                  name={ cat.name }
-                  label={ cat.name } />
-          ) }
-        </AccordionDetails>
-      </AccordionStyled>
-      <button className='btn-primary gap-x-2 mt-2 self-end'>
-        <IonIcon style={{color: 'white'}} icon={ filterOutline } />
-        Filtrar
-      </button>
+      <h3 className="font-bold text-xl text-white">
+        Todas as categorias
+      </h3>
+      <div className="mt-2 flex flex-col">
+        {categories &&
+            categories.map((cat, i) => (
+                <button
+                    key={i}
+                    className="flex items-center gap-x-2 text-white"
+                    onClick={ () => props.onCategoryClick(cat.name) }>
+                  <IonIcon icon={arrowForward} />
+                  {cat.name}
+                </button>
+            ))
+        }
+      </div>
     </aside>
   )
 }

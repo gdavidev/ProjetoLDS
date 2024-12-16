@@ -6,18 +6,12 @@ export default class FileUtil {
     })
   }
 
-  static fileToBase64(file: File, addPrefix?: boolean): Promise<string> {
+  static fileToBase64(file: File): Promise<string> {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
-      reader.onload = () => {
-        let result = reader.result as string;
-        if (!addPrefix) // Prefix is added by the reader
-          result = result.replace('data:image/jpeg;base64,', '')
-        resolve(result);
-      };
-      reader.onerror = () => {
-        reject(new Error("Error reading file"));
-      };
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = () => reject(new Error("Error reading file"))
+
       reader.readAsDataURL(file);
     });
   }

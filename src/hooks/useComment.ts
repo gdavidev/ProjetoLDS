@@ -3,12 +3,14 @@ import Comment from '@models/Comment.ts';
 import { useMutation, useQuery } from 'react-query';
 import ApiService from '@api/ApiService.ts';
 import * as DTO from '@models/data/CommentDTOs'
+import { useCallback } from 'react';
 
 const endpoints = {
-	get: '/comentarios/list/',
-	post: '/comentarios/create/',
-	delete: '/comentarios/delete/',
-	put: '/comentarios/update/'
+	get: '/api/comentarios/list/',
+	post: '/api/comentarios/create/',
+	isUseful: '/api/comentarios/is-helpful/',
+	delete: '/api/comentarios/delete/',
+	put: '/api/comentarios/update/'
 }
 
 type UseCommentOptions<T> = {
@@ -16,12 +18,12 @@ type UseCommentOptions<T> = {
 	onError?: (err: AxiosError | Error) => void
 }
 
-export default function useComments(options: UseCommentOptions<Comment[]>) {
-	async function fetchComments() {
+export default function useComments(options?: UseCommentOptions<Comment[]>) {
+	const fetchComments = useCallback(async () => {
 		const comments =
 				await ApiService.get<DTO.CommentGetResponseDTO[]>(endpoints.get);
 		return comments.data.map(dto => Comment.fromGetDTO(dto))
-	}
+	}, []);
 
 	const { data: comments, refetch: reFetchComments, ...rest } = useQuery({
 		queryKey: 'FETCH_COMMENTS',
@@ -31,16 +33,40 @@ export default function useComments(options: UseCommentOptions<Comment[]>) {
 	return { comments, reFetchComments, ...rest };
 }
 
-export function useCreateComment(options: UseCommentOptions<Comment>) {
-	async function postComment(comment: Comment) {
+export function useCreateComment(options?: UseCommentOptions<Comment>) {
+	const postComment = useCallback(async (comment: Comment) => {
 		const res =
 				await ApiService.post<DTO.CommentGetResponseDTO>(endpoints.post, comment.toCreateDTO());
 		return Comment.fromGetDTO(res.data);
-	}
+	}, []);
 
 	const { mutate: createComment, ...rest } = useMutation('CREATE_COMMENT',
 		postComment,
 		{...options}
 	);
 	return { createComment, ...rest };
+}
+
+export function useDeleteComment(options?: UseCommentOptions<void>) {
+	const sendDeleteComment = useCallback(async (comment: Comment) => {
+			await ApiService.delete(endpoints.delete, { data: { id: comment.id } });
+	}, []);
+
+	const { mutate: deleteComment, ...rest } = useMutation('DELETE_COMMENT',
+			sendDeleteComment,
+			{...options}
+	);
+	return { deleteComment, ...rest };
+}
+
+export function useCommentIsUseful(options?: UseCommentOptions<void>) {
+	const sendCommentIsUseful = useCallback(async (comment: Comment) => {
+		await ApiService.post(endpoints.isUseful, { params: { id: comment.id } });
+	}, []);
+
+	const { mutate: commentIsUseful, ...rest } = useMutation('COMMENT_IS_USEFUL',
+			sendCommentIsUseful,
+			{...options}
+	);
+	return { commentIsUseful, ...rest };
 }

@@ -5,11 +5,10 @@ import { IonIcon } from '@ionic/react';
 import { reload, star } from 'ionicons/icons';
 import User from '@models/User.ts';
 import DateFormatter from '@libs/DateFormatter.ts';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import Chip from '@mui/material/Chip';
 import useTailwindTheme from '@/hooks/configuration/useTailwindTheme.ts';
-import Comment, { CommentParent, CommentParentType } from '@models/Comment.ts';
-import CommentRow from '@apps/main/components/CommentRow.tsx';
+import Comment, { CommentParent } from '@models/Comment.ts';
 import TextArea from '@shared/components/formComponents/TextArea.tsx';
 import { Controller, useForm } from 'react-hook-form';
 import useCurrentUser from '@/hooks/useCurrentUser.tsx';
@@ -19,9 +18,14 @@ import { AxiosError } from 'axios';
 import useRequestErrorHandler from '@/hooks/useRequestErrorHandler.ts';
 import useNotification from '@/hooks/feedback/useNotification.tsx';
 import { useCreateComment } from '@/hooks/useComment.ts';
-import { usePost } from '@/hooks/usePosts.ts';
+import { useDeletePost, usePost } from '@/hooks/usePosts.ts';
 import Loading from '@shared/components/Loading.tsx';
 import PostActionBar from '@apps/main/components/PostActionBar.tsx';
+import Post from '@models/Post.ts';
+import CommentContainer from '@apps/main/components/CommentContainer.tsx';
+import { MessageBoxResult, MessageBoxType } from '@shared/components/MessageBox.tsx';
+import useMessageBox from '@/hooks/interaction/useMessageBox.ts';
+import useBan from '@/hooks/useBan.ts';
 
 type PostPageParams = {
   postId: string;
@@ -29,8 +33,10 @@ type PostPageParams = {
 
 export default function PostPage() {
   const params = useParams<PostPageParams>();
-  const [ liked            , setLiked             ] = useState<boolean>(false);
-  const { notifyError } = useNotification();
+  const navigate = useNavigate();
+  const [ liked, setLiked ] = useState<boolean>(false);
+  const { notifyError, notifySuccess } = useNotification();
+  const { openMessageBox } = useMessageBox();
   const { user, askToLogin } = useCurrentUser();
   const { theme } = useTailwindTheme()
   const { exit } = useEmergencyExit();
@@ -52,16 +58,32 @@ export default function PostPage() {
   }, []);
 
   // ---- API Calls Setup ----
+  const { post, isPostLoading } = usePost(Number(params.postId), user?.token, {
+    onSuccess: (post: Post) => {
+      setLiked(post.hasLiked)
+    },
+    onError: (err: AxiosError | Error) => {
+      exit('/forum/feed', 'Post não encontrado');
+      console.log(err.message)
+    }
+  });
   const { likePost } = useLikePost(user?.token!, {
     onError: (error: AxiosError | Error) => handleRequestError(error)
   });
-  const { post, isPostLoading } = usePost(Number(params.postId), {
-    onError: (err: AxiosError | Error) => {
-      exit('/forum/feed', 'Post não encontrado');
-      console.log(err.message) }
-  });
-  const { createComment } = useCreateComment({
+  const { deletePost } = useDeletePost(user?.token!, {
+    onSuccess: () => {
+      notifySuccess('Post deletado');
+      navigate('/forum/feed')
+    },
     onError: (error: AxiosError | Error) => handleRequestError(error)
+  })
+  const { createComment } = useCreateComment({
+    onSuccess: () => notifySuccess('Comentário criado com sucesso!'),
+    onError: (error: AxiosError | Error) => handleRequestError(error)
+  });
+  const { ban } = useBan(user?.token!, {
+    onSuccess: () => notifySuccess('Usuário banido com sucesso!'),
+    onError: (error: AxiosError | Error) => handleRequestError(error),
   });
 
   // ---- API Calls Error Handling ----
@@ -76,7 +98,7 @@ export default function PostPage() {
     if(!user) return askToLogin('Para comentar é preciso estar logado.')
 
     createComment(new Comment(
-        { id: post.id, type: CommentParentType.POST } as CommentParent,
+        { postId: post.id, parentId: null } as CommentParent,
         new User(user.id, user.userName),
         data.comment
     ));
@@ -84,11 +106,20 @@ export default function PostPage() {
 
   // ---- General Callbacks ----
   const handleLikeButtonClick = useCallback(() => {
+    if (!post) return
+
+    likePost({
+      newState: !liked,
+      post: post,
+    });
     setLiked(li => !li);
   }, []);
 
   const handleReportButtonClick =
       useCallback((contentType: ReportContentType, contentId: number) => {
+        if (!user)
+          return askToLogin('É preciso estar logado para fazer denúncias.');
+
         setReportContentData({
           type: contentType,
           id: contentId
@@ -101,13 +132,32 @@ export default function PostPage() {
   }, []);
 
   const handleBanButtonClick = useCallback(() => {
+    if (!post) return;
 
+    openMessageBox({
+      title: 'Banir Usuário',
+      message: 'Tem certeza que deseja banir esse usuário?',
+      type: MessageBoxType.YES_NO,
+      onClick: (result: MessageBoxResult) => {
+        if (result === MessageBoxResult.YES)
+          ban(post.owner.id);
+      }
+    });
   }, []);
 
   const handleExcludeButtonClick = useCallback(() => {
+    if (!post) return;
 
+    openMessageBox({
+      title: 'Apagar Post',
+      message: 'Tem certeza que deseja apagar esse post?',
+      type: MessageBoxType.YES_NO,
+      onClick: (result: MessageBoxResult) => {
+        if (result === MessageBoxResult.YES)
+          deletePost(post);
+      }
+    });
   }, []);
-
 
   if (isPostLoading || !post)
     return <Loading />;
@@ -171,19 +221,21 @@ export default function PostPage() {
                   alt={ post.title } />
             </div>
         }
-        <p>{post.content}</p>
+        <p className='whitespace-pre'>{post.content}</p>
       </article>
 
       <PostActionBar
-          className='mt-8'
-          userIsPostOwner={ user?.id === post.owner.id }
-          user={ user }
-          isLiked={ liked }
-          onLikeClick={ handleLikeButtonClick }
-          onAnswerClick={ handleAnswerButtonClick }
-          onReportClick={ () => handleReportButtonClick(ReportContentType.POST, post.id) }
-          onBanClick={ handleBanButtonClick }
-          onExcludeClick={ handleExcludeButtonClick } />
+            className='mt-8'
+            userIsPostOwner={ user?.id === post.owner.id }
+            user={ user }
+            isLiked={ liked }
+            likeCount={ post.likeCount }
+            commentCount={ post.commentCount }
+            onLikeClick={ handleLikeButtonClick }
+            onAnswerClick={ handleAnswerButtonClick }
+            onReportClick={ () => handleReportButtonClick(ReportContentType.POST, post.id) }
+            onBanClick={ handleBanButtonClick }
+            onExcludeClick={ handleExcludeButtonClick } />
 
       <h2 className='text-xl mt-12 font-bold'>Comentários</h2>
       <form
@@ -205,19 +257,11 @@ export default function PostPage() {
         </button>
       </form>
 
-      <div className='flex flex-col mt-2'>
-        {
-          mockCommentList.map((com: Comment, i: number) => (
-              <CommentRow
-                  key={ i }
-                  userIsPostOwner={ user ? post.owner.id === user.id : false }
-                  userIsCommentOwner={ user ? com.owner.id === user.id : false }
-                  comment={ com }
-                  onReportClick={ handleReportButtonClick }
-              />
-          ))
-        }
-      </div>
+      <CommentContainer
+          comments={ [] }
+          post={ post }
+          onReportClick={ (comment: Comment) => handleReportButtonClick(ReportContentType.COMMENT, comment.id) }
+      />
 
       <ReportContentModal
           contentType={ reportContentData.type }
@@ -229,108 +273,3 @@ export default function PostPage() {
   );
 }
 
-const mockCommentList: Comment[] = [
-  new Comment(
-      { id: 0, type: CommentParentType.POST } as CommentParent,
-      new User(0, 'John Doe'),
-      'This is the first comment!',
-      0,
-      false, // likes
-      false,
-      new Date(Date.now() + 40 * 60 * 60 * 1000),
-      new Date(Date.now() + 40 * 60 * 60 * 1000),
-      [
-        new Comment(
-            { id: 0, type: CommentParentType.POST } as CommentParent,
-            new User(1, 'Jane Smith'),
-            'I totally agree with this!',
-            1,
-            false, // likes
-            true,
-            new Date(Date.now() + 41 * 60 * 60 * 1000),
-            new Date(Date.now() + 41 * 60 * 60 * 1000),
-            []
-        ),
-        new Comment(
-            { id: 0, type: CommentParentType.POST } as CommentParent,
-            new User(2, 'Mark Johnson'),
-            'Interesting perspective!',
-            2,
-            false, // likes
-            false,
-            new Date(Date.now() + 42 * 60 * 60 * 1000),
-            new Date(Date.now() + 42 * 60 * 60 * 1000),
-            [
-              new Comment(
-                  { id: 0, type: CommentParentType.POST } as CommentParent,
-                  new User(3, 'Emily Davis'),
-                  'Thanks for pointing this out, Mark!',
-                  3,
-                  false, // likes
-                  false,
-                  new Date(Date.now() + 43 * 60 * 60 * 1000),
-                  new Date(Date.now() + 43 * 60 * 60 * 1000),
-                  []
-              )
-            ]
-        )
-      ]
-  ),
-  new Comment(
-      { id: 0, type: CommentParentType.POST } as CommentParent,
-      new User(4, 'Alice Brown'),
-      'What are your thoughts on the current discussion?',
-      4,
-      false, // likes
-      false,
-      new Date(Date.now() + 44 * 60 * 60 * 1000),
-      new Date(Date.now() + 44 * 60 * 60 * 1000),
-      [
-        new Comment(
-            { id: 0, type: CommentParentType.POST } as CommentParent,
-            new User(5, 'Charlie Wilson'),
-            'I think it’s quite insightful.',
-            5,
-            false, // likes
-            false,
-            new Date(Date.now() + 45 * 60 * 60 * 1000),
-            new Date(Date.now() + 45 * 60 * 60 * 1000),
-            []
-        )
-      ]
-  ),
-  new Comment(
-      { id: 0, type: CommentParentType.POST } as CommentParent,
-      new User(6, 'Sophia Taylor'),
-      'Does anyone have sources to back this up?',
-      6,
-      true, // likes
-      false,
-      new Date(Date.now() + 46 * 60 * 60 * 1000),
-      new Date(Date.now() + 46 * 60 * 60 * 1000),
-      [
-        new Comment(
-            { id: 0, type: CommentParentType.POST } as CommentParent,
-            new User(7, 'Liam Moore'),
-            'Here’s a link to an article: [link]',
-            7,
-            false, // likes
-            false,
-            new Date(Date.now() + 47 * 60 * 60 * 1000),
-            new Date(Date.now() + 47 * 60 * 60 * 1000),
-            []
-        ),
-        new Comment(
-            { id: 0, type: CommentParentType.POST } as CommentParent,
-            new User(8, 'Olivia Martinez'),
-            'I can provide some more details if needed.',
-            8,
-            false, // likes
-            false,
-            new Date(Date.now() + 48 * 60 * 60 * 1000),
-            new Date(Date.now() + 48 * 60 * 60 * 1000),
-            []
-        )
-      ]
-  )
-];

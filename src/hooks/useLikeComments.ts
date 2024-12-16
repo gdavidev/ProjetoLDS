@@ -1,38 +1,43 @@
 import ApiService from "@/api/ApiService"
 import { useMutation } from "react-query"
 import { AxiosError } from 'axios';
+import { useCallback } from 'react';
+import Comment from '@models/Comment.ts';
 
 type UseLikeCommentOptions = {
-  onSucess?: (_: any, varibles: UseLikeCommentVariables) => void,
+  onSuccess?: (_: any, variables: UseLikeCommentVariables) => void,
   onError?: (err: AxiosError | Error) => void
 }
 
 type UseLikeCommentVariables = {
-  currentState: boolean,
-  targetId: number,
-  token: string
+  newState: boolean,
+  comment: Comment,
 }
 
 const commentEndPoints = {
-  like: '/comentarios/like',
-  unlike: '/comentarios/unlike'
+  like: '/api/comentarios/like',
+  unlike: '/api/comentarios/unlike'
 }
 
-export function useLikeComment(options: UseLikeCommentOptions) {
-  return useMutation('TOGGLE_LIKE_COMMENT',
-    async (variables: UseLikeCommentVariables) => {
-      const targetEndpoint: string = variables.currentState ? 
-          commentEndPoints.like :
-          commentEndPoints.unlike;
-
-      return ApiService.post(targetEndpoint, {
-        comentario_id: variables.targetId,
-      },
-      { headers: { 'Authorization': 'Bearer ' + variables.token } }
-    )
-    }, {
-      onSuccess: options.onSucess,
-      onError: options.onError
+export function useLikeComment(token: string, options?: UseLikeCommentOptions) {
+  const postLikeComment = useCallback(async (target: UseLikeCommentVariables) => {
+    if (target.newState) {
+      await ApiService.post(
+          commentEndPoints.like,
+          { id_comentario: target.comment.id },
+          { headers: { 'Authorization': 'Bearer ' + token } }
+      );
+    } else {
+      await ApiService.delete(
+          commentEndPoints.unlike, {
+            params: { id_comentario: target.comment.id },
+            headers: { 'Authorization': 'Bearer ' + token }
+          });
     }
-  )
+    return target.newState;
+  }, []);
+
+  const { mutate: likeComment, isLoading: isLikeCommentLoading, ...rest } =
+      useMutation('TOGGLE_LIKE_COMMENT', postLikeComment, {...options});
+  return { likeComment, isLikeCommentLoading, ...rest };
 }

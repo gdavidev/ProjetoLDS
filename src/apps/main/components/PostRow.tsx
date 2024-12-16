@@ -37,12 +37,12 @@ export default function PostRow(props: PostRowProps) {
 						{ DateFormatter.relativeDate(props.post.updatedDate) }
 					</span>
 					<Link to={'/forum/post/' + props.post.id}>
-						<h3 className="line-clamp-1 underline font-bold text-lg">{props.post.title}</h3>
+						<h3 className="line-clamp-1 underline font-bold text-lg">{ props.post.title }</h3>
 					</Link>
-					<p className="line-clamp-2">{props.post.content}</p>
+					<p className="line-clamp-2 whitespace-pre">{ props.post.content }</p>
 
 					<PostActionBar
-							className='mt-8'
+							className='mt-1'
 							userIsPostOwner={ user?.id === props.post.owner.id }
 							user={ user }
 							isLiked={ props.post.hasLiked }
@@ -65,5 +65,5 @@ export default function PostRow(props: PostRowProps) {
 							</div>
 				}
 			</div>
-	)
+	);
 }

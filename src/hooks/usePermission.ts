@@ -13,11 +13,8 @@ type PermissionNode = {
 	action: ActionType,
 	context: ActionContext | ActionContext[] | 'all' | 'none'
 }
-type PermissionMap = {
-	[key in Role]: {
-		[key in PermissionCase]: PermissionNode | PermissionNode[] | 'all' | 'none'
-	};
-}
+
+type PermissionMap = Record<Role, Record<PermissionCase, PermissionNode | PermissionNode[] | 'all' | 'none'>>;
 
 const permissionMap: PermissionMap = {
 	[Role.ADMIN]: {

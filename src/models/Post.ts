@@ -72,7 +72,7 @@ export default class Post {
       new Category(dto.categoria.id, dto.categoria.nome),
       dto.descricao,
       dto.tags ?? [],
-      new Thumbnail({ base64: dto.img_topico64 }),
+      dto.img_topico64 ? new Thumbnail({ base64: dto.img_topico64 }) : null,
       dto.id,
       dto.has_liked,
       dto.likes,

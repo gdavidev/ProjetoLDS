@@ -32,7 +32,7 @@ export default function AuthPage(props: PropsWithoutRef<AuthPageProps>): React.R
   const loginSuccess = useCallback((user: CurrentUser) => {
     notifySuccess("Logado com sucesso!")
     mainContext.setCurrentUser?.(user)
-    if (location.state.from)
+    if (location.state && location.state.from)
       return navigate(location.state.from, { replace: true });
     navigate("/");
   }, []);

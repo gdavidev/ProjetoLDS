@@ -145,7 +145,7 @@ export default function PostCreate() {
                 <TextArea {...field}
                     name="Conteúdo"
                     labelClassName="text-white"
-                    className={'input-text' + (errors.content ? ' bg-red-100 border-red-500' : ' bg-slate-200')} />
+                    className={'min-h-44' + (errors.content ? ' bg-red-100 border-red-500' : ' bg-slate-200')} />
             )} />
 
         <Controller
