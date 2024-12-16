@@ -50,11 +50,11 @@ function getPostsByCategoryArray(posts: Post[]): { category: Category, posts: Po
   const uniqCategories: Category[] = [];
   const seenCategoryIds: number[] = [];
   categories.forEach((cat: Category) => {
-    if (!(cat.id in seenCategoryIds)) {
+    if (!seenCategoryIds.includes(cat.id)) {
       seenCategoryIds.push(cat.id);
       uniqCategories.push(cat);
     }
-  })
+  });
 
   // Push posts in its own category list
   const postsByCategory: { category: Category, posts: Post[] }[] = [];
