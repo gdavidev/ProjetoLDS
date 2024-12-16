@@ -6,23 +6,38 @@ export default class PostApiService {
   private static readonly endpoints = {
     get: 'api/topicos/list/',
     detail: 'api/topicos/detail/',
+    search: 'api/topicos/search/',
     post: 'api/topicos/create/',
     put: 'api/topicos/update/',
     delete: 'api/topicos/delete/',
   };
 
-  static async getAll(): Promise<Post[]> {
+  static async getAll(token?: string): Promise<Post[]> {
     const res  =
-        await ApiService.get<DTO.PostGetResponseDTO[]>(PostApiService.endpoints.get);
+        await ApiService.get<DTO.PostGetResponseDTO[]>(PostApiService.endpoints.get, {
+          headers: token !== undefined ? { 'Authorization': 'Bearer ' + token } : undefined
+        });
     return res.data.map(dto => Post.fromGetDTO(dto));
   }
 
-  static async get(id: number): Promise<Post> {
+  static async get(id: number, token?: string): Promise<Post> {
     const res =
-        await ApiService.get<DTO.PostGetResponseDTO>(PostApiService.endpoints.detail, { params: {topico_id: id} });
+        await ApiService.get<DTO.PostGetResponseDTO>(PostApiService.endpoints.detail, {
+          params: { topico_id: id },
+          headers: token !== undefined ? { 'Authorization': 'Bearer ' + token } : undefined
+        });
     return Post.fromGetDTO(res.data);
-  }  
-  
+  }
+
+  static async search(search: string, token?: string): Promise<Post[]> {
+    const res =
+        await ApiService.get<{ topicos: DTO.PostGetResponseDTO[] }>(PostApiService.endpoints.search, {
+          params: { search: search },
+          headers: token !== undefined ? { 'Authorization': 'Bearer ' + token } : undefined
+        });
+    return res.data.topicos.map(dto => Post.fromGetDTO(dto));
+  }
+
   public static async delete(post: Post, token: string): Promise<void> {
     await ApiService.delete(
       PostApiService.endpoints.delete,
