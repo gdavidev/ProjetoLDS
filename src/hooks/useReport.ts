@@ -6,9 +6,9 @@ import * as DTO from '@models/data/ReportDTOs.ts'
 import { useCallback } from 'react';
 
 const endpoints = {
-	get: '/denuncia/list/',
-	post: '/denuncia/create/',
-	resolve: '/denuncia/resolve/',
+	get: '/api/denuncia/list/',
+	post: '/api/denuncia/create/',
+	resolve: '/api/denuncia/resolve/',
 }
 
 type useReportOptions<T> = {
