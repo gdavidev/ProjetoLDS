@@ -27,7 +27,7 @@ const defaultValues: PasswordResetLayoutFormData = {
 }
 
 export default function PasswordResetLayout(props: PasswordResetLayoutProps) {
-  const { params } = useTypeSafeSearchParams<PasswordResetLayoutParams>();
+  const { params } = useTypeSafeSearchParams<PasswordResetLayoutParams>({ token: '' });
   const [ IsPasswordHidden       , setIsPasswordHidden        ] = useState<boolean>(true);
   const [ IsPasswordConfirmHidden, setIsPasswordConfirmHidden ] = useState<boolean>(true);
   const { handleSubmit, watch, control, reset: setFormData, clearErrors } = useForm<PasswordResetLayoutFormData>({
