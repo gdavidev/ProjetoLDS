@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import { MainContext, MainContextProps } from '@shared/context/MainContextProvider';
 import BannerSwiper from '@apps/main/components/displayComponents/BannerSwiper';
 import CardSwiper from '@apps/main/components/displayComponents/CardSwiper';
@@ -14,18 +14,18 @@ import 'swiper/css/pagination';
 import 'swiper/css';
 import useGames from '@/hooks/useGames';
 
-const bannerList: React.ReactElement[] = [
+const bannerList: JSX.Element[] = [
   <SwiperSlide key={0}>
-    <img alt='donkeyKongBanner' className='w-screen' src={ donkeyKongBanner } />
+    <img alt='donkeyKongBanner' className='object-cover h-full w-full' src={ donkeyKongBanner } />
   </SwiperSlide>,
   <SwiperSlide key={1}>
-    <img alt='pokemonFireRedBanner' className='w-screen -mt-96' src={ pokemonFireRedBanner } />
+    <img alt='pokemonFireRedBanner' className='object-cover h-full w-full' src={ pokemonFireRedBanner } />
   </SwiperSlide>,
   <SwiperSlide key={2}>
-    <img alt='superMarioKartBanner' className='w-screen mt-[-800px]' src={ superMarioKartBanner } />
+    <img alt='superMarioKartBanner' className='object-cover h-full w-full' src={ superMarioKartBanner } />
   </SwiperSlide>,
   <SwiperSlide key={3}>
-    <img alt='superMarioWorldBanner' className='w-screen -mt-96' src={ superMarioWorldBanner } />
+    <img alt='superMarioWorldBanner' className='object-cover h-full w-full' src={ superMarioWorldBanner } />
   </SwiperSlide>
 ]
 
@@ -33,7 +33,6 @@ export default function HomePage() {
   const mainContext: MainContextProps = useContext<MainContextProps>(MainContext)
   const { theme } = mainContext.tailwindConfig
   const [ cardList, setCardList ] = useState<JSX.Element[]>([])
-  //const defaultImageURL: string = "https://placehold.co/90x120"
 
   useEffect(() => {
     document.documentElement.style.setProperty("--swiper-theme-color", theme.colors.white);
@@ -45,10 +44,10 @@ export default function HomePage() {
 
   async function fillCardSwiper(games: Game[]): Promise<void> {
     const gameCardList: JSX.Element[] =
-      games.map((game: Game, index: number) => 
-        <GameCard key={ index } game={ game } />
+      games.map((game: Game, i: number) =>
+        <GameCard key={ i } game={ game } />
       )
-    setCardList(gameCardList)
+    setCardList(gameCardList);
   }
 
   return (
