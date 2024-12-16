@@ -1,3 +1,5 @@
+import { UseGetResponseDTO } from '@models/data/UserDTOs.ts';
+
 /* REGISTER */
 export type CurrentUserRegisterDTO = {
   username: string,
@@ -15,15 +17,7 @@ export type CurrentUserLoginDTO = {
 }
 export type CurrentUserLoginResponseDTO = {
   token: string
-	user: {
-		id: number,
-		admin: boolean,
-		email: string,
-		username: string,
-		img_perfil: string,
-		is_active: boolean,
-		is_banned: boolean,
-	}	
+	user: UseGetResponseDTO
 }
 
 /* RESET PASSWORD */
