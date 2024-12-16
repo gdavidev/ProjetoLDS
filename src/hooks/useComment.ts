@@ -6,10 +6,11 @@ import * as DTO from '@models/data/CommentDTOs'
 import { useCallback } from 'react';
 
 const endpoints = {
-	get: '/comentarios/list/',
-	post: '/comentarios/create/',
-	delete: '/comentarios/delete/',
-	put: '/comentarios/update/'
+	get: '/api/comentarios/list/',
+	post: '/api/comentarios/create/',
+	isUseful: '/api/comentarios/is-helpful/',
+	delete: '/api/comentarios/delete/',
+	put: '/api/comentarios/update/'
 }
 
 type UseCommentOptions<T> = {
@@ -56,4 +57,16 @@ export function useDeleteComment(options?: UseCommentOptions<void>) {
 			{...options}
 	);
 	return { deleteComment, ...rest };
+}
+
+export function useCommentIsUseful(options?: UseCommentOptions<void>) {
+	const sendCommentIsUseful = useCallback(async (comment: Comment) => {
+		await ApiService.post(endpoints.isUseful, { params: { id: comment.id } });
+	}, []);
+
+	const { mutate: commentIsUseful, ...rest } = useMutation('COMMENT_IS_USEFUL',
+			sendCommentIsUseful,
+			{...options}
+	);
+	return { commentIsUseful, ...rest };
 }
