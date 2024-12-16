@@ -21,7 +21,7 @@ export default function usePosts(token?: string, options?: UsePostsOptions<Post[
 
 export function usePost(id: number, token?: string, options?: UsePostsOptions<Post> & { enabled?: boolean }) {
   const { data: post, refetch: reFetchPost, isLoading: isPostLoading, ...rest } =
-      useQuery('FETCH_POST', {
+      useQuery(['FETCH_POST', id], {
         queryFn: async () => await PostApiService.get(id, token),
         ...options
       });
