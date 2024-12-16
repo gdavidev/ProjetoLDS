@@ -16,7 +16,7 @@ export default class Thumbnail {
     this.fallbackUrl = source.fallbackUrl || null;
   }
 
-  toDisplayable(): string {
+  toDisplayable(fallbackUrl?: string): string {
     if (this.base64 !== null)
       return this.getPrefixedBase64Image(this.base64);
     if (this.url !== null)
@@ -28,6 +28,8 @@ export default class Thumbnail {
     }
     if (this.fallbackUrl !== null)
       return this.fallbackUrl;
+    if (fallbackUrl !== undefined)
+      return fallbackUrl;
     return '';
   }
 

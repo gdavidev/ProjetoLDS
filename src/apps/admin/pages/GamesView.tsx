@@ -5,14 +5,13 @@ import { IonIcon } from '@ionic/react'
 import { add, createOutline, trashOutline, reloadOutline } from 'ionicons/icons';
 import TableDisplay from '@apps/admin/components/TableDisplay';
 import GameEditModal from '@apps/admin/components/modal/GameEditModal';
-import FileUtil from '@libs/FileUtil';
 import { IconButton } from '@mui/material';
 import useCurrentUser from '@/hooks/useCurrentUser';
 import useStatefulArray from '@/hooks/useStatefulArray';
 import useGames, { useDeleteGame } from '@/hooks/useGames';
 
 export default function GamesView() {
-  const [ gameModalData   , setGameModalData   ] = useState<Game>(new Game());
+  const [ gameModalData   , setGameModalData   ] = useState<Game | undefined>();
   const [ isGameModalOpen , setIsGameModalOpen ] = useState<boolean>(false);
   const { user } = useCurrentUser();
   const gameList = useStatefulArray<Game>([], {
@@ -28,7 +27,7 @@ export default function GamesView() {
   })
 
   function addGame() {
-    setGameModalData(new Game());
+    setGameModalData(undefined);
     setIsGameModalOpen(true);
   }
   function editGame(game: Game) {
@@ -42,8 +41,8 @@ export default function GamesView() {
       const updatedGame: Game = newGame
       if (updatedGame.thumbnail === undefined && oldGame.thumbnail !== undefined)
         updatedGame.thumbnail = oldGame.thumbnail
-      if (updatedGame.file === undefined && oldGame.file !== undefined)
-        updatedGame.file = oldGame.file
+      if (updatedGame.rom === undefined && oldGame.rom !== undefined)
+        updatedGame.rom = oldGame.rom
 
       gameList.update(newGame)
     }
@@ -101,9 +100,15 @@ export default function GamesView() {
           }
         </TableDisplay>
       </section>
-      <GameEditModal game={ gameModalData } 
-          onCloseRequest={ () => { setIsGameModalOpen(false) } } isOpen={ isGameModalOpen } 
-          onChange={ gameModalData.id === 0 ? gameList.append : updateGameOnGameList } />
+      <GameEditModal
+          game={ gameModalData }
+          onCloseRequest={ () => { setIsGameModalOpen(false) } }
+          isOpen={ isGameModalOpen }
+          onChange={ (game: Game) => {
+            if (gameModalData && gameModalData.id === 0)
+               return gameList.append(game)
+            updateGameOnGameList(game)
+          } } />
     </>
   );
 }
@@ -121,22 +126,14 @@ type GameDataTableRowProps = {
 function GameDataTableRow(props: GameDataTableRowProps): React.ReactElement {  
   const game: Game = props.game;
   const cellClassName: string | undefined = props.cellClassName
-  let source: string
-  if (props.game.thumbnail?.base64) {
-    source = 'data:image/jpeg;base64,' + props.game.thumbnail?.base64
-  } else if (props.game.thumbnail?.file) {
-    source = FileUtil.uploadedFileToURL(props.game.thumbnail.file);    
-  } else {
-    source = "https://placehold.co/16"
-  }
 
   return (
     <tr className={ props.rowClassName }>
       <td className={ cellClassName }>         
         <img
             alt={ game.name + ' thumbnail' }
-            className='max-w-16 min-h-16 bg-slate-600'
-            src={ source } />
+            className='object-cover h-16 w-16 bg-slate-600'
+            src={ props.game.thumbnail.toDisplayable("https://placehold.co/16") } />
       </td>
       <td className={ cellClassName }>{ game.id                     }</td>
       <td className={ cellClassName }>{ game.name                   }</td>

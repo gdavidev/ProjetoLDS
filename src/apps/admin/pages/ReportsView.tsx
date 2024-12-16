@@ -1,16 +1,19 @@
 import { IonIcon } from '@ionic/react';
-import { createOutline, enterOutline } from 'ionicons/icons';
+import { createOutline, enterOutline, reloadOutline } from 'ionicons/icons';
 import TableDisplay from '@apps/admin/components/TableDisplay';
 import { IconButton } from '@mui/material';
 import useStatefulArray from '@/hooks/useStatefulArray';
 import useCurrentUser from '@/hooks/useCurrentUser';
-import Report, { ReportContentType, ReportStatus } from '@models/Report';
+import Report, { ReportContentType } from '@models/Report';
 import useRequestErrorHandler from '@/hooks/useRequestErrorHandler.ts';
 import useNotification from '@/hooks/feedback/useNotification.tsx';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import DateFormatter from '@libs/DateFormatter.ts';
 import { useNavigate } from 'react-router-dom';
 import ReportResolveModal from '@apps/admin/components/modal/ReportResolveModal.tsx';
+import { useReports } from '@/hooks/useReport.ts';
+import Loading from '@shared/components/Loading.tsx';
+import { AxiosError } from 'axios';
 
 export default function ReportsView() {
     const [ reportModalData  , setReportModalData   ] = useState<Report | undefined>(undefined);
@@ -22,16 +25,13 @@ export default function ReportsView() {
         compare: (r1: Report, r2: Report) => r1.id === r2.id,
     });
 
-    // // ---- API Calls Setup ----
-    // const { isReportsLoading, reloadReports } = useReports(user!.token, {
-    //     onSuccess: (list: Report[]) => {
-    //         reports.set(list.sort((prev, curr) => prev.id - curr.id))
-    //     },
-    //     onError: (error: AxiosError | Error) => handleRequestError(error)
-    // });
-    useEffect(() => {
-        reports.set(mockReports)
-    }, []);
+    // ---- API Calls Setup ----
+    const { isReportsLoading, reloadReports } = useReports(user!.token, {
+        onSuccess: (list: Report[]) => {
+            reports.set(list.sort((prev, curr) => prev.id - curr.id))
+        },
+        onError: (error: AxiosError | Error) => handleRequestError(error)
+    });
 
     // ---- API Calls Error Handling ----
     const { handleRequestError } = useRequestErrorHandler({
@@ -62,19 +62,19 @@ export default function ReportsView() {
         { colName: ''          , colWidth: '25px'  },
     ];
 
-    // if (isReportsLoading)
-    //     return <Loading />
+    if (isReportsLoading)
+        return <Loading />
     return (
         <>
             <div className='flex flex-col'>
                 <div className='mx-5 flex items-center justify-between text-white'>
                     <h2 className='font-rubik font-bold'>Lista de Denuncias</h2>
-                    {/*<div className='flex gap-x-2'>*/}
-                    {/*    <IconButton onClick={() => reloadReports()}>*/}
-                    {/*        <IonIcon icon={reloadOutline} />*/}
-                    {/*        Recarregar*/}
-                    {/*    </IconButton>*/}
-                    {/*</div>*/}
+                    <div className='flex gap-x-2'>
+                        <IconButton onClick={() => reloadReports()}>
+                            <IonIcon icon={reloadOutline} />
+                            Recarregar
+                        </IconButton>
+                    </div>
                 </div>
                 <TableDisplay
                     headerTemplate={templateHeader}
@@ -176,54 +176,3 @@ function ReportDataTableRow(props: ReportTableRowProps) {
         </tr>
     );
 }
-
-const mockReports = [
-    new Report(
-        16,
-        ReportContentType.POST,
-        2,
-        "Wrong information",
-        12,
-        ReportStatus.PENDING,
-        0,
-        '',
-        new Date(0),
-        new Date(0),
-    ),
-    new Report(
-        16,
-        ReportContentType.POST,
-        2,
-        "Wrong information",
-        12,
-        ReportStatus.INFERRED,
-        0,
-        'Informação com erro',
-        new Date(0),
-        new Date(0),
-    ),
-    new Report(
-        16,
-        ReportContentType.POST,
-        2,
-        "Wrong information",
-        12,
-        ReportStatus.DEFERRED,
-        0,
-        'Informação confirmada',
-        new Date(0),
-        new Date(0),
-    ),
-    new Report(
-        16,
-        ReportContentType.COMMENT,
-        2,
-        "Wrong information",
-        12,
-        ReportStatus.INFERRED,
-        0,
-        'Informação com erro',
-        new Date(0),
-        new Date(0),
-    ),
-]

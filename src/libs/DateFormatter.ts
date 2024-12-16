@@ -43,8 +43,10 @@ export default class DateFormatter {
 			return 'Hoje';
 		if (date.getDate() === (currentDate.getDate() - 1))
 			return 'Ontem';
+		if (diffDays === 1)
+			return `Há 1 dia`;
 		if (diffDays < 5)
-			return 'Há 5 dias';
+			return `Há ${diffDays} dias`;
 
 		return DateFormatter.dateToString(date)
 	}

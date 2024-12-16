@@ -39,7 +39,7 @@ describe('DateFormatter', () => {
 		const fourDaysAgo = new Date(now.getTime() - 4 * 24 * 60 * 60 * 1000); // 4 days ago
 
 		const result = DateFormatter.relativeDate(fourDaysAgo);
-		expect(result).toBe("Há 5 dias");
+		expect(result).toBe("Há 4 dias");
 	});
 
 	it("should fallback to DateFormatter.dateToString for dates older than 5 days", () => {

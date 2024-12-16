@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import Box from '@mui/material/Box';
 import { IonIcon } from '@ionic/react';
 import { add, createOutline, trashOutline, reloadOutline } from 'ionicons/icons';
@@ -9,32 +9,48 @@ import EmulatorEditModal from '../components/modal/EmulatorEditModal';
 import useStatefulArray from '@/hooks/useStatefulArray';
 import useEmulators, { useDeleteEmulator } from '@/hooks/useEmulators';
 import useCurrentUser from '@/hooks/useCurrentUser';
+import useRequestErrorHandler from '@/hooks/useRequestErrorHandler.ts';
+import { AxiosError } from 'axios';
+import useNotification from '@/hooks/feedback/useNotification.tsx';
 
 export default function EmulatorsView() {
-	const [emulatorModalData, setEmulatorModalData] = useState<Emulator>(new Emulator());
-	const [isEmulatorModalOpen, setIsEmulatorModalOpen] = useState<boolean>(false);
-	const { user } = useCurrentUser();
+	const { notifyError, notifySuccess } = useNotification();
+	const [ emulatorModalData	 , setEmulatorModalData 	] = useState<Emulator | undefined>(undefined);
+	const [ isEmulatorModalOpen, setIsEmulatorModalOpen ] = useState<boolean>(false);
+	const { user, forceLogin } = useCurrentUser();
 	const emulators = useStatefulArray<Emulator>([], {
 		compare: (emu1: Emulator, emu2: Emulator) => emu1.id === emu2.id,
 	});
 
 	const { refetch: reload } = useEmulators({
 		onSuccess: (list: Emulator[]) => emulators.set(list.sort((prev, curr) => prev.id - curr.id)),
-		onError: (err: any) => console.log('err: ' + JSON.stringify(err)),
+		onError: (err: AxiosError | Error) => handleRequestError(err),
 	});
 	const { mutate: deleteEmulator } = useDeleteEmulator(user?.token!, {
-		onSuccess: (emulator: Emulator) => emulators.remove(emulator),
-		onError: (err: any) => console.log('err: ' + JSON.stringify(err)),
+		onSuccess: (emulator: Emulator) => {
+			notifySuccess("Emulador removido com sucesso!");
+			emulators.remove(emulator);
+		},
+		onError: (err: AxiosError | Error) => handleRequestError(err),
 	});
 
-	function addEmulator() {
-		setEmulatorModalData(new Emulator());
+	// ---- API Calls Error Handling ----
+	const { handleRequestError } = useRequestErrorHandler({
+		mappings: [
+			{ status: 401, onError: () => forceLogin('Seu login expirou, por favor entre novamente') },
+			{ status: 'default', userMessage: "Por favor tente novamente mais tarde." }
+		],
+		onError: (message: string) => notifyError(message)
+	});
+
+	const addEmulator = useCallback(() => {
+		setEmulatorModalData(undefined);
 		setIsEmulatorModalOpen(true);
-	}
-	function editEmulator(emulator: Emulator) {
+	}, []);
+	const editEmulator = useCallback((emulator: Emulator) => {
 		setEmulatorModalData(emulator);
 		setIsEmulatorModalOpen(true);
-	}
+	}, []);
 
 	const templateHeader: { colName: string; colWidth: string }[] = [
 		{ colName: '#', colWidth: '30px' },
@@ -88,7 +104,11 @@ export default function EmulatorsView() {
 					setIsEmulatorModalOpen(false);
 				}}
 				isOpen={isEmulatorModalOpen}
-				onChange={emulatorModalData.id === 0 ? emulators.append : emulators.update}
+				onChange={ (emulator: Emulator) => {
+					if (emulatorModalData && emulatorModalData.id === 0)
+						return emulators.append(emulator);
+					emulators.update(emulator);
+				}}
 			/>
 		</>
 	);
