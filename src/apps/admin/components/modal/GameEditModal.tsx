@@ -79,7 +79,10 @@ export default function GameEditModal(props: GameEditModalProps) {
           onSuccess: async (game: Game) => {
             props.onChange?.(game);
             props.onCloseRequest?.();
-            notifySuccess('Jogo criado com sucesso');
+            notifySuccess((props.game && props.game.id !== 0) ?
+                'Jogo criado com sucesso' :
+                'Jogo alterado com sucesso'
+            );
           },
           onError: (err: AxiosError | Error) => handleRequestError(err)
         });

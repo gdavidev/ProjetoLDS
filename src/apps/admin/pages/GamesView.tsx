@@ -107,7 +107,7 @@ export default function GamesView() {
           onChange={ (game: Game) => {
             if (gameModalData && gameModalData.id === 0)
                return gameList.append(game)
-            return updateGameOnGameList(game)
+            updateGameOnGameList(game)
           } } />
     </>
   );
