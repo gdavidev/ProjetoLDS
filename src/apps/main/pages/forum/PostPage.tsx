@@ -166,7 +166,7 @@ export default function PostPage() {
       <div className="flex w-full gap-x-4 items-start">
         <div className="max-w-16 max-h-16 overflow-hidden rounded-full">
           <img
-              src={post.owner.profilePic.toDisplayable()}
+              src={ post.owner.profilePic.toDisplayable() }
               className="object-cover h-full"
               alt="post-owner" />
         </div>
@@ -176,7 +176,7 @@ export default function PostPage() {
             Em:
             <Link
                 className='ms-[1ch] underline cursor-pointer'
-                to={'/forum/feed?categoryId=' + post.category.id}>
+                to={'/forum/feed?search=' + post.category.name}>
               {post.category.name}
             </Link>
           </span>

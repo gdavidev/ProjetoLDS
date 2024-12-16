@@ -144,7 +144,7 @@ export default function PostContainer(props: PostContainerProps) {
           </div>
           <Link
               className="underline text-primary-light text-lg self-end"
-              to={ '/forum/feed?categoryId=' + props.category.id }>
+              to={ '/forum/feed?search=' + props.category.name }>
             Ver mais...
           </Link>
         </div>

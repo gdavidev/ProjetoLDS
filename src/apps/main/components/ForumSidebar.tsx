@@ -42,7 +42,7 @@ export default function ForumSidebar() {
 							<Link
 									key={i}
 									className='flex items-center gap-x-2 text-white'
-									to={'/forum/feed?categoryId=' + cat.id }>
+									to={'/forum/feed?search=' + cat.name }>
 								<IonIcon icon={ arrowForward } />
 								{ cat.name }
 							</Link>
