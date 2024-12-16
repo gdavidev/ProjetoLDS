@@ -1,13 +1,9 @@
 import User from "./User";
 import * as DTO from '@models/data/CommentDTOs'
 
-export enum CommentParentType {
-  POST,
-  COMMENT,
-}
 export type CommentParent = {
-  id: number
-  type: CommentParentType
+  postId: number,
+  parentId: number | null,
 }
 
 export default class Comment {
@@ -59,7 +55,7 @@ export default class Comment {
 
   static fromGetDTO(dto: DTO.CommentGetResponseDTO) {
     return new Comment(
-        { id: dto.id_topico, type: Comment.parseCommentParentType(dto.tipo_pai) } as CommentParent,
+        { postId: dto.id_topico, parentId: dto.id_parent } as CommentParent,
         new User(dto.id_user, ''),
         dto.descricao,
         dto.id,
@@ -71,24 +67,13 @@ export default class Comment {
     )
   }
 
-  public static parseCommentParentType(type: string) {
-    if (type === 'comentario') return CommentParentType.COMMENT
-    if (type === 'post') return CommentParentType.POST
-    return CommentParentType.POST
-  }
-
-  public static serializeCommentParentType(type: CommentParentType) {
-    if (type === CommentParentType.COMMENT) return 'comentario'
-    if (type === CommentParentType.POST) return 'post'
-    return 'post'
-  }
-
   public toCreateDTO(): DTO.CommentCreateDTO {
     return {
-      id_topico: this.parent.id,
+      id_topico: this.parent.postId,
+      id_parent: this.parent.parentId ?? 0,
       id_user: this.owner.id,
       descricao: this.content,
-      comentario_delete: false
+      is_helpful: false,
     }
   }
 }

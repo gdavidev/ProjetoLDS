@@ -49,24 +49,27 @@ export default function FeedPage() {
               setParams('search', text);
               searchPosts(text);
             }}
-            onErase={ () => {
-              clearParams()
-              reFetchPosts();
+            onErase={ async () => {
+              clearParams();
+              await reFetchPosts();
             }}
             isLoading={ isSearchPostsLoading }
             defaultValue={ params.search }
         />
 
-        <div className="flex flex-col gap-y-16">
+        <div className="flex flex-col">
           {!postsByCategory ?
-              <Loading /> :
+              <Loading className='mt-[20vh]' /> :
               postsByCategory.map((postsByCategoryNode: { category: Category, posts: Post[] }, i: number) => (
                   <PostContainer
                       key={i}
                       category={postsByCategoryNode.category}
                       title={postsByCategoryNode.category.name}
                       posts={postsByCategoryNode.posts}
-                      onUpdate={reFetchPosts}
+                      onUpdate={ async () => {
+                        setPostsByCategory(null);
+                        await reFetchPosts();
+                      }}
                   />
               ))
           }

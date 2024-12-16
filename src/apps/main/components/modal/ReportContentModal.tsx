@@ -5,7 +5,7 @@ import Report, { ReportContentType } from '@models/Report.ts';
 import useSendReport from '@/hooks/useReport.ts';
 import useCurrentUser from '@/hooks/useCurrentUser.tsx';
 import useNotification from '@/hooks/feedback/useNotification.tsx';
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 
 type ReportContentModalProps = {
 	contentType: ReportContentType;
@@ -18,14 +18,19 @@ type ReportContentModalFormData = {
 
 export default function ReportContentModal(props: ReportContentModalProps) {
 	const { user, askToLogin } = useCurrentUser();
-	const { notifySuccess, notifyError } = useNotification();
-	const { handleSubmit, control } = useForm<ReportContentModalFormData>({
+	const { notifySuccess, notifyError, notifyInfo } = useNotification();
+	const { handleSubmit, control, reset } = useForm<ReportContentModalFormData>({
 		defaultValues: {
 			reportText: ''
 		}
 	});
 
-	const { sendReport } = useSendReport(user?.token!, {
+	useEffect(() => {
+		if (props.isOpen)
+			reset();
+	}, [props.isOpen]);
+
+	const { sendReport, isSendReportLoading } = useSendReport(user?.token!, {
 		onSuccess: () => {
 			notifySuccess('Denúncia enviada com sucesso.')
 			props.onCloseRequest?.()
@@ -46,6 +51,11 @@ export default function ReportContentModal(props: ReportContentModalProps) {
 				data.reportText,
 		));
 	}, [user])
+
+	useEffect(() => {
+		if (isSendReportLoading)
+			notifyInfo('Enviando...')
+	}, [isSendReportLoading]);
 
 	return (
 			<ModalPopup
@@ -70,8 +80,8 @@ export default function ReportContentModal(props: ReportContentModalProps) {
 							)} />
 					<button
 							type='submit'
-							className='btn-primary'
-							onClick={ props.onCloseRequest }>
+							disabled={ isSendReportLoading }
+							className='btn-primary'>
 						Enviar
 					</button>
 				</form>

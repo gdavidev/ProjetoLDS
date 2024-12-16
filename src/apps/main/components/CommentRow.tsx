@@ -1,17 +1,16 @@
 import DateFormatter from '@libs/DateFormatter.ts';
-import LikeButton from '@apps/main/components/LikeButton.tsx';
 import Comment from '@models/Comment.ts';
 import useCurrentUser from '@/hooks/useCurrentUser';
-import React, { useCallback, useState } from 'react';
-import { useLikeComment } from '@/hooks/useLikeComments.ts';
+import React, { FormEvent, useCallback, useState } from 'react';
 import {
 	chatbubbleOutline,
 	flagOutline,
+	star,
 	starOutline,
 	hammerOutline,
 	trashOutline,
 	ellipsisHorizontal,
-	checkmarkOutline,
+	checkmarkOutline, heart, heartOutline,
 } from 'ionicons/icons';
 import { IonIcon } from '@ionic/react';
 import { Role } from '@/hooks/usePermission.ts';
@@ -20,38 +19,31 @@ import { ListItemIcon, ListItemText, MenuList } from '@mui/material';
 import MenuItem from '@mui/material/MenuItem';
 import Menu from '@mui/material/Menu';
 import TextArea from '@shared/components/formComponents/TextArea.tsx';
-import { ReportContentType } from '@models/Report.ts';
+import User from '@models/User.ts';
 
 type CommentRowProps = {
-	userIsPostOwner: boolean;
-	userIsCommentOwner: boolean;
+	postOwner: User;
 	comment: Comment;
-	onReportClick: (contentType: ReportContentType, contentId: number) => void;
+	onSendAnswer: (answeredComment: Comment, answerText: string) => void;
+	onLikeClick: (comment: Comment) => void;
+	onReportClick: (comment: Comment) => void;
 	onBanClick: (userId: number) => void;
-	onExcludeClick: (commentId: number) => void;
-	onIsUsefulClick: (commentId: number) => void;
+	onExcludeClick: (comment: Comment) => void;
+	onIsUsefulClick: (comment: Comment) => void;
 	className?: string;
 }
 
 export default function CommentRow(props: CommentRowProps) {
 	const [ isAnswerInputOpen, setIsAnswerInputOpen ] = useState<boolean>(false);
-	const { user, askToLogin } = useCurrentUser();
-	const [ isLiked, setLiked ] = useState<boolean>(props.comment.hasLiked);
-	const { mutate: toggleLike } = useLikeComment({
-		onError: () => setLiked(props.comment.hasLiked)
-	});
+	const { user } = useCurrentUser();
 
-	const handleToggleLike = useCallback(() => {
-		if (!user)
-			return askToLogin('É preciso estar logado para curtir comentários')
+	const handleSendAnswer = useCallback((e: FormEvent<HTMLFormElement>) => {
+		e.preventDefault();
+		const formData = new FormData(e.currentTarget);
+		const values = Object.fromEntries(formData.entries());
 
-		toggleLike({
-			currentState: isLiked,
-			targetId: props.comment.id,
-			token: user!.token,
-		});
-		setLiked(li => !li)
-	}, [isLiked, props.comment]);
+		props.onSendAnswer(props.comment, values['answer'] as string);
+	}, []);
 
 	return (
 			<div className={ "flex flex-col mt-8 " + props.className }>
@@ -62,16 +54,16 @@ export default function CommentRow(props: CommentRowProps) {
 								className='object-cover h-full'
 								alt="post-owner" />
 					</div>
-					<div className="flex flex-col justify-between grow">
+					<div className="flex flex-col gap-y-1 justify-between grow">
 						<span className="flex gap-x-1 items-center text-gray-500 text-xs h-2">
 							{
-								props.userIsCommentOwner ?
-										<span className='text-primary'>Você</span> :
+								(user && props.comment.owner.id === user.id) ?
+										<span className="bg-primary text-white px-3 rounded-md">Você</span> :
 										props.comment.owner.name
 							}
 							{
-								props.userIsPostOwner &&
-									<span className='text-teal-500'> OP</span>
+									(props.postOwner.id === props.comment.owner.id) &&
+										<span className='text-teal-500'> OP</span>
 							}
 							<span className="text-sm">&#8226;</span>
 							{DateFormatter.relativeDate(props.comment.createdDate)}
@@ -88,42 +80,44 @@ export default function CommentRow(props: CommentRowProps) {
 
 						<CommentRowActionBar
 								user={ user }
-								userIsPostOwner={ props.userIsPostOwner }
-								userIsCommentOwner={ props.userIsCommentOwner }
+								userIsPostOwner={ !!user && props.postOwner.id === user.id }
+								userIsCommentOwner={ !!user && props.comment.owner.id === user.id }
+								comment={ props.comment }
+								onLikeClick={ () => props.onLikeClick(props.comment) }
 								onAnswerClick={ () => setIsAnswerInputOpen(true) }
-								onReportClick={ () => props.onReportClick(ReportContentType.COMMENT, props.comment.id) }
+								onReportClick={ () => props.onReportClick(props.comment) }
 								onBanClick={ () => props.onBanClick(props.comment.owner.id) }
-								onExcludeClick={ () => props.onExcludeClick(props.comment.id) }
-								onIsUsefulClick={ () => props.onIsUsefulClick(props.comment.id) }
+								onExcludeClick={ () => props.onExcludeClick(props.comment) }
+								onIsUsefulClick={ () => props.onIsUsefulClick(props.comment) }
 						/>
 
 						{
 							isAnswerInputOpen &&
-									<div className="flex flex-col items-end gap-y-1 mt-2">
+									<form
+											onSubmit={ handleSendAnswer }
+											className="flex flex-col items-end gap-y-1 mt-2">
 										<TextArea
 											name="answer"
 											className="rounded-md text-black px-2 py-1"
 											labelClassName="hidden" />
 										<div className='flex gap-x-2'>
 											<button
+													type="reset"
 													onClick={ () => setIsAnswerInputOpen(false) }
 													className="btn-secondary">
 												Cancelar
 											</button>
-											<button className="btn-primary">
+											<button
+													type="submit"
+													className="btn-primary">
 												Enviar
 											</button>
 										</div>
-									</div>
+									</form>
 						}
 
 					</div>
 
-					<LikeButton
-							className="self-center"
-							onClick={handleToggleLike}
-							checked={isLiked}
-					/>
 				</div>
 					{
 						(props.comment.responses && props.comment.responses.length > 0) &&
@@ -133,9 +127,13 @@ export default function CommentRow(props: CommentRowProps) {
 												<CommentRow
 														key={i}
 														className='!mt-3'
-														userIsPostOwner={ props.userIsPostOwner }
-														userIsCommentOwner={ props.userIsCommentOwner }
+														postOwner={ props.postOwner }
+														onSendAnswer={ props.onSendAnswer }
+														onLikeClick={ props.onLikeClick }
 														onReportClick={ props.onReportClick }
+														onIsUsefulClick={ props.onIsUsefulClick }
+														onBanClick={ props.onBanClick }
+														onExcludeClick={ props.onExcludeClick }
 														comment={ resp } />
 										))
 									}
@@ -149,6 +147,8 @@ type CommentRowActionBarProps = {
 	userIsPostOwner: boolean;
 	userIsCommentOwner: boolean;
 	user: CurrentUser | null;
+	comment: Comment;
+	onLikeClick: () => void;
 	onIsUsefulClick: () => void;
 	onAnswerClick: () => void;
 	onReportClick: () => void;
@@ -170,23 +170,39 @@ function CommentRowActionBar(props: CommentRowActionBarProps) {
 
 	return (
 			<div className="flex gap-x-2 w-full justify-start">
-				{ (props.user && (props.userIsPostOwner || props.user.role === Role.ADMIN)) &&
-							<button
-									onClick={ props.onIsUsefulClick }
-									className="cursor-pointer hover:bg-slate-600 flex items-center gap-x-1 py-0.5 px-2 rounded-full">
-								<IonIcon icon={ starOutline } />
-								<span>Mais útil</span>
-							</button>
-				}
+				<button
+						onClick={props.onLikeClick}
+						className="cursor-pointer hover:bg-primary-dark text-primary-light flex items-center gap-x-1 py-0.5 px-2 rounded-full">
+					{
+						props.comment.hasLiked ?
+								<IonIcon icon={heart} /> :
+								<IonIcon icon={heartOutline} />
+					}
+					<span>Curtir</span>
+				</button>
 
 				<button
-						onClick={ props.onAnswerClick }
+						onClick={props.onAnswerClick}
 						className="cursor-pointer hover:bg-slate-600 flex items-center gap-x-1 py-0.5 px-2 rounded-full">
 					<IonIcon icon={chatbubbleOutline} />
 					<span>Responder</span>
 				</button>
+
+				{(props.user && (props.userIsPostOwner || props.user.role === Role.ADMIN)) &&
+						<button
+							onClick={props.onIsUsefulClick}
+							className="cursor-pointer text-yellow-500 hover:bg-slate-600 flex items-center gap-x-1 py-0.5 px-2 rounded-full">
+								{
+									props.comment.isUseful ?
+										<IonIcon icon={star} /> :
+										<IonIcon icon={starOutline} />
+								}
+								<span>útil</span>
+						</button>
+				}
+
 				<button
-						onClick={ handleOptionsClick }
+						onClick={handleOptionsClick}
 						className="cursor-pointer hover:bg-slate-600 flex items-center gap-x-1 py-0.5 px-2 rounded-full">
 					<IonIcon icon={ellipsisHorizontal} />
 				</button>
@@ -206,21 +222,21 @@ function CommentRowActionBar(props: CommentRowActionBarProps) {
 							</ListItemIcon>
 							<ListItemText>Denunciar</ListItemText>
 						</MenuItem>
-						{ (props.user && [Role.ADMIN, Role.MODERATOR].includes(props.user.role)) &&
-									<MenuItem onClick={ props.onBanClick }>
+						{(props.user && [Role.ADMIN, Role.MODERATOR].includes(props.user.role)) &&
+									<MenuItem onClick={props.onBanClick}>
 										<ListItemIcon>
 											<IonIcon icon={hammerOutline} />
 										</ListItemIcon>
 										<ListItemText>Banir Usuário</ListItemText>
 									</MenuItem>
 						}
-						{ (props.user && (props.userIsCommentOwner || [Role.ADMIN, Role.MODERATOR].includes(props.user.role))) &&
-									<MenuItem onClick={ props.onExcludeClick }>
-										<ListItemIcon>
-											<IonIcon icon={trashOutline} />
-										</ListItemIcon>
-										<ListItemText>Apagar</ListItemText>
-									</MenuItem>
+						{(props.user && (props.userIsCommentOwner || [Role.ADMIN, Role.MODERATOR].includes(props.user.role))) &&
+								<MenuItem onClick={props.onExcludeClick}>
+									<ListItemIcon>
+										<IonIcon icon={trashOutline} />
+									</ListItemIcon>
+									<ListItemText>Apagar</ListItemText>
+								</MenuItem>
 						}
 					</MenuList>
 				</Menu>

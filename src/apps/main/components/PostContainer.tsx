@@ -12,15 +12,19 @@ import useNotification from '@/hooks/feedback/useNotification.tsx';
 import useRequestErrorHandler from '@/hooks/useRequestErrorHandler.ts';
 import { AxiosError } from 'axios';
 import { useDeletePost } from '@/hooks/usePosts.ts';
+import { MessageBoxResult, MessageBoxType } from '@shared/components/MessageBox.tsx';
+import useMessageBox from '@/hooks/interaction/useMessageBox.ts';
 
 type PostContainerProps = {
   title: string,
   posts: Post[],
   category: Category,
+	onUpdate: () => void
 }
 
 export default function PostContainer(props: PostContainerProps) {
   const navigate = useNavigate();
+  const { openMessageBox } = useMessageBox();
   const { notifySuccess, notifyError, notifyInfo } = useNotification();
   const [ posts, setPosts ] = useState<JSX.Element[]>([]);
   const { user, askToLogin, forceLogin } = useCurrentUser();
@@ -45,12 +49,18 @@ export default function PostContainer(props: PostContainerProps) {
   });
 
   const { ban, isBanLoading } = useBan(user?.token!, {
-    onSuccess: (_: any) => notifySuccess('Usuário banido com sucesso'),
+    onSuccess: (_: any) => {
+			notifySuccess('Usuário banido com sucesso');
+			props.onUpdate?.();
+		},
     onError: (_: any) => notifyError('Não foi possível banir usuário')
   });
 
   const { deletePost, isDeletePostLoading } = useDeletePost(user?.token!, {
-    onSuccess: () => notifySuccess('Tópico deletado com sucesso!'),
+    onSuccess: () => {
+			notifySuccess('Post deletado com sucesso!');
+			props.onUpdate?.();
+		},
     onError: (err: AxiosError | Error) => handleRequestError(err)
   });
 
@@ -84,11 +94,27 @@ export default function PostContainer(props: PostContainerProps) {
   }, []);
 
   const handleBanButtonClick = useCallback((userId: number) => {
-    ban(userId);
+    openMessageBox({
+      title: 'Banir Usuário',
+      message: 'Tem certeza que deseja banir esse usuário?',
+      type: MessageBoxType.YES_NO,
+      onClick: (result: MessageBoxResult) => {
+        if (result === MessageBoxResult.YES)
+          ban(userId);
+      }
+    });
   }, [user]);
 
   const handleExcludeButtonClick = useCallback((post: Post) => {
-    deletePost(post);
+    openMessageBox({
+      title: 'Deletar Comentário',
+      message: 'Tem certeza que deseja deletar esse comentário?',
+      type: MessageBoxType.YES_NO,
+      onClick: (result: MessageBoxResult) => {
+        if (result === MessageBoxResult.YES)
+          deletePost(post);
+      }
+    });
   }, [user]);
 
   useMemo(() => {
@@ -113,7 +139,7 @@ export default function PostContainer(props: PostContainerProps) {
       <>
         <div className='text-white flex flex-col w-full'>
           <h2 className='text-lg font-bold mb-2'>{props.title}</h2>
-          <div className="ms-8 w-full font-poppins flex flex-col gap-y-3">
+          <div className="ms-2 w-full font-poppins flex flex-col gap-y-3">
             { posts }
           </div>
           <Link

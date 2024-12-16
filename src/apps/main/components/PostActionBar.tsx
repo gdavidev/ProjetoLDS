@@ -138,7 +138,7 @@ function PostActionsAsMenu(props: PostComplementaryActions) {
 						}}
 						sx={{ width: 320, maxWidth: '100%' }}>
 					<MenuList>
-							<MenuItem>
+							<MenuItem onClick={ props.onReportClick }>
 								<ListItemIcon>
 									<IonIcon icon={flagOutline} />
 								</ListItemIcon>
