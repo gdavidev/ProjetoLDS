@@ -100,14 +100,14 @@ export default class Report {
 	}
 
 	public static parseContentType(value: string): ReportContentType {
-		if (value.toLowerCase() === 'post') return ReportContentType.POST;
-		if (value.toLowerCase() === 'comment') return ReportContentType.COMMENT;
+		if (value.toLowerCase() === 'Topico') return ReportContentType.POST;
+		if (value.toLowerCase() === 'Comentario') return ReportContentType.COMMENT;
 		throw new Error(`Could not parse content type: '${ value }'`);
 	}
 
 	public static serializeContentType(value: ReportContentType): string {
-		if (value === ReportContentType.POST) return 'post';
-		if (value === ReportContentType.COMMENT) return 'comment';
+		if (value === ReportContentType.POST) return 'Topico';
+		if (value === ReportContentType.COMMENT) return 'Comentario';
 		throw new Error(`Could not serialize content type: '${ value }'`);
 	}
 
