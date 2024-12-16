@@ -8,6 +8,7 @@ export type NotificationProps = {
 		horizontal: 'left' | 'right',
 	},
 	autoHideDuration: number,
+	icon?: JSX.Element
 	open?: boolean,
 	onClose?: () => void,
 }
@@ -21,6 +22,7 @@ export default function Notification(props: NotificationProps) {
 			<Alert
 					onClose={ props.onClose }
 					severity={ props.severity }
+					icon={ props.icon }
 					variant="filled"
 					sx={{ width: '100%' }}>
 				{ props.message }
