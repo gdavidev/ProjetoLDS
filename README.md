@@ -9,9 +9,11 @@
 
 - **Front:**
   - Main Tech: Typescript on React with Vite and Tailwind;
-  - Component Libraries: SwiperJS and MUI Components (Joy UI version).
-  - Tool Libraries: ReactQuery and Axios for HTTP Requests handling and js-cookie.
-  - Testing: Jest and react-testing-library.
-- **Back API:** Python (Django)
-- **Back API Client:** Delphi
-- **Database:** PostgreSQL
+  - Component Libraries: SwiperJS and MUI Components;
+  - Tool Libraries: ReactQuery and Axios for HTTP Requests handling and js-cookie;
+  - Notification: pusher-js;
+  - Testing: Vitest and react-testing-library.
+- **Back API:** Python (Django), PostgreSQL
+  - link: https://github.com/Thraryion/EmuhubAPI
+- **Desktop Client:** Delphi
+  - link: https://github.com/Denis-Saavedra/EmuHub-Desktop
