@@ -66,7 +66,7 @@ export default function OverlayContextProvider({ children }: PropsWithChildren) 
 								<Notification
 										{...notificationProps}
 										open={ isNotificationBarOpen }
-										onClose={ () => setIsUpdateNotificationBarOpen(false) }
+										onClose={ () => setIsNotificationBarOpen(false) }
 								/>
 				}
 				{
@@ -74,7 +74,7 @@ export default function OverlayContextProvider({ children }: PropsWithChildren) 
 								<Notification
 										{...updateNotificationProps}
 										open={ isUpdateNotificationBarOpen }
-										onClose={ () => setIsNotificationBarOpen(false) }
+										onClose={ () => setIsUpdateNotificationBarOpen(false) }
 								/>
 				}
 				{
