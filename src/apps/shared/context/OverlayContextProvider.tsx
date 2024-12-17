@@ -21,17 +21,17 @@ export const OverlayContext =
 export default function OverlayContextProvider({ children }: PropsWithChildren) {
 	const { user } = useCurrentUser();
 	const notification = usePusherNotifications({ user: user });
-	const [ updateNotificationProps    , setUpdateNotificationProps     ] = useState<NotificationProps | null>(null);
-	const [ isUpdateNotificationBarOpen, setIsUpdateNotificationBarOpen ] = useState<boolean>(false);
-	const [ notificationProps    , setNotificationProps     ] = useState<NotificationProps | null>(null);
-	const [ isNotificationBarOpen, setIsNotificationBarOpen ] = useState<boolean>(false);
+	const [ pusherNotification  		, setPusherNotification   		] = useState<NotificationProps | null>(null);
+	const [ isPusherNotificationOpen, setIsPusherNotificationOpen ] = useState<boolean>(false);
+	const [ notificationProps , setNotificationProps  ] = useState<NotificationProps | null>(null);
+	const [ isNotificationOpen, setIsNotificationOpen ] = useState<boolean>(false);
 	const [ messageBoxProps , setMessageBoxProps  ] = useState<MessageBoxProps | null>(null);
 	const [ isMessageBoxOpen, setIsMessageBoxOpen ] = useState<boolean>(false);
 
 	useEffect(() => {
 		if (notification) {
-			setIsNotificationBarOpen(true);
-			setUpdateNotificationProps({
+			setIsPusherNotificationOpen(true);
+			setPusherNotification({
 				severity: 'info',
 				message: notification.message,
 				anchorOrigin: {
@@ -46,7 +46,7 @@ export default function OverlayContextProvider({ children }: PropsWithChildren) 
 
 	useEffect(() => {
 		if (notificationProps)
-			setIsNotificationBarOpen(true);
+			setIsNotificationOpen(true);
 	}, [notificationProps]);
 
 	useEffect(() => {
@@ -65,16 +65,16 @@ export default function OverlayContextProvider({ children }: PropsWithChildren) 
 						notificationProps &&
 								<Notification
 										{...notificationProps}
-										open={ isNotificationBarOpen }
-										onClose={ () => setIsNotificationBarOpen(false) }
+										open={ isNotificationOpen }
+										onClose={ () => setIsNotificationOpen(false) }
 								/>
 				}
 				{
-						updateNotificationProps &&
+						pusherNotification &&
 								<Notification
-										{...updateNotificationProps}
-										open={ isUpdateNotificationBarOpen }
-										onClose={ () => setIsUpdateNotificationBarOpen(false) }
+										{...pusherNotification}
+										open={ isPusherNotificationOpen }
+										onClose={ () => setIsPusherNotificationOpen(false) }
 								/>
 				}
 				{
