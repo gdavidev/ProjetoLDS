@@ -15,8 +15,8 @@ type UseLikeCommentVariables = {
 }
 
 const commentEndPoints = {
-  like: '/api/comentarios/like',
-  unlike: '/api/comentarios/unlike'
+  like: '/api/comentarios/like/',
+  unlike: '/api/comentarios/unlike/'
 }
 
 export function useLikeComment(token: string, options?: UseLikeCommentOptions) {
