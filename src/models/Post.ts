@@ -85,7 +85,9 @@ export default class Post {
       dto.comentarios,
       new Date(dto.created_at),
       new Date(dto.updated_at),
-      dto.obj_comentarios.map((comm: CommentGetResponseDTO) => Comment.fromGetDTO(comm))
+      dto.obj_comentarios ?
+          dto.obj_comentarios.map((comm: CommentGetResponseDTO) => Comment.fromGetDTO(comm)) :
+          []
     )
   }
 
