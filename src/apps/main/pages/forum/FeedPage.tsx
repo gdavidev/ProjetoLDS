@@ -40,7 +40,7 @@ export default function FeedPage() {
   useEffect(() => {
     if (params.search)
       searchPosts(params.search);
-  }, []);
+  }, [params.search]);
 
   return(
       <>

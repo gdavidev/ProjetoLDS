@@ -1,4 +1,4 @@
-import { MainContext } from '@shared/context/MainContextProvider.tsx';
+import { OverlayContext } from '@shared/context/OverlayContextProvider.tsx';
 import { useCallback, useContext } from 'react';
 import { NotificationProps } from '@shared/components/Notification.tsx';
 
@@ -13,13 +13,13 @@ type useNotification = {
 }
 
 export default function useNotification(): useNotification {
-	const mainContext = useContext(MainContext);
-	if (!mainContext)
-		throw new Error('useNotification must be used within MainContext');
+	const overlayContext = useContext(OverlayContext);
+	if (!overlayContext)
+		throw new Error('useNotification must be used within OverlayContext');
 
 	const triggerNotification =
 			useCallback((msg: MessageOrElement, severity: Severity) => {
-					mainContext.setNotificationProps({
+					overlayContext.setNotificationProps({
 						open: true,
 						anchorOrigin: {
 							vertical: 'bottom',
@@ -32,7 +32,7 @@ export default function useNotification(): useNotification {
 				}, []);
 
 	return {
-		setNotification: mainContext.setNotificationProps,
+		setNotification: overlayContext.setNotificationProps,
 		notifyError: useCallback((msg: MessageOrElement) => triggerNotification(msg, 'error'), []),
 		notifySuccess: useCallback((msg: MessageOrElement) => triggerNotification(msg, 'success'), []),
 		notifyInfo: useCallback((msg: MessageOrElement) => triggerNotification(msg, 'info'), []),

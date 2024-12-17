@@ -1,4 +1,8 @@
 /* CREATE */
+import { CategoryGetResponseDTO } from '@models/data/CategoryDTOs.ts';
+import { UseGetResponseDTO } from '@models/data/UserDTOs.ts';
+import { CommentGetResponseDTO } from '@models/data/CommentDTOs.ts';
+
 export type PostCreateDTO = {
   titulo: string,
   descricao: string,
@@ -29,27 +33,17 @@ export type PostGetDTO = {
   id_usuario: string,
 }
 export type PostGetResponseDTO = {
-  categoria: {
-    id: 1,
-    nome: string;
-  }
-  comentarios: number;
-  created_at: Date;
-  descricao: string;
-  has_liked: boolean;
   id: 1;
-  img_topico64: string;
-  likes: number;
-  tags: string[] | null;
   titulo: string;
+  img_topico64: string;
+  tags: string[] | 'None';
+  descricao: string;
+  categoria: CategoryGetResponseDTO
+  user: UseGetResponseDTO
+  comentarios: number;
+  obj_comentarios: CommentGetResponseDTO[]
+  likes: number;
+  created_at: Date;
   updated_at: Date;
-  user: {
-    admin: boolean;
-    email: string;
-    id: 1;
-    img_perfil: string;
-    is_active: boolean;
-    is_banned: boolean;
-    username: string;
-  }
+  has_liked: boolean;
 }

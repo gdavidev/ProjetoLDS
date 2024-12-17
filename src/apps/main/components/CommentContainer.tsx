@@ -1,4 +1,4 @@
-import Comment, { CommentParent } from '@models/Comment.ts';
+import Comment from '@models/Comment.ts';
 import User from '@models/User.ts';
 import CommentRow from '@apps/main/components/CommentRow.tsx';
 import { useCallback } from 'react';
@@ -17,36 +17,47 @@ type CommentContainerProps = {
 	comments: Comment[];
 	post: Post;
 	onReportClick: (comment: Comment) => void;
+	onUpdate: () => void
 }
 
 export default function CommentContainer(props: CommentContainerProps) {
 	const { openMessageBox } = useMessageBox();
 	const { notifyError, notifySuccess } = useNotification();
-	const { user, askToLogin } = useCurrentUser();
+	const { user, askToLogin, forceLogin } = useCurrentUser();
 
 	// ---- API Calls Setup ----
 	const { likeComment } = useLikeComment(user?.token!, {
 		onError: (error: AxiosError | Error) => handleRequestError(error)
 	});
-	const { createComment } = useCreateComment({
+	const { createComment } = useCreateComment(user?.token!, {
+		onSuccess: () => {
+			notifySuccess('Comentário criado com sucesso!');
+			props.onUpdate();
+		},
 		onError: (error: AxiosError | Error) => handleRequestError(error)
 	});
-	const { deleteComment } = useDeleteComment({
-		onSuccess: () => notifySuccess('Comentário deletado com sucesso!'),
+	const { deleteComment } = useDeleteComment(user?.token!, {
+		onSuccess: () => {
+			notifySuccess('Comentário deletado com sucesso!');
+			props.onUpdate();
+		},
 		onError: (error: AxiosError | Error) => handleRequestError(error)
 	});
 	const { ban } = useBan(user?.token!, {
 		onSuccess: () => notifySuccess('Usuário banido com sucesso!'),
 		onError: (error: AxiosError | Error) => handleRequestError(error),
 	});
-	const { commentIsUseful } = useCommentIsUseful({
+	const { commentIsUseful } = useCommentIsUseful(user?.token!, {
 		onSuccess: () => notifySuccess('Comentário marcado como útil!'),
 		onError: (error: AxiosError | Error) => handleRequestError(error)
 	})
 
 	// ---- API Calls Error Handling ----
 	const { handleRequestError } = useRequestErrorHandler({
-		mappings: [{ status: 'default', userMessage: "Por favor tente novamente mais tarde." }],
+		mappings: [
+			{ status: 401, onError: () => forceLogin("Por favor faça login novamente") },
+			{ status: 'default', userMessage: "Por favor tente novamente mais tarde." },
+		],
 		onError: (message: string) => notifyError(message)
 	});
 
@@ -73,6 +84,7 @@ export default function CommentContainer(props: CommentContainerProps) {
 					deleteComment(comment);
 			}
 		});
+		props.onUpdate();
 	}, []);
 
 	const handleBanButtonClick = useCallback((userId: number): void => {
@@ -89,6 +101,7 @@ export default function CommentContainer(props: CommentContainerProps) {
 
 	const handleIsUsefulButtonClick = useCallback((comment: Comment): void => {
 		commentIsUseful(comment);
+		comment.isUseful = !comment.isUseful
 	}, []);
 
 	const handleLikeButtonClick = useCallback((comment: Comment) => {
@@ -96,7 +109,7 @@ export default function CommentContainer(props: CommentContainerProps) {
 			return askToLogin('É preciso estar logado para curtir comentários')
 
 		likeComment({
-			newState: comment.hasLiked,
+			newState: !comment.hasLiked,
 			comment: comment,
 		});
 		comment.hasLiked = !comment.hasLiked;
@@ -105,7 +118,7 @@ export default function CommentContainer(props: CommentContainerProps) {
 	return (
 			<div className="flex flex-col mt-2">
 				{
-					mockCommentList.map((com: Comment, i: number) => (
+					props.comments.map((com: Comment, i: number) => (
 							<CommentRow
 									key={i}
 									postOwner={ props.post.owner }
@@ -122,109 +135,3 @@ export default function CommentContainer(props: CommentContainerProps) {
 			</div>
 	);
 }
-
-const mockCommentList: Comment[] = [
-	new Comment(
-			{ parentId: 0, postId: 1 } as CommentParent,
-			new User(0, 'John Doe'),
-			'This is the first comment!',
-			0,
-			false, // likes
-			false,
-			new Date(Date.now() + 40 * 60 * 60 * 1000),
-			new Date(Date.now() + 40 * 60 * 60 * 1000),
-			[
-				new Comment(
-						{ parentId: 0, postId: 1 } as CommentParent,
-						new User(1, 'Jane Smith'),
-						'I totally agree with this!',
-						1,
-						false, // likes
-						true,
-						new Date(Date.now() + 41 * 60 * 60 * 1000),
-						new Date(Date.now() + 41 * 60 * 60 * 1000),
-						[]
-				),
-				new Comment(
-						{ parentId: 0, postId: 1 } as CommentParent,
-						new User(2, 'Mark Johnson'),
-						'Interesting perspective!',
-						2,
-						false, // likes
-						false,
-						new Date(Date.now() + 42 * 60 * 60 * 1000),
-						new Date(Date.now() + 42 * 60 * 60 * 1000),
-						[
-							new Comment(
-									{ parentId: 0, postId: 1 } as CommentParent,
-									new User(3, 'Emily Davis'),
-									'Thanks for pointing this out, Mark!',
-									3,
-									false, // likes
-									false,
-									new Date(Date.now() + 43 * 60 * 60 * 1000),
-									new Date(Date.now() + 43 * 60 * 60 * 1000),
-									[]
-							)
-						]
-				)
-			]
-	),
-	new Comment(
-			{ parentId: 0, postId: 1 } as CommentParent,
-			new User(4, 'Alice Brown'),
-			'What are your thoughts on the current discussion?',
-			4,
-			false, // likes
-			false,
-			new Date(Date.now() + 44 * 60 * 60 * 1000),
-			new Date(Date.now() + 44 * 60 * 60 * 1000),
-			[
-				new Comment(
-						{ parentId: 0, postId: 1 } as CommentParent,
-						new User(5, 'Charlie Wilson'),
-						'I think it’s quite insightful.',
-						5,
-						false, // likes
-						false,
-						new Date(Date.now() + 45 * 60 * 60 * 1000),
-						new Date(Date.now() + 45 * 60 * 60 * 1000),
-						[]
-				)
-			]
-	),
-	new Comment(
-			{ parentId: 0, postId: 1 } as CommentParent,
-			new User(6, 'Sophia Taylor'),
-			'Does anyone have sources to back this up?',
-			6,
-			true, // likes
-			false,
-			new Date(Date.now() + 46 * 60 * 60 * 1000),
-			new Date(Date.now() + 46 * 60 * 60 * 1000),
-			[
-				new Comment(
-						{ parentId: 0, postId: 1 } as CommentParent,
-						new User(7, 'Liam Moore'),
-						'Here’s a link to an article: [link]',
-						7,
-						false, // likes
-						false,
-						new Date(Date.now() + 47 * 60 * 60 * 1000),
-						new Date(Date.now() + 47 * 60 * 60 * 1000),
-						[]
-				),
-				new Comment(
-						{ parentId: 0, postId: 1 } as CommentParent,
-						new User(8, 'Olivia Martinez'),
-						'I can provide some more details if needed.',
-						8,
-						false, // likes
-						false,
-						new Date(Date.now() + 48 * 60 * 60 * 1000),
-						new Date(Date.now() + 48 * 60 * 60 * 1000),
-						[]
-				)
-			]
-	)
-];

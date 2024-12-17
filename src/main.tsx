@@ -2,6 +2,7 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { QueryClient, QueryClientProvider } from "react-query";
 import MainContextProvider from '@shared/context/MainContextProvider.tsx'
+import OverlayContextProvider from '@shared/context/OverlayContextProvider.tsx'
 import { lazy, useEffect } from 'react';
 import { createBrowserRouter, Outlet, RouterProvider, useMatches } from 'react-router-dom';
 import { AuthPageMode } from '@/apps/main/pages/auth/AuthPage'
@@ -80,7 +81,9 @@ function App() {
       <StrictMode>
         <QueryClientProvider client={queryClient}>
           <MainContextProvider>
-            <Outlet />
+            <OverlayContextProvider>
+              <Outlet />
+            </OverlayContextProvider>
           </MainContextProvider>
         </QueryClientProvider>
       </StrictMode>

@@ -33,10 +33,13 @@ export default function useComments(options?: UseCommentOptions<Comment[]>) {
 	return { comments, reFetchComments, ...rest };
 }
 
-export function useCreateComment(options?: UseCommentOptions<Comment>) {
+export function useCreateComment(token: string, options?: UseCommentOptions<Comment>) {
 	const postComment = useCallback(async (comment: Comment) => {
 		const res =
-				await ApiService.post<DTO.CommentGetResponseDTO>(endpoints.post, comment.toCreateDTO());
+				await ApiService.post<DTO.CommentGetResponseDTO>(
+						endpoints.post,
+						comment.toCreateDTO(),
+						{ headers: { 'Authorization': 'Bearer ' + token } });
 		return Comment.fromGetDTO(res.data);
 	}, []);
 
@@ -47,9 +50,13 @@ export function useCreateComment(options?: UseCommentOptions<Comment>) {
 	return { createComment, ...rest };
 }
 
-export function useDeleteComment(options?: UseCommentOptions<void>) {
+export function useDeleteComment(token:string, options?: UseCommentOptions<void>) {
 	const sendDeleteComment = useCallback(async (comment: Comment) => {
-			await ApiService.delete(endpoints.delete, { data: { id: comment.id } });
+			await ApiService.delete(
+					endpoints.delete, {
+						data: { id: comment.id },
+						headers: { 'Authorization': 'Bearer ' + token }
+					});
 	}, []);
 
 	const { mutate: deleteComment, ...rest } = useMutation('DELETE_COMMENT',
@@ -59,9 +66,13 @@ export function useDeleteComment(options?: UseCommentOptions<void>) {
 	return { deleteComment, ...rest };
 }
 
-export function useCommentIsUseful(options?: UseCommentOptions<void>) {
+export function useCommentIsUseful(token: string, options?: UseCommentOptions<void>) {
 	const sendCommentIsUseful = useCallback(async (comment: Comment) => {
-		await ApiService.post(endpoints.isUseful, { params: { id: comment.id } });
+		await ApiService.post(
+				endpoints.isUseful,
+				{ id: comment.id },
+				{ headers: { 'Authorization': 'Bearer ' + token } }
+		);
 	}, []);
 
 	const { mutate: commentIsUseful, ...rest } = useMutation('COMMENT_IS_USEFUL',

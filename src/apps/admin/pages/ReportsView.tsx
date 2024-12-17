@@ -16,7 +16,7 @@ import Loading from '@shared/components/Loading.tsx';
 import { AxiosError } from 'axios';
 
 export default function ReportsView() {
-    const [ reportModalData  , setReportModalData   ] = useState<Report | undefined>(undefined);
+    const [ reportModalData  , setReportModalData   ] = useState<Report | undefined>();
     const [ isReportModalOpen, setIsReportModalOpen ] = useState<boolean>(false);
     const { user } = useCurrentUser();
     const navigate = useNavigate();
@@ -50,8 +50,7 @@ export default function ReportsView() {
     }, []);
 
     const templateHeader: { colName: string; colWidth: string }[] = [
-        { colName: '#'         , colWidth: '10px'  },
-        { colName: 'Por'       , colWidth: '10px'  },
+        { colName: 'User'      , colWidth: '10px'  },
         { colName: 'Tipo'      , colWidth: '100px' },
         { colName: 'ID'        , colWidth: '10px'  },
         { colName: 'Razão'     , colWidth: '300px' },
@@ -84,11 +83,11 @@ export default function ReportsView() {
                     }}
                     tableHeaderClassName='text-white font-rubik font-bold'
                 >
-                    {reports.all.map((emulator: Report, index: number) => {
+                    {reports.all.map((report: Report, i: number) => {
                         return (
                             <ReportDataTableRow
-                                key={index}
-                                report={emulator}
+                                key={i}
+                                report={report}
                                 rowClassName='bg-primary-light text-white'
                                 cellClassName='first:rounded-s-md last:rounded-e-md'
                                 actions={{
@@ -122,9 +121,6 @@ type ReportTableRowProps = {
 function ReportDataTableRow(props: ReportTableRowProps) {
     return (
         <tr className={props.rowClassName}>
-            <td className={props.cellClassName}>
-                {props.report.id}
-            </td>
             <td className={props.cellClassName}>
                 {props.report.reportedBy}
             </td>

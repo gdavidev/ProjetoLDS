@@ -2,6 +2,8 @@ import * as DTO from "@models/data/PostDTOs";
 import User from "./User";
 import Category from '@models/Category.ts';
 import Thumbnail from '@models/utility/Thumbnail.ts';
+import Comment from '@models/Comment.ts';
+import { CommentGetResponseDTO } from '@models/data/CommentDTOs.ts';
 
 export default class Post {
   id: number;
@@ -16,6 +18,7 @@ export default class Post {
   hasLiked: boolean;
   likeCount: number;
   commentCount: number;
+  comments: Comment[];
 
   constructor(
       title: string,
@@ -36,7 +39,8 @@ export default class Post {
       likeCount: number,
       commentCount: number,
       createdDate: Date,
-      updatedDate: Date)
+      updatedDate: Date,
+      comments: Comment[])
   constructor(
       title: string,
       owner: User,
@@ -49,7 +53,8 @@ export default class Post {
       likeCount: number = 0,
       commentCount: number = 0,
       createdDate: Date = new Date(0),
-      updatedDate: Date = new Date(0))
+      updatedDate: Date = new Date(0),
+      comments: Comment[] = [])
   {
     this.title        = title;
     this.owner        = owner;
@@ -63,6 +68,7 @@ export default class Post {
     this.commentCount = commentCount;
     this.createdDate  = createdDate;
     this.updatedDate  = updatedDate;
+    this.comments     = comments;
   }
 
   static fromGetDTO(dto: DTO.PostGetResponseDTO): Post {
@@ -71,7 +77,7 @@ export default class Post {
       new User(dto.user.id, dto.user.username, new Thumbnail({ base64: dto.user.img_perfil })),
       new Category(dto.categoria.id, dto.categoria.nome),
       dto.descricao,
-      dto.tags ?? [],
+      dto.tags !== 'None' ? dto.tags : [],
       dto.img_topico64 ? new Thumbnail({ base64: dto.img_topico64 }) : null,
       dto.id,
       dto.has_liked,
@@ -79,6 +85,9 @@ export default class Post {
       dto.comentarios,
       new Date(dto.created_at),
       new Date(dto.updated_at),
+      dto.obj_comentarios ?
+          dto.obj_comentarios.map((comm: CommentGetResponseDTO) => Comment.fromGetDTO(comm)) :
+          []
     )
   }
 

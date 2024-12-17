@@ -21,7 +21,6 @@ import { useCreateComment } from '@/hooks/useComment.ts';
 import { useDeletePost, usePost } from '@/hooks/usePosts.ts';
 import Loading from '@shared/components/Loading.tsx';
 import PostActionBar from '@apps/main/components/PostActionBar.tsx';
-import Post from '@models/Post.ts';
 import CommentContainer from '@apps/main/components/CommentContainer.tsx';
 import { MessageBoxResult, MessageBoxType } from '@shared/components/MessageBox.tsx';
 import useMessageBox from '@/hooks/interaction/useMessageBox.ts';
@@ -31,24 +30,27 @@ type PostPageParams = {
   postId: string;
 }
 
+type CommentFormData = {
+  comment: string
+}
+
 export default function PostPage() {
   const params = useParams<PostPageParams>();
   const navigate = useNavigate();
-  const [ liked, setLiked ] = useState<boolean>(false);
   const { notifyError, notifySuccess } = useNotification();
   const { openMessageBox } = useMessageBox();
-  const { user, askToLogin } = useCurrentUser();
+  const { user, askToLogin, forceLogin } = useCurrentUser();
   const { theme } = useTailwindTheme()
   const { exit } = useEmergencyExit();
-  const { handleSubmit, control, formState: { errors } } =
-      useForm<{ comment: string }>({
+  const { handleSubmit, control, formState: { errors }, setFocus, reset } =
+      useForm<CommentFormData>({
         defaultValues: { comment: '' },
       });
   const [ isReportModalOpen, setIsReportModalOpen ] = useState<boolean>(false);
   const [ reportContentData, setReportContentData ] =
       useState<{type: ReportContentType, id: number}>({
         type: ReportContentType.POST,
-        id: 0
+        id: 0,
       });
 
   // Initialization
@@ -58,27 +60,34 @@ export default function PostPage() {
   }, []);
 
   // ---- API Calls Setup ----
-  const { post, isPostLoading } = usePost(Number(params.postId), user?.token, {
-    onSuccess: (post: Post) => {
-      setLiked(post.hasLiked)
-    },
+  const { post, isPostLoading, reFetchPost } = usePost(Number(params.postId), user?.token, {
     onError: (err: AxiosError | Error) => {
       exit('/forum/feed', 'Post não encontrado');
       console.log(err.message)
     }
   });
   const { likePost } = useLikePost(user?.token!, {
-    onError: (error: AxiosError | Error) => handleRequestError(error)
+    onError: (error: AxiosError | Error) => {
+      if (post) {
+        post.hasLiked = !post.hasLiked;
+        post.likeCount += post.hasLiked ? 1 : -1;
+      }
+      handleRequestError(error);
+    }
   });
   const { deletePost } = useDeletePost(user?.token!, {
     onSuccess: () => {
       notifySuccess('Post deletado');
-      navigate('/forum/feed')
+      navigate('/forum/feed');
     },
     onError: (error: AxiosError | Error) => handleRequestError(error)
   })
-  const { createComment } = useCreateComment({
-    onSuccess: () => notifySuccess('Comentário criado com sucesso!'),
+  const { createComment } = useCreateComment(user?.token!, {
+    onSuccess: async () => {
+      notifySuccess('Comentário criado com sucesso!');
+      reset({ comment: '' });
+      await reFetchPost();
+    },
     onError: (error: AxiosError | Error) => handleRequestError(error)
   });
   const { ban } = useBan(user?.token!, {
@@ -88,7 +97,10 @@ export default function PostPage() {
 
   // ---- API Calls Error Handling ----
   const { handleRequestError } = useRequestErrorHandler({
-    mappings: [{ status: 'default', userMessage: "Por favor tente novamente mais tarde." }],
+    mappings: [
+      { status: 401, onError: () => forceLogin('Seu login expirou, por favor entre novamente') },
+      { status: 'default', userMessage: "Por favor tente novamente mais tarde." }
+    ],
     onError: (message: string) => notifyError(message)
   });
 
@@ -102,18 +114,19 @@ export default function PostPage() {
         new User(user.id, user.userName),
         data.comment
     ));
-  }, []);
+  }, [post, user]);
 
   // ---- General Callbacks ----
   const handleLikeButtonClick = useCallback(() => {
     if (!post) return
 
     likePost({
-      newState: !liked,
+      newState: !post.hasLiked,
       post: post,
     });
-    setLiked(li => !li);
-  }, []);
+    post.hasLiked = !post.hasLiked;
+    post.likeCount += post.hasLiked ? 1 : -1;
+  }, [post]);
 
   const handleReportButtonClick =
       useCallback((contentType: ReportContentType, contentId: number) => {
@@ -125,10 +138,10 @@ export default function PostPage() {
           id: contentId
         });
         setIsReportModalOpen(true);
-      }, []);
+      }, [user]);
 
   const handleAnswerButtonClick = useCallback(() => {
-
+    setFocus('comment');
   }, []);
 
   const handleBanButtonClick = useCallback(() => {
@@ -143,7 +156,7 @@ export default function PostPage() {
           ban(post.owner.id);
       }
     });
-  }, []);
+  }, [post]);
 
   const handleExcludeButtonClick = useCallback(() => {
     if (!post) return;
@@ -157,6 +170,10 @@ export default function PostPage() {
           deletePost(post);
       }
     });
+  }, [post]);
+
+  const handleUpdate = useCallback(async () => {
+    await reFetchPost();
   }, []);
 
   if (isPostLoading || !post)
@@ -166,7 +183,7 @@ export default function PostPage() {
       <div className="flex w-full gap-x-4 items-start">
         <div className="max-w-16 max-h-16 overflow-hidden rounded-full">
           <img
-              src={post.owner.profilePic.toDisplayable()}
+              src={ post.owner.profilePic.toDisplayable() }
               className="object-cover h-full"
               alt="post-owner" />
         </div>
@@ -176,7 +193,7 @@ export default function PostPage() {
             Em:
             <Link
                 className='ms-[1ch] underline cursor-pointer'
-                to={'/forum/feed?categoryId=' + post.category.id}>
+                to={'/forum/feed?search=' + post.category.name}>
               {post.category.name}
             </Link>
           </span>
@@ -214,12 +231,12 @@ export default function PostPage() {
         <h1 className="text-2xl font-bold mt-2">{ post.title }</h1>
         {
           post.image &&
-            <div className='w-fit mx-auto mt-2 mb-4 h-[50vh] rounded-md overflow-hidden'>
-              <img
-                  className='h-full'
-                  src={ post.image.toDisplayable() }
-                  alt={ post.title } />
-            </div>
+              <div className='w-fit mx-auto mt-2 mb-4 h-[50vh] rounded-md overflow-hidden'>
+                <img
+                    className='h-full'
+                    src={ post.image.toDisplayable() }
+                    alt={ post.title } />
+              </div>
         }
         <p className='whitespace-pre'>{post.content}</p>
       </article>
@@ -228,7 +245,7 @@ export default function PostPage() {
             className='mt-8'
             userIsPostOwner={ user?.id === post.owner.id }
             user={ user }
-            isLiked={ liked }
+            isLiked={ post.hasLiked }
             likeCount={ post.likeCount }
             commentCount={ post.commentCount }
             onLikeClick={ handleLikeButtonClick }
@@ -240,27 +257,37 @@ export default function PostPage() {
       <h2 className='text-xl mt-12 font-bold'>Comentários</h2>
       <form
           onSubmit={ handleSubmit(submitComment) }
-          className='min-w-full flex items-end gap-x-2 flex-col lg:flex-row mb-4'>
-        <Controller
-            name="comment"
-            control={ control }
-            rules={{ required: 'Não é possível enviar um comentário vazio.' }}
-            render={({ field }) => (
-                <TextArea
-                    {...field}
-                    name="Comentário"
-                    labelClassName='hidden'
-                    className={ (errors.comment ? ' bg-red-100 border-red-500' : ' bg-slate-200') } />
-            )} />
-        <button type='submit' className='btn-primary h-10'>
-          Enviar
-        </button>
+          className='w-full mb-4'>
+        <div className='min-w-full flex items-end gap-x-2 flex-col lg:flex-row'>
+          <Controller
+              name="comment"
+              control={ control }
+              rules={{ required: 'Não é possível enviar um comentário vazio.' }}
+              render={({ field }) => (
+                  <TextArea
+                      {...field}
+                      name="Comentário"
+                      labelClassName='hidden'
+                      className={ (errors.comment ? ' bg-red-100 border-red-500' : ' bg-slate-200') } />
+              )} />
+          <button
+              type='submit'
+              className='btn-primary h-10'
+              disabled={ !!errors.comment }>
+            Enviar
+          </button>
+        </div>
+        {
+            errors.comment &&
+                <span className='text-red-500'>{errors.comment.message}</span>
+        }
       </form>
 
       <CommentContainer
-          comments={ [] }
+          comments={ post.comments }
           post={ post }
           onReportClick={ (comment: Comment) => handleReportButtonClick(ReportContentType.COMMENT, comment.id) }
+          onUpdate={ handleUpdate }
       />
 
       <ReportContentModal

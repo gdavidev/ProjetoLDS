@@ -1,6 +1,5 @@
 import Post from "@/models/Post"
 import { Link } from 'react-router-dom';
-import { useCallback } from 'react';
 import useCurrentUser from '@/hooks/useCurrentUser';
 import DateFormatter from '@libs/DateFormatter.ts';
 import { ReportContentType } from '@models/Report.ts';
@@ -9,7 +8,7 @@ import PostActionBar from '@apps/main/components/PostActionBar.tsx';
 type PostRowProps = {
 	post: Post
 	onReportClick: (contentType: ReportContentType, contentId: number) => void
-	onLikeClick: (newState: boolean, post: Post) => void
+	onLikeClick: (post: Post) => void
 	onAnswerClick: (targetPostId: number) => void
 	onBanClick: (userId: number) => void
 	onExcludeClick: (post: Post) => void
@@ -18,13 +17,9 @@ type PostRowProps = {
 export default function PostRow(props: PostRowProps) {
 	const { user } = useCurrentUser();
 
-	const handleLike = useCallback(() => {
-		props.onLikeClick(!props.post.hasLiked, props.post)
-	}, [props.post]);
-
 	return (
 			<div className="flex gap-x-4 items-start grow">
-				<div className='max-w-10 max-h-10 overflow-hidden rounded-full'>
+				<div className='w-10 h-10 overflow-hidden rounded-full'>
 					<img
 							src={ props.post.owner.profilePic.toDisplayable() }
 							className='object-cover h-full'
@@ -48,7 +43,7 @@ export default function PostRow(props: PostRowProps) {
 							isLiked={ props.post.hasLiked }
 							likeCount={ props.post.likeCount }
 							commentCount={ props.post.commentCount }
-							onLikeClick={ handleLike }
+							onLikeClick={ () => props.onLikeClick(props.post) }
 							onAnswerClick={ () => props.onAnswerClick(props.post.id) }
 							onReportClick={ () => props.onReportClick(ReportContentType.POST, props.post.id) }
 							onBanClick={ () => props.onBanClick(props.post.owner.id) }

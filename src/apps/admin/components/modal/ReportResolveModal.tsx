@@ -9,6 +9,7 @@ import { AxiosError } from 'axios';
 import useRequestErrorHandler from '@/hooks/useRequestErrorHandler.ts';
 import SelectInput, { SelectInputSource } from '@shared/components/formComponents/SelectInput.tsx';
 import TextArea from '@shared/components/formComponents/TextArea.tsx';
+import useAlert from '@/hooks/feedback/useAlert.tsx';
 
 export type ReportResolveModalProps = {
 	report?: Report;
@@ -20,21 +21,23 @@ type ReportFormData = {
 }
 
 const statusSelectSource: SelectInputSource = [
-	{ value: ReportStatus.DEFERRED, name: 'Deferido'  },
-	{ value: ReportStatus.PENDING	,	name: 'Pendente'  },
+	{ value: ReportStatus.DEFERRED, name: 'Deferido'   },
+	{ value: ReportStatus.PENDING	,	name: 'Pendente'   },
 	{ value: ReportStatus.INFERRED,	name: 'Indeferido' },
 ];
 
 export default function ReportResolveModal(props: ReportResolveModalProps) {
 	const { user } = useCurrentUser();
+	const { alertElement, error, info, clear } = useAlert();
 	const { notifyError, notifySuccess } = useNotification();
-	const { handleSubmit, reset: setFormData, formState: { errors }, clearErrors, control } =
+	const { handleSubmit, watch, reset: setFormData, formState: { errors }, clearErrors, control } =
 			useForm<ReportFormData>({
 				defaultValues: {
 					resolution: '',
 					status: ReportStatus.PENDING,
 				},
 			});
+	const fields = watch()
 
 	useEffect(() => {
 		if (props.isOpen)
@@ -61,10 +64,11 @@ export default function ReportResolveModal(props: ReportResolveModalProps) {
 	// ---- API Calls Error Handling ----
 	const { handleRequestError } = useRequestErrorHandler({
 		mappings: [{ status: 'default', userMessage: "Por favor tente novamente mais tarde.", log: true }],
-		onError: (message: string) => notifyError(message)
+		onError: (message: string) => error(message)
 	});
 
 	const resetForm = useCallback(() => {
+		clear();
 		clearErrors();
 		setFormData();
 	}, []);
@@ -79,7 +83,20 @@ export default function ReportResolveModal(props: ReportResolveModalProps) {
 		props.report.resolution = data.resolution;
 
 		resolveReport(props.report)
-	}, []);
+	}, [props.report]);
+
+	// ---- Error handling ----
+	useEffect(() => {
+		const formError =
+				Object.values(errors).find(err => err.message !== undefined)
+		if (formError && formError.message) error(formError.message);
+	}, [fields]);
+
+	// ---- State Handling ----
+	useEffect(() => {
+		if (isResolveReportLoading)
+			info('Enviando...');
+	}, [isResolveReportLoading]);
 
 	return (
 			<ModalPopup
@@ -102,9 +119,9 @@ export default function ReportResolveModal(props: ReportResolveModalProps) {
 										<SelectInput
 												{...field}
 												name="Status"
+												onChange={ (value: string) => Number(value) }
 												disabled={ props.report?.status !== ReportStatus.PENDING }
 												source={ statusSelectSource }
-												hasSelectOption
 												containerClassName='flex flex-col'
 												className={
 														'input-text '
@@ -125,6 +142,8 @@ export default function ReportResolveModal(props: ReportResolveModalProps) {
 														+ (errors.resolution ? ' bg-red-100 border-red-500' : ' bg-slate-200')
 												} />
 								)} />
+
+						{ alertElement }
 					</div>
 					{
 						props.report?.status === ReportStatus.PENDING &&

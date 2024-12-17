@@ -23,7 +23,7 @@ export default function Header() {
             hover:scale-110 active:scale-95 transition duration-100 ease-in-out">
           <img src={ logo } className="w-40 h-12 sm:visible invisible" alt="logo" />
         </Link>
-        <div className="flex gap-x-2">          
+        <div className="flex items-center gap-x-2">
           <a href={ downloadLink } className="btn-r-full bg-white hover:bg-slate-300 text-primary">
              Download App
           </a>
