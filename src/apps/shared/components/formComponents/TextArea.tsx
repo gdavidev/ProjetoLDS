@@ -7,6 +7,7 @@ type TextAreaProps = {
   disabled?: boolean,
   labelClassName?: string,
   value?: string,
+  defaultValue?: string,
   resize?: ['none', 'both', 'vertical', 'horizontal'],
   onChange?: ChangeEventHandler<HTMLTextAreaElement>
 }
@@ -28,7 +29,8 @@ const TextArea = forwardRef((props: TextAreaProps, ref: ForwardedRef<HTMLTextAre
           disabled={ props.disabled }
           className={ "input-text " + props.className }
           onChange={ props.onChange }
-          defaultValue={ props.value }
+          defaultValue={ props.defaultValue }
+          value={ props.value }
       />
     </div>
   )

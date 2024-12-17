@@ -8,6 +8,7 @@ export enum TextInputStyle {
 type TextInputProps = {
   name: string,
   value?: string,
+  defaultValue?: string,
   containerClassName?: string,
   inputContainerClassName?: string,
   inputClassName?: string,
@@ -72,7 +73,8 @@ const LabelLessTextInput = forwardRef((props: TextInputProps, ref: React.Forward
           placeholder={ props.name }
           disabled={ props.disabled }
           type={ props.password ? "password" : "text" }
-          defaultValue={ props.value } />
+          value={ props.value }
+          defaultValue={ props.defaultValue } />
 
       { props.endDecoration }
     </div>
