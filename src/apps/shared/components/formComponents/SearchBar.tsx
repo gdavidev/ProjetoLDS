@@ -17,7 +17,12 @@ export default function SearchBar(props: SearchBarProps) {
 		const formData = new FormData(e.currentTarget);
 		const values = Object.fromEntries(formData.entries());
 
-		props.onSearch(values['nome'] as string);
+		const searchText: string = values['nome'] as string;
+		if (searchText === props.defaultValue)
+			return;
+		if (searchText === '')
+			return props.onErase?.();
+		return props.onSearch(searchText);
 	}, [])
 
 	return (
@@ -25,12 +30,12 @@ export default function SearchBar(props: SearchBarProps) {
 					onSubmit={ updateSearchTerm }
 					className="flex justify-end mb-2 gap-2">
 				<TextInput
-						disabled={ props.isLoading }
+						disabled={ props.isLoading ?? false }
 						labelClassName="hidden"
-						inputContainerClassName="bg-white overflow-hidden border-[1px] border-gray-200 rounded-md"
-						inputClassName="w-80 border-none focus:outline-none"
+						inputContainerClassName="bg-white has-[:disabled]:bg-gray-300 overflow-hidden border-[1px] border-gray-200 rounded-md"
+						inputClassName="w-80 border-none disabled:bg-gray-300 focus:outline-none"
 						name="Nome"
-						value={ props.defaultValue ?? ''  }
+						defaultValue={ props.defaultValue ?? ''  }
 						endDecoration={
 							<button
 									type="reset"

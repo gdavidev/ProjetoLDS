@@ -104,7 +104,7 @@ export default function PostContainer(props: PostContainerProps) {
   const handleExcludeButtonClick = useCallback((post: Post) => {
     openMessageBox({
       title: 'Deletar Comentário',
-      message: 'Tem certeza que deseja deletar esse comentário?',
+      message: 'Tem certeza que deseja deletar esse tópico?',
       type: MessageBoxType.YES_NO,
       onClick: (result: MessageBoxResult) => {
         if (result === MessageBoxResult.YES)

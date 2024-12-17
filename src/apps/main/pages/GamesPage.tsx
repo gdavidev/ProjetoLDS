@@ -19,7 +19,7 @@ export default function GamesPage() {
   const [ cardList   , setCardList    ] = useState<JSX.Element[] | undefined>();
   const { notifyError } = useNotification();
 
-  const { refetch } = useGames({
+  const { refetch, isLoading } = useGames({
     onSuccess: (games: Game[]) => setCardList( gamesToCardList(games) ),
     onError: (err: AxiosError | Error) => console.log(err.message),
     enabled: !params.search
@@ -64,7 +64,7 @@ export default function GamesPage() {
               clearParams();
               refetch();
             }}
-            isLoading={ isSearchGamesLoading }
+            isLoading={ isSearchGamesLoading || isLoading }
             defaultValue={ params.search }
         />
 

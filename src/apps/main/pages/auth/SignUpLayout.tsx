@@ -57,17 +57,23 @@ export default function SignUpLayout(props: PropsWithoutRef<SignUpLayoutProps>):
 
   // ---- API Calls Error Handling ----
   const { handleRequestError, clear: clearRequestErrors } = useRequestErrorHandler({
-    mappings: [{
-      status: 400,
-      userMessage: (resData: any): string => {
-        if (resData["username"]) return 'Nome de usuário indisponível.';
-        if (resData["email"]) return 'Este email ja está em uso.';
-        if (resData['imagem_perfil']) return 'Arquivo de imagem enviado deve ser to tipo JPG ou PNG'
-        return 'Erro desconhecido';
-      }
-    }],
+    mappings: [{ status: 400, userMessage: (resData: any) => handleBadRequestError(resData) }],
     onError: (message: string) => props.onError?.(message)
   })
+
+  const handleBadRequestError = useCallback((resData: any): string => {
+    if (resData["username"])
+      return 'Nome de usuário indisponível.';
+    if (resData["email"]) {
+      if (resData["email"][0].includes('valid'))
+        return 'Insira um email valido';
+      if (resData["email"][0].includes('uso'))
+        return 'Este email ja esta em uso';
+    }
+    if (resData['imagem_perfil'])
+      return 'Arquivo de imagem enviado deve ser to tipo JPG ou PNG'
+    return 'Erro desconhecido';
+  }, []);
 
   // ---- API Executing ----
   const submitForm = useCallback((data: IUserSignUpFormData): void => {
@@ -89,10 +95,11 @@ export default function SignUpLayout(props: PropsWithoutRef<SignUpLayoutProps>):
   
   return(
     <form onSubmit={ handleSubmit(submitForm) } className="flex flex-col gap-y-4 w-full mx-auto">
+      <h1 className="text-white text-xl text-center font-bold -mb-2">Registrar-se</h1>
       <div className='flex gap-x-2'>
         <div className="flex flex-col justify-between items-center">
           <FileInputImagePreview
-              thumbnail={ watch('profilePic') }
+              thumbnail={watch('profilePic')}
               imgClassName="h-[130px] max-w-[130px]" />
           <Controller
               name="profilePic"
@@ -102,11 +109,11 @@ export default function SignUpLayout(props: PropsWithoutRef<SignUpLayoutProps>):
                       {...field}
                       buttonText="Sua Imagem"
                       onChange={(e) => field.onChange(e ? new Thumbnail({ file: e[0] }) : undefined)}
-                      error={ errors.profilePic !== undefined }
+                      error={errors.profilePic !== undefined}
                       accept="image/*" />
               )} />
         </div>
-        <div className='flex flex-col gap-y-4 grow'>
+        <div className="flex flex-col gap-y-4 grow">
           <FormGroup>
             <Controller
                 name="email"
@@ -143,7 +150,7 @@ export default function SignUpLayout(props: PropsWithoutRef<SignUpLayoutProps>):
                 rules={{
                   required: "Por favor, insira sua senha.",
                   validate: (value: string) =>
-                      Validation.isValidPassword(value) || "A senha esta em um formato inválido"
+                      Validation.isValidPassword(value) || "A senha não esta em um formato inválido"
                 }}
                 render={ ({field}) => (
                     <TextInput {...field}

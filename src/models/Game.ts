@@ -81,7 +81,7 @@ export default class Game {
     return new Game(
       dto.title,
       dto.description,
-      new Emulator(dto.emulador.id, dto.emulador.nome, dto.emulador.console, dto.emulador.empresa),
+      Emulator.fromGetDTO(dto.emulador),
       new Thumbnail({ base64: dto.image_base64 }),
       new FileHolder({ name: dto.file }),
       new Category(dto.categoria.id, dto.categoria.nome),

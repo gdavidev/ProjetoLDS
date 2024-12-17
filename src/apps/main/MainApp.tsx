@@ -25,7 +25,7 @@ export default function App() {
 			<ScrollRestoration /> {/* Restore scroll on route change */}
 			<Header />
 			<main className={'pt-28 pb-16 min-w-screen min-h-screen bg-no-repeat' + backgroundClass}>
-				<Suspense fallback={ <Loading /> }>
+				<Suspense fallback={ <Loading className='centered' /> }>
 					<Outlet />
 				</Suspense>
 			</main>
