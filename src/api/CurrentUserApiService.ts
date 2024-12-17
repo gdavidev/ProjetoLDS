@@ -40,6 +40,14 @@ export default class UserApiService {
     })
   }
 
+  public static async delete(dto: DTO.CurrentUserDeleteDTO, token: string) {
+    await ApiService.delete(
+        UserApiService.endpoints.delete, {
+          data: { user_id: dto.user_id },
+          headers:  { 'Authorization': 'Bearer ' + token }
+        });
+  }
+
   public static async update(dto: DTO.CurrentUserUpdateDTO, token: string): Promise<void> {
     await ApiService.put(
       UserApiService.endpoints.put,

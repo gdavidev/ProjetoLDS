@@ -57,11 +57,22 @@ export default function LogInLayout(props: PropsWithRef<LogInLayoutProps>) {
   // ---- API Calls Error Handling ----
   const { handleRequestError, clear: clearRequestErrors } = useRequestErrorHandler({
     mappings: [
-      { status: [400, 401], userMessage: "Usuário ou senha incorretos." },
+      { status: 400, userMessage: "Usuário ou senha incorretos." },
+      { status: 401, userMessage: (resData: any) => handleUnauthorizedRequestError(resData) },
       { status: 'default', userMessage: "Por favor tente novamente mais tarde." }
     ],
     onError: props.onError
   });
+
+  const handleUnauthorizedRequestError = useCallback((resData: any) => {
+    if (resData['erro']) {
+      if (resData['erro'].includes('banido'))
+        return "Conta banida";
+      if (resData['erro'].includes('inativo'))
+        return "Conta inativada";
+    }
+    return "Usuário ou senha incorretos.";
+  }, [])
 
   // ---- API Executing ----
   const doLogin = useCallback((data: ILogInLayoutFormData) => {

@@ -1,6 +1,6 @@
 import CurrentUser from '@/models/CurrentUser';
 import { useCallback, useEffect, useState } from 'react';
-import { AxiosError } from 'axios'
+import { AxiosError } from 'axios';
 import { CurrentUserUpdateDTO } from '@models/data/CurrentUserDTOs.ts';
 import Validation from '@/libs/Validation';
 import useCurrentUser from '@/hooks/useCurrentUser';
@@ -8,15 +8,19 @@ import useAuth from '@/hooks/useAuth';
 import { Controller, useForm } from 'react-hook-form';
 import TextInput from '@/apps/shared/components/formComponents/TextInput';
 import { IonIcon } from '@ionic/react';
-import { personOutline, mailOutline } from 'ionicons/icons';
+import { mailOutline, personOutline } from 'ionicons/icons';
 import PasswordHiddenToggle from '../components/PasswordHiddenToggle';
 import useAlert from '@/hooks/feedback/useAlert.tsx';
 import useRequestErrorHandler from '@/hooks/useRequestErrorHandler.ts';
 import useEmergencyExit from '@/hooks/useEmergencyExit.ts';
 import FileInputImagePreview from '@shared/components/formComponents/FileInputImagePreview.tsx';
 import Thumbnail from '@models/utility/Thumbnail.ts';
-import userImageNotFound from '@/assets/media/user-image-not-found.webp'
+import userImageNotFound from '@/assets/media/user-image-not-found.webp';
 import FileUtil from '@libs/FileUtil.ts';
+import useNotification from '@/hooks/feedback/useNotification.tsx';
+import useMessageBox from '@/hooks/interaction/useMessageBox.ts';
+import { MessageBoxResult, MessageBoxType } from '@shared/components/MessageBox.tsx';
+import { useNavigate } from 'react-router-dom';
 
 type UserProfileFormData = {
   email: string
@@ -28,9 +32,12 @@ type UserProfileFormData = {
 
 export default function ProfilePage() {
   const { alertElement, info, error, success } = useAlert();
+  const { notifySuccess } = useNotification();
+  const { openMessageBox } = useMessageBox();
   const [ isPasswordHidden       , setIsPasswordHidden        ] = useState<boolean>(true);
   const [ isPasswordConfirmHidden, setIsPasswordConfirmHidden ] = useState<boolean>(true);
   const { user, setUser, logout } = useCurrentUser();
+  const navigate = useNavigate();
   const { handleSubmit, register, setValue, watch, control, reset: setFormData, formState: { errors }, getValues } =
     useForm<UserProfileFormData>({
       defaultValues: {
@@ -62,9 +69,15 @@ export default function ProfilePage() {
   }, []);
 
   // ---- API Calls Setup ----
-  const { update } = useAuth({
-    onSuccess: (_, dto: CurrentUserUpdateDTO) => updateCurrentUser(dto),
-    onError: (err: AxiosError | Error) => handleRequestError(err),
+  const { update, deleteAccount } = useAuth({
+    onUpdate: {
+      onSuccess: (_, dto: CurrentUserUpdateDTO) => updateCurrentUser(dto),
+      onError: (err: AxiosError | Error) => handleRequestError(err),
+    },
+    onDelete: {
+      onSuccess: () => deleteCurrentUser(),
+      onError: (err: AxiosError | Error) => handleRequestError(err),
+    },
     onIsLoading: () => info("Enviando..."),
   });
 
@@ -91,15 +104,32 @@ export default function ProfilePage() {
   });
 
   // ---- API Executing ----
-  function onSubmit(data: UserProfileFormData) {
+  const onSubmit = useCallback((data: UserProfileFormData) => {
     update({
       username: data.username !== user?.userName ? data.username : undefined,
       email: data.email !== user?.email ? data.email : undefined,
       password: data.password !== '' ? data.password : undefined,
       token: user?.token!,
       imagem_perfil: data.profilePic.file ?? undefined,
+    });
+  }, [user]);
+
+  const onDeleteUser = useCallback(() => {
+    if (!user) return;
+
+    openMessageBox({
+      title: 'Apagar conta',
+      message: 'Você tem certeza que deseja apagar sua conta?',
+      type: MessageBoxType.YES_NO,
+      onClick: (result: MessageBoxResult) => {
+        if (result === MessageBoxResult.YES)
+          deleteAccount({
+            user_id: user.id,
+            token: user.token
+          })
+      }
     })
-  }
+  }, [user])
 
   // ---- Updating Session ----
   const updateCurrentUser = useCallback(async (dto: CurrentUserUpdateDTO) => {
@@ -118,6 +148,12 @@ export default function ProfilePage() {
     ));
     success("Usuário alterado com sucesso.")
   }, [user]);
+
+  const deleteCurrentUser = useCallback(() => {
+    logout();
+    notifySuccess('Usuário deletado com sucesso');
+    navigate('/log-in');
+  }, [])
 
   // ---- Error handling ----
   useEffect(() => {
@@ -213,8 +249,18 @@ export default function ProfilePage() {
                 } />
           ) }/>
         </div>
-        <div className='w-full flex justify-end'>
-          <button className='btn-primary' type='submit'>Atualizar</button>
+        <div className='w-full flex gap-x-3 justify-end'>
+          <button
+              className='btn-r-md bg-red-500'
+              type='button'
+              onClick={ onDeleteUser }>
+            Apagar Conta
+          </button>
+          <button
+              className='btn-primary'
+              type='submit'>
+            Atualizar
+          </button>
         </div>
       </div>
       { alertElement }
