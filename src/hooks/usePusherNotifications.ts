@@ -36,13 +36,6 @@ export default function usePusherNotifications(options: UsePusherNotificationsOp
 					message: data.message,
 				});
 			});
-
-			// Cleanup on unmount
-			return () => {
-				channel.unbind_all();
-				channel.unsubscribe();
-				pusher.disconnect();
-			};
 		}
 	}, [options.user]);
 
