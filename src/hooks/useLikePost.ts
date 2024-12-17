@@ -6,7 +6,7 @@ import Post from '@models/Post.ts';
 
 type UseLikePostOptions = {
   onSuccess?: (_: unknown, variables: UseLikePostVariables) => void,
-  onError?: (err: AxiosError | Error) => void
+  onError?: (err: AxiosError | Error, variables: UseLikePostVariables) => void
 }
 
 export type UseLikePostVariables = {
@@ -30,7 +30,7 @@ export function useLikePost(token: string, options?: UseLikePostOptions) {
     } else {
       await ApiService.delete(
           postEndPoints.unlike, {
-          params: { id_topico: target.post.id },
+          params: { topico_id: target.post.id },
           headers: { 'Authorization': 'Bearer ' + token }
       });
     }

@@ -3,7 +3,7 @@ import PostRow from "./PostRow"
 import { Link, useNavigate } from 'react-router-dom';
 import Category from '@models/Category.ts';
 import ReportContentModal from '@apps/main/components/modal/ReportContentModal.tsx';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { ReportContentType } from '@models/Report.ts';
 import useCurrentUser from '@/hooks/useCurrentUser.tsx';
 import { useLikePost, UseLikePostVariables } from '@/hooks/useLikePost.ts';
@@ -26,7 +26,6 @@ export default function PostContainer(props: PostContainerProps) {
   const navigate = useNavigate();
   const { openMessageBox } = useMessageBox();
   const { notifySuccess, notifyError, notifyInfo } = useNotification();
-  const [ posts, setPosts ] = useState<JSX.Element[]>([]);
   const { user, askToLogin, forceLogin } = useCurrentUser();
   const [ isReportModalOpen, setIsReportModalOpen ] = useState<boolean>(false);
   const [ reportContentData, setReportContentData ] =
@@ -36,16 +35,11 @@ export default function PostContainer(props: PostContainerProps) {
       });
 
   const { likePost } = useLikePost(user?.token!, {
-    onSuccess: (_: any, variables: UseLikePostVariables) => {
-      if (variables.newState) {
-        variables.post.hasLiked = true;
-        variables.post.likeCount += 1;
-      } else {
-        variables.post.hasLiked = false;
-        variables.post.likeCount -= 1;
-      }
-    },
-    onError: (err: AxiosError | Error) => handleRequestError(err)
+    onError: (err: AxiosError | Error, variables: UseLikePostVariables) => {
+      variables.post.hasLiked = !variables.post.hasLiked;
+      variables.post.likeCount += variables.post.hasLiked ? 1 : -1;
+      handleRequestError(err);
+    }
   });
 
   const { ban, isBanLoading } = useBan(user?.token!, {
@@ -73,14 +67,16 @@ export default function PostContainer(props: PostContainerProps) {
 
   // ---- General Callbacks ----
   const handleLikeButtonClick =
-      useCallback((newState: boolean, post: Post) => {
+      useCallback((post: Post) => {
         if (!user)
           return askToLogin('É preciso estar logado para curtir posts.')
 
         likePost({
-          newState: newState,
+          newState: !post.hasLiked,
           post: post,
         });
+        post.hasLiked = !post.hasLiked;
+        post.likeCount += post.hasLiked ? 1 : -1;
       }, [user]);
 
   const handleReport =
@@ -117,19 +113,6 @@ export default function PostContainer(props: PostContainerProps) {
     });
   }, [user]);
 
-  useMemo(() => {
-    setPosts(props.posts.map((post, i) =>
-        <PostRow
-            key={i}
-            post={ post }
-            onReportClick={ handleReport }
-            onLikeClick={ handleLikeButtonClick }
-            onAnswerClick={ handleAnswerButtonClick }
-            onBanClick={ handleBanButtonClick }
-            onExcludeClick={ handleExcludeButtonClick }
-        />));
-  }, [props.posts]);
-
   useEffect(() => {
     if (isBanLoading || isDeletePostLoading)
       notifyInfo('Enviando...');
@@ -140,7 +123,17 @@ export default function PostContainer(props: PostContainerProps) {
         <div className='text-white flex flex-col w-full'>
           <h2 className='text-lg font-bold mb-2'>{props.title}</h2>
           <div className="ms-2 w-full font-poppins flex flex-col gap-y-3">
-            { posts }
+            { props.posts && props.posts.map((post, i) =>
+                <PostRow
+                    key={i}
+                    post={ post }
+                    onReportClick={ handleReport }
+                    onLikeClick={ handleLikeButtonClick }
+                    onAnswerClick={ handleAnswerButtonClick }
+                    onBanClick={ handleBanButtonClick }
+                    onExcludeClick={ handleExcludeButtonClick }
+                />)
+            }
           </div>
           <Link
               className="underline text-primary-light text-lg self-end"
