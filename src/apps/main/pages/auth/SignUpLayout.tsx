@@ -57,17 +57,23 @@ export default function SignUpLayout(props: PropsWithoutRef<SignUpLayoutProps>):
 
   // ---- API Calls Error Handling ----
   const { handleRequestError, clear: clearRequestErrors } = useRequestErrorHandler({
-    mappings: [{
-      status: 400,
-      userMessage: (resData: any): string => {
-        if (resData["username"]) return 'Nome de usuário indisponível.';
-        if (resData["email"]) return 'Este email ja está em uso.';
-        if (resData['imagem_perfil']) return 'Arquivo de imagem enviado deve ser to tipo JPG ou PNG'
-        return 'Erro desconhecido';
-      }
-    }],
+    mappings: [{ status: 400, userMessage: (resData: any) => handleBadRequestError(resData) }],
     onError: (message: string) => props.onError?.(message)
   })
+
+  const handleBadRequestError = useCallback((resData: any): string => {
+    if (resData["username"])
+      return 'Nome de usuário indisponível.';
+    if (resData["email"]) {
+      if (resData["email"][0].includes('valid'))
+        return 'Insira um email valido';
+      if (resData["email"][0].includes('uso'))
+        return 'Este email ja esta em uso';
+    }
+    if (resData['imagem_perfil'])
+      return 'Arquivo de imagem enviado deve ser to tipo JPG ou PNG'
+    return 'Erro desconhecido';
+  }, []);
 
   // ---- API Executing ----
   const submitForm = useCallback((data: IUserSignUpFormData): void => {
