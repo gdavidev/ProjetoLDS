@@ -1,7 +1,7 @@
 import DateFormatter from '@libs/DateFormatter.ts';
 import Comment from '@models/Comment.ts';
 import useCurrentUser from '@/hooks/useCurrentUser';
-import React, { FormEvent, useCallback, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import {
 	chatbubbleOutline,
 	flagOutline,
@@ -20,6 +20,7 @@ import MenuItem from '@mui/material/MenuItem';
 import Menu from '@mui/material/Menu';
 import TextArea from '@shared/components/formComponents/TextArea.tsx';
 import User from '@models/User.ts';
+import { Controller, useForm } from 'react-hook-form';
 
 type CommentRowProps = {
 	postOwner: User;
@@ -33,16 +34,22 @@ type CommentRowProps = {
 	className?: string;
 }
 
+type CommentFormData = {
+	comment: string
+}
+
 export default function CommentRow(props: CommentRowProps) {
 	const [ isAnswerInputOpen, setIsAnswerInputOpen ] = useState<boolean>(false);
 	const { user } = useCurrentUser();
+	const { handleSubmit, control, formState: { errors }, setValue } =
+			useForm<CommentFormData>({
+				defaultValues: { comment: '' },
+			});
 
-	const handleSendAnswer = useCallback((e: FormEvent<HTMLFormElement>) => {
-		e.preventDefault();
-		const formData = new FormData(e.currentTarget);
-		const values = Object.fromEntries(formData.entries());
-
-		props.onSendAnswer(props.comment, values['answer'] as string);
+	const handleSendAnswer = useCallback((data: CommentFormData) => {
+		props.onSendAnswer(props.comment, data.comment);
+		setValue('comment', '');
+		setIsAnswerInputOpen(false);
 	}, []);
 
 	return (
@@ -62,17 +69,17 @@ export default function CommentRow(props: CommentRowProps) {
 										props.comment.owner.name
 							}
 							{
-									(props.postOwner.id === props.comment.owner.id) &&
+								(props.postOwner.id === props.comment.owner.id) &&
 										<span className='text-teal-500'> OP</span>
 							}
 							<span className="text-sm">&#8226;</span>
-							{DateFormatter.relativeDate(props.comment.createdDate)}
+							{ DateFormatter.relativeDate(props.comment.createdDate) }
 							{
 								props.comment.isUseful &&
-									<span className='text-emerald-500 flex items-center gap-x-1'>
-										<IonIcon icon={ checkmarkOutline } />
-										Marcado como útil
-									</span>
+										<span className='text-emerald-500 flex items-center gap-x-1'>
+											<IonIcon icon={ checkmarkOutline } />
+											Marcado como útil
+										</span>
 							}
 						</span>
 
@@ -94,12 +101,23 @@ export default function CommentRow(props: CommentRowProps) {
 						{
 							isAnswerInputOpen &&
 									<form
-											onSubmit={ handleSendAnswer }
+											onSubmit={ handleSubmit(handleSendAnswer) }
 											className="flex flex-col items-end gap-y-1 mt-2">
-										<TextArea
-											name="answer"
-											className="rounded-md text-black px-2 py-1"
-											labelClassName="hidden" />
+										<Controller
+											name="comment"
+											control={ control }
+											rules={{ required: 'Não é possível enviar um comentário vazio.' }}
+											render={({ field }) => (
+													<TextArea
+															{...field}
+															name="Comentário"
+															labelClassName='hidden'
+															className={ (errors.comment ? ' bg-red-100 border-red-500' : ' bg-slate-200') } />
+										)} />
+										{
+												errors.comment &&
+														<span className='text-red-500'>{errors.comment.message}</span>
+										}
 										<div className='flex gap-x-2'>
 											<button
 													type="reset"
@@ -171,12 +189,12 @@ function CommentRowActionBar(props: CommentRowActionBarProps) {
 	return (
 			<div className="flex gap-x-2 w-full justify-start">
 				<button
-						onClick={props.onLikeClick}
+						onClick={ props.onLikeClick }
 						className="cursor-pointer hover:bg-primary-dark text-primary-light flex items-center gap-x-1 py-0.5 px-2 rounded-full">
 					{
 						props.comment.hasLiked ?
-								<IonIcon icon={heart} /> :
-								<IonIcon icon={heartOutline} />
+								<IonIcon icon={ heart } /> :
+								<IonIcon icon={ heartOutline } />
 					}
 					<span>Curtir</span>
 				</button>
