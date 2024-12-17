@@ -1,8 +1,8 @@
-import React, { PropsWithRef, useCallback, useEffect, useLayoutEffect, useState } from 'react';
+import { PropsWithRef, useCallback, useEffect, useLayoutEffect, useState } from 'react';
 import FormGroup from "@apps/shared/components/formComponents/FormGroup.tsx";
 import TextInput, { TextInputStyle } from "@apps/shared/components/formComponents/TextInput.tsx";
 import CurrentUser from "@models/CurrentUser.ts";
-import { Link } from "react-router-dom";
+import { Link } from 'react-router-dom';
 import PasswordResetEmailSentModal from "@apps/main/components/modal/PasswordResetEmailSentModal.tsx";
 import { AxiosError } from 'axios';
 import { Controller, useForm } from "react-hook-form";
@@ -23,7 +23,7 @@ interface ILogInLayoutFormData {
   password: string;
 }
 
-export default function LogInLayout(props: PropsWithRef<LogInLayoutProps>): React.ReactElement {  
+export default function LogInLayout(props: PropsWithRef<LogInLayoutProps>) {
   const [ isPasswordResetModalOpen, setIsPasswordResetModalOpen ] = useState<boolean>(false);
   const [ isPasswordHidden        , setIsPasswordHidden         ] = useState<boolean>(true);
   const { handleSubmit, watch, getValues, control, formState: { errors }, clearErrors } =
@@ -110,6 +110,7 @@ export default function LogInLayout(props: PropsWithRef<LogInLayoutProps>): Reac
   return(
     <>
       <form className="flex flex-col gap-y-4 w-full mx-auto">
+        <h1 className='text-white text-xl text-center font-bold -mb-2'>Entrar</h1>
         <FormGroup>
           <Controller
               name="email"

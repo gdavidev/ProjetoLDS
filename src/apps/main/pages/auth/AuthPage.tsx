@@ -27,7 +27,7 @@ export default function AuthPage(props: PropsWithoutRef<AuthPageProps>): React.R
 
   useEffect(() => {
     clearAlert()
-  }, []);
+  }, [location.pathname]);
 
   const loginSuccess = useCallback((user: CurrentUser) => {
     notifySuccess("Logado com sucesso!")
@@ -42,11 +42,13 @@ export default function AuthPage(props: PropsWithoutRef<AuthPageProps>): React.R
     navigate("/log-in");
   }, []);
   const passwordResetSuccess = useCallback(() => {
-    notifySuccess("Senha alterada com sucesso!")
+    clearAlert();
+    notifySuccess("Senha alterada com sucesso! Você pode fazer seu login agora.");
+    navigate("/log-in");
   }, []);
 
   return(
-    <div className="flex flex-col gap-y-4 w-1/2 mx-auto mt-0 justify-center items-center">
+    <div className="flex flex-col gap-y-4 xl:w-1/2 md:w-3/4 w-5/6 max-w-[120ch] mx-auto mt-0 justify-center items-center">
       <img src={ logo } alt="logo" className="w-96" />    
       <div className='w-full'>
         { alertElement }

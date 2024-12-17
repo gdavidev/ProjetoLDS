@@ -75,30 +75,8 @@ export default function PasswordResetLayout(props: PasswordResetLayoutProps) {
   }, [fields]);
   
   return(
-    <form onSubmit={ handleSubmit(submitForm) } className="flex flex-col gap-y-4 w-full mx-auto">
-      <FormGroup>
-        <Controller name="password" control={control} render={({field}) => (          
-          <TextInput {...field} 
-              name="Nova Senha" 
-              inputContainerClassName="bg-white" 
-              password={ IsPasswordHidden }
-              styleType={ TextInputStyle.LABEL_LESS }
-              endDecoration={ 
-                <PasswordHiddenToggle initialState={ true } onChange={ setIsPasswordHidden } /> 
-              } />
-        )}/>
-        <Controller name="confirmPassword" control={control} render={({field}) => (          
-          <TextInput {...field} 
-              name="Confirme Nova Senha" 
-              inputContainerClassName="bg-white" 
-              password={ IsPasswordConfirmHidden }               
-              styleType={ TextInputStyle.LABEL_LESS }
-              endDecoration={ 
-                  <PasswordHiddenToggle initialState={ true } onChange={ setIsPasswordConfirmHidden } /> 
-              } />
-        )}/>
-      </FormGroup>
       <form onSubmit={handleSubmit(submitForm)} className="flex flex-col gap-y-4 w-full mx-auto">
+        <h1 className="text-white text-xl text-center font-bold -mb-2">Recuperar Senha</h1>
         <FormGroup>
           <Controller
               name="password"
