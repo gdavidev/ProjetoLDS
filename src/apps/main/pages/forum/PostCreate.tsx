@@ -58,7 +58,7 @@ export default function PostCreate() {
       const source: SelectInputSource = categories.map(cat => ({ value: cat.id, name: cat.name }));
       setCategorySelectSource(source);
     },
-    onError: (err: AxiosError | Error) => alert(err.message)
+    onError: (err: AxiosError | Error) => handleRequestError(err)
   });
 
   // ---- API Calls Setup ----
