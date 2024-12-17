@@ -21,7 +21,7 @@ export default function FeedPage() {
   const [ postsByCategory, setPostsByCategory ] = useState<{ category: Category, posts: Post[] }[] | null>(null);
   const { exit } = useEmergencyExit();
 
-  const { reFetchPosts } = usePosts(user?.token, {
+  const { reFetchPosts, isPostsLoading } = usePosts(user?.token, {
     onSuccess: (posts: Post[]) => setPostsByCategory(getPostsByCategoryArray(posts)),
     onError: (err: AxiosError | Error) => handleRequestError(err),
     enabled: !params.search,
@@ -53,7 +53,7 @@ export default function FeedPage() {
               clearParams();
               await reFetchPosts();
             }}
-            isLoading={ isSearchPostsLoading }
+            isLoading={ isSearchPostsLoading || isPostsLoading }
             defaultValue={ params.search }
         />
 
@@ -68,7 +68,9 @@ export default function FeedPage() {
                       posts={postsByCategoryNode.posts}
                       onUpdate={ async () => {
                         setPostsByCategory(null);
-                        await reFetchPosts();
+                        if (params.search)
+                          return searchPosts(params.search);
+                        return await reFetchPosts();
                       }}
                   />
               ))
