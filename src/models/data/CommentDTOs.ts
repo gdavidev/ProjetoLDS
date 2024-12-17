@@ -3,16 +3,14 @@ import { UseGetResponseDTO } from '@models/data/UserDTOs.ts';
 /* CREATE */
 export type CommentCreateDTO = {
 	id_topico: number,
-	id_user: number,
 	descricao: string,
 	is_helpful: boolean,
-	id_parent: number
+	id_parent?: number
 }
 
 /* UPDATE */
 export type CommentUpdateDTO = {
 	id_topico: number,
-	id_user: number,
 	descricao: string,
 	comentario_delete: boolean
 }
