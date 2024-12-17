@@ -66,7 +66,7 @@ export default class Report {
 	public static fromGetDTO(dto: DTO.ReportGetResponseDTO): Report {
 		return new Report(
 				dto.content_id,
-				Report.parseContentType(dto.content_type),
+				Report.parseContentType(dto.content_type_name),
 				dto.reported_by,
 				dto.reason,
 				dto.id,
@@ -100,14 +100,14 @@ export default class Report {
 	}
 
 	public static parseContentType(value: string): ReportContentType {
-		if (value.toLowerCase() === 'Topico') return ReportContentType.POST;
-		if (value.toLowerCase() === 'Comentario') return ReportContentType.COMMENT;
+		if (value.toLowerCase() === 'topico') return ReportContentType.POST;
+		if (value.toLowerCase() === 'comentario') return ReportContentType.COMMENT;
 		throw new Error(`Could not parse content type: '${ value }'`);
 	}
 
 	public static serializeContentType(value: ReportContentType): string {
-		if (value === ReportContentType.POST) return 'Topico';
-		if (value === ReportContentType.COMMENT) return 'Comentario';
+		if (value === ReportContentType.POST) return 'topico';
+		if (value === ReportContentType.COMMENT) return 'comentario';
 		throw new Error(`Could not serialize content type: '${ value }'`);
 	}
 

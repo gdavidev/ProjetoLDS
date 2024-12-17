@@ -29,7 +29,8 @@ export type ReportGetDTO = {
 export type ReportGetResponseDTO = {
 	id: number,
 	reported_by: number,
-	content_type: string,
+	content_type: number,
+	content_type_name: string,
 	content_id: number,
 	reason: string,
 	status: string,
