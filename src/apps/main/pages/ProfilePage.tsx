@@ -1,7 +1,4 @@
-import Category from '@/models/Category';
 import CurrentUser from '@/models/CurrentUser';
-import { FormControl } from '@mui/material';
-import Chip from '@mui/material/Chip';
 import { useCallback, useEffect, useState } from 'react';
 import { AxiosError } from 'axios'
 import { CurrentUserUpdateDTO } from '@models/data/CurrentUserDTOs.ts';
@@ -19,7 +16,6 @@ import useEmergencyExit from '@/hooks/useEmergencyExit.ts';
 import FileInputImagePreview from '@shared/components/formComponents/FileInputImagePreview.tsx';
 import Thumbnail from '@models/utility/Thumbnail.ts';
 import userImageNotFound from '@/assets/media/user-image-not-found.webp'
-import useTailwindTheme from '@/hooks/configuration/useTailwindTheme.ts';
 import FileUtil from '@libs/FileUtil.ts';
 
 type UserProfileFormData = {
@@ -34,7 +30,6 @@ export default function ProfilePage() {
   const { alertElement, info, error, success } = useAlert();
   const [ isPasswordHidden       , setIsPasswordHidden        ] = useState<boolean>(true);
   const [ isPasswordConfirmHidden, setIsPasswordConfirmHidden ] = useState<boolean>(true);
-  const preferencesArr: Category[] = [new Category(0, 'Action'), new Category(0, 'Adventure')];  
   const { user, setUser, logout } = useCurrentUser();
   const { handleSubmit, register, setValue, watch, control, reset: setFormData, formState: { errors }, getValues } =
     useForm<UserProfileFormData>({
@@ -183,7 +178,7 @@ export default function ProfilePage() {
             rules={{
               validate: (value: string) => {
                 if (value !== '')
-                  return Validation.isValidPassword(value) || "Senha inválida"
+                  return Validation.isValidPassword(value) || "A senha não esta em um formato inválido"
               }
             }}
             render={ ({field}) => (
@@ -218,32 +213,11 @@ export default function ProfilePage() {
                 } />
           ) }/>
         </div>
-
-        <FormControl>              
-          <label>Preferências:</label>
-          <div className='flex gap-x-2 gap-y-1 border-b-[1px] border-b-primary w-full pt-2 pb-1'>
-            { categoryToChips(preferencesArr) }
-          </div>
-        </FormControl>
         <div className='w-full flex justify-end'>
           <button className='btn-primary' type='submit'>Atualizar</button>
         </div>
       </div>
       { alertElement }
     </form>
-  );
-}
-
-function categoryToChips(categoryArr: Category[]) {
-  const { theme } = useTailwindTheme()
-
-  return categoryArr.map((cat, i) =>
-      <Chip
-          key={i}
-          label={cat.name}
-          sx={{
-            color: 'white',
-            backgroundColor: theme.colors.primary
-      }} />
   );
 }
