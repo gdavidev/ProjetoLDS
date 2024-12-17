@@ -1,3 +1,6 @@
+import { EmulatorGetResponseDTO } from '@models/data/EmulatorDTOs.ts';
+import { CategoryGetResponseDTO } from '@models/data/CategoryDTOs.ts';
+
 /* CREATE */
 export type GameCreateResponseDTO ={
   rom_id: number,
@@ -48,16 +51,8 @@ export type GameGetResponseDTO = {
   image_base64: string,
   file: string,
   title: string,
-  emulador: {
-    nome: string,
-    console: string,
-    empresa: string,
-    id: number,
-  },
-  categoria: {
-    id: number,
-    nome: string,
-  },
+  emulador: EmulatorGetResponseDTO,
+  categoria: CategoryGetResponseDTO,
 }
 
 
