@@ -43,7 +43,7 @@ export default class Game {
   getDesktopAppQueryString() {
     return "emuhub://"
       + '&' + this.emulator.abbreviation.toUpperCase()
-      + '&' + (this.name ?? '');
+      + '&' + this.name;
   }
 
   toCreateDTO(): DTO.GameCreateDTO {
