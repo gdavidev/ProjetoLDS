@@ -8,7 +8,7 @@ import { useCallback } from 'react';
 const endpoints = {
 	get: '/api/denuncia/list/',
 	post: '/api/denuncia/create/',
-	resolve: '/api/denuncia/resolve/',
+	resolve: '/api/denuncia/update/',
 }
 
 type useReportOptions<T> = {

@@ -50,11 +50,11 @@ export default function ReportContentModal(props: ReportContentModalProps) {
 				user.id,
 				data.reportText,
 		));
-	}, [user])
+	}, [user]);
 
 	useEffect(() => {
 		if (isSendReportLoading)
-			notifyInfo('Enviando...')
+			notifyInfo('Enviando...');
 	}, [isSendReportLoading]);
 
 	return (
@@ -65,8 +65,7 @@ export default function ReportContentModal(props: ReportContentModalProps) {
 					className='bg-layout-background'>
 				<form
 						onSubmit={ handleSubmit(submitForm) }
-						className='flex flex-col gap-4 justify-end'
-				>
+						className='flex flex-col gap-4 justify-end'>
 					<Controller
 							name="reportText"
 							control={control}

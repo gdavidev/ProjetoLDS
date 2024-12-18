@@ -74,16 +74,17 @@ export default function ReportResolveModal(props: ReportResolveModalProps) {
 	}, []);
 
 	const onSubmit = useCallback((data: ReportFormData) => {
-		if (!props.report) {
-			notifyError('Erro ao carregar denuncia.')
-			return props.onCloseRequest?.()
+		if (!props.report || !user) {
+			notifyError('Erro ao carregar denuncia.');
+			return props.onCloseRequest?.();
 		}
 
 		props.report.status = data.status;
 		props.report.resolution = data.resolution;
+		props.report.reviewedBy = user.id;
 
 		resolveReport(props.report)
-	}, [props.report]);
+	}, [props.report, user]);
 
 	// ---- Error handling ----
 	useEffect(() => {
