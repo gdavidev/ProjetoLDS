@@ -1,18 +1,21 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import Box from '@mui/material/Box';
 import Game from '@models/Game';
-import { IonIcon } from '@ionic/react'
-import { add, createOutline, trashOutline, reloadOutline } from 'ionicons/icons';
+import { IonIcon } from '@ionic/react';
+import { add, createOutline, reloadOutline, trashOutline } from 'ionicons/icons';
 import TableDisplay from '@apps/admin/components/TableDisplay';
 import GameEditModal from '@apps/admin/components/modal/GameEditModal';
 import { IconButton } from '@mui/material';
 import useCurrentUser from '@/hooks/useCurrentUser';
 import useStatefulArray from '@/hooks/useStatefulArray';
 import useGames, { useDeleteGame } from '@/hooks/useGames';
+import useMessageBox from '@/hooks/interaction/useMessageBox.ts';
+import { MessageBoxResult, MessageBoxType } from '@shared/components/MessageBox.tsx';
 
 export default function GamesView() {
   const [ gameModalData   , setGameModalData   ] = useState<Game | undefined>();
   const [ isGameModalOpen , setIsGameModalOpen ] = useState<boolean>(false);
+  const { openMessageBox } = useMessageBox();
   const { user } = useCurrentUser();
   const gameList = useStatefulArray<Game>([], {
     compare: (game1: Game, game2: Game) => game1.id === game2.id
@@ -47,6 +50,18 @@ export default function GamesView() {
       gameList.update(newGame)
     }
   }
+
+  const onDeleteGame = useCallback((game: Game) => {
+    openMessageBox({
+      title: 'Apagar Jogo',
+      message: 'Tem certeza que deseja apagar esse jogo?',
+      type: MessageBoxType.YES_NO,
+      onClick: (result: MessageBoxResult) => {
+        if (result === MessageBoxResult.YES)
+          deleteGame(game);
+      }
+    })
+  }, []);
 
   const templateHeader: {colName: string, colWidth: string}[] = [
     {colName: ''            , colWidth: 'fit-content' },
@@ -92,7 +107,7 @@ export default function GamesView() {
                     cellClassName='first:rounded-s-md last:rounded-e-md'
                     actions={{
                       edit: editGame, 
-                      delete: (game: Game) => deleteGame(game)
+                      delete: onDeleteGame
                     }} 
                   />
                 )
