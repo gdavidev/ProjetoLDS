@@ -1,5 +1,5 @@
 import { IonIcon } from '@ionic/react';
-import { createOutline, enterOutline, reloadOutline } from 'ionicons/icons';
+import { enterOutline, reloadOutline } from 'ionicons/icons';
 import TableDisplay from '@apps/admin/components/TableDisplay';
 import { IconButton } from '@mui/material';
 import useStatefulArray from '@/hooks/useStatefulArray';
@@ -55,9 +55,6 @@ export default function ReportsView() {
         { colName: 'ID'        , colWidth: '10px'  },
         { colName: 'Razão'     , colWidth: '300px' },
         { colName: 'Em'        , colWidth: '100px' },
-        { colName: 'Atend. por', colWidth: '10px'  },
-        { colName: 'Resposta'  , colWidth: '300px' },
-        { colName: 'Status'    , colWidth: '25px'  },
         { colName: ''          , colWidth: '25px'  },
     ];
 
@@ -137,26 +134,7 @@ function ReportDataTableRow(props: ReportTableRowProps) {
                 {DateFormatter.relativeDate(props.report.createdDate)}
             </td>
             <td className={props.cellClassName}>
-                {props.report.reviewedBy}
-            </td>
-            <td className={props.cellClassName}>
-                {props.report.resolution}
-            </td>
-            <td className={props.cellClassName}>
-                { Report.serializeStatus(props.report.status) }
-            </td>
-            <td className={props.cellClassName}>
                 <div style={{ display: 'flex', gap: 1 }}>
-                    <IconButton
-                        size="small"
-                        color="default"
-                        onClick={() => {
-                            props.actions.resolve(props.report);
-                        }}
-                        sx={{ p: '10px' }}
-                    >
-                        <IonIcon style={{ color: '#FFFFFF' }} icon={createOutline} />
-                    </IconButton>
                     <IconButton
                         size='small'
                         color='default'
