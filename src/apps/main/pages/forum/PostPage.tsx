@@ -1,4 +1,4 @@
-import { useLikePost } from '@/hooks/useLikePost.ts';
+import { useLikePost, UseLikePostVariables } from '@/hooks/useLikePost.ts';
 import { useCallback, useEffect, useState } from 'react';
 import useEmergencyExit from '@/hooks/useEmergencyExit.ts';
 import { IonIcon } from '@ionic/react';
@@ -67,11 +67,9 @@ export default function PostPage() {
     }
   });
   const { likePost } = useLikePost(user?.token!, {
-    onError: (error: AxiosError | Error) => {
-      if (post) {
-        post.hasLiked = !post.hasLiked;
-        post.likeCount += post.hasLiked ? 1 : -1;
-      }
+    onError: (error: AxiosError | Error, variables: UseLikePostVariables) => {
+      variables.post.hasLiked = !variables.newState;
+      variables.post.likeCount += !variables.newState ? 1 : -1;
       handleRequestError(error);
     }
   });
