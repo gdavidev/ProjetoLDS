@@ -37,7 +37,7 @@ type GameEditModalFormData = {
 }
 
 export default function GameEditModal(props: GameEditModalProps) {
-  const { alertElement, error, info } = useAlert();
+  const { alertElement, error, info, clear } = useAlert();
   const { notifySuccess, notifyError } = useNotification();
   const [ emulatorSelectSource , setEmulatorSelectSource ] = useState<SelectInputSource>([]);
   const [ emulatorList         , setEmulatorList         ] = useState<Emulator[]>([]);
@@ -76,16 +76,9 @@ export default function GameEditModal(props: GameEditModalProps) {
 
   const { mutate: storeGame, reset: resetMutationResults, isLoading: storeIsLoading } =
       useStoreGame(user?.token!, {
-          onSuccess: async (game: Game) => {
-            props.onChange?.(game);
-            props.onCloseRequest?.();
-            notifySuccess((props.game && props.game.id !== 0) ?
-                'Jogo criado com sucesso' :
-                'Jogo alterado com sucesso'
-            );
-          },
-          onError: (err: AxiosError | Error) => handleRequestError(err)
-        });
+        onSuccess: (game: Game) => onStoreGameSuccess(game),
+        onError: (err: AxiosError | Error) => handleRequestError(err)
+      });
 
   // ---- API Calls Error Handling ----
   const { handleRequestError } = useRequestErrorHandler({
@@ -137,7 +130,18 @@ export default function GameEditModal(props: GameEditModalProps) {
       category,
       props.game?.id ?? 0,
     ));
-  }, [emulatorList, categoryList]);
+  }, [props.game, emulatorList, categoryList]);
+
+  // ---- General Callbacks ----
+  const onStoreGameSuccess = useCallback((game: Game) => {
+      props.onChange?.(game);
+      props.onCloseRequest?.();
+      notifySuccess((props.game && props.game.id !== 0) ?
+          'Jogo criado com sucesso' :
+          'Jogo alterado com sucesso'
+      );
+      clear();
+  }, []);
 
   // ---- Error handling ----
   useEffect(() => {

@@ -15,11 +15,11 @@ type UseBanOptions<T> = {
 
 export default function useBan(token: string, options?: UseBanOptions<boolean>) {
 	const postBan = useCallback(async (userId: number) => {
-		const res = await ApiService.post(
-				endpoints.ban,
-				{ params: { user_id: userId } },
-				{ headers:  { 'Authorization': 'Bearer ' + token } }
-		);
+		const res = await ApiService.get(
+				endpoints.ban, {
+					params: { user_id: userId },
+					headers:  { 'Authorization': 'Bearer ' + token }
+				});
 		return res.data;
 	}, [token]);
 

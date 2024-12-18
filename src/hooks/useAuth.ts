@@ -19,6 +19,7 @@ type UseAuthOptions = {
   onForgotPassword?: UseAuthEvents
   onPasswordReset?: UseAuthEvents
   onUpdate?: UseAuthEvents
+  onDelete?: UseAuthEvents
   onIsLoading?: () => void
 }
 
@@ -28,6 +29,7 @@ type UseAuthResult = {
   forgotPassword: (data: DTO.CurrentUserForgotPasswordDTO) => void
   passwordReset: (data: DTO.CurrentUserResetPasswordDTO & {token: string}) => void
   update: (data: DTO.CurrentUserUpdateDTO & {token: string}) => void
+  deleteAccount: (data: DTO.CurrentUserDeleteDTO & {token: string}) => void
   reset: () => void
   isLoading: boolean
 }
@@ -64,13 +66,19 @@ export default function useAuth(options?: UseAuthOptions | UseAuthOptionsEvents)
     mutationFn ?? (options as UseAuthOptions)?.onUpdate
   );
 
+  const deleteUserMutation = useMutation('DELETE_USER',
+      async (dto: DTO.CurrentUserDeleteDTO & { token: string }) => UserApiService.delete(dto, dto.token),
+      mutationFn ?? (options as UseAuthOptions)?.onDelete
+  );
+
   useEffect(() => {
     const newState: boolean = (
       loginMutation.isLoading ||
       forgotPasswordMutation.isLoading ||
       registerMutation.isLoading ||
       passwordResetMutation.isLoading ||
-      updateUserMutation.isLoading
+      updateUserMutation.isLoading ||
+      deleteUserMutation.isLoading
     );
     setIsLoading(newState);
     if (newState)
@@ -80,15 +88,17 @@ export default function useAuth(options?: UseAuthOptions | UseAuthOptionsEvents)
     forgotPasswordMutation.isLoading,
     registerMutation.isLoading,
     passwordResetMutation.isLoading,
-    updateUserMutation.isLoading
+    updateUserMutation.isLoading,
+    deleteUserMutation.isLoading
   ]);
 
   const reset = useCallback((): void => {
-    loginMutation.reset()
-    forgotPasswordMutation.reset()
-    registerMutation.reset()
-    passwordResetMutation.reset()
-    updateUserMutation.reset()
+    loginMutation.reset();
+    forgotPasswordMutation.reset();
+    registerMutation.reset();
+    passwordResetMutation.reset();
+    updateUserMutation.reset();
+    deleteUserMutation.reset();
   }, []);
 
   return {
@@ -97,6 +107,7 @@ export default function useAuth(options?: UseAuthOptions | UseAuthOptionsEvents)
     forgotPassword: forgotPasswordMutation.mutate,
     passwordReset: passwordResetMutation.mutate,
     update: updateUserMutation.mutate,
+    deleteAccount: deleteUserMutation.mutate,
     reset: reset,
     isLoading: isLoading
   }

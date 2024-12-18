@@ -34,6 +34,13 @@ export type CurrentUserForgotPasswordDTO = {
 export type CurrentUserForgotPasswordResponseDTO = {
 }
 
+/* DELETE */
+export type CurrentUserDeleteDTO = {
+	user_id: number
+}
+export type CurrentUserDeleteResponseDTO = {
+}
+
 /* UPDATE */
 export type CurrentUserUpdateDTO = {
 	username?: string,
