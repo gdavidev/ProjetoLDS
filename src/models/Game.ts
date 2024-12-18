@@ -42,7 +42,7 @@ export default class Game {
 
   getDesktopAppQueryString() {
     return "emuhub://"
-      + '&' + this.emulator.abbreviation.toUpperCase()
+      + this.emulator.abbreviation.toUpperCase()
       + '&' + this.name;
   }
 
