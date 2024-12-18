@@ -41,13 +41,10 @@ export default class Game {
   }
 
   getDesktopAppQueryString() {
-    const params = new URLSearchParams({
-      company: this.emulator.companyName,
-      abbreviation: this.emulator.abbreviation.toUpperCase(),
-      file: this.rom.name ?? ''
-    })
-
-    return "emuhub://open" + params.toString()
+    return "emuhub://open"
+      + this.emulator.companyName
+      + this.emulator.abbreviation.toUpperCase()
+      + (this.rom.name ?? '');
   }
 
   toCreateDTO(): DTO.GameCreateDTO {
