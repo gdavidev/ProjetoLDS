@@ -41,7 +41,7 @@ export default class Game {
   }
 
   getDesktopAppQueryString() {
-    return `emuhub:${this.emulator.abbreviation.toLowerCase()}&${this.name}`;
+    return `emuhub:${this.emulator.abbreviation.toUpperCase()}&${this.name}`;
   }
 
   toCreateDTO(): DTO.GameCreateDTO {
