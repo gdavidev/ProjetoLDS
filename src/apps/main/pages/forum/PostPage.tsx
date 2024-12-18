@@ -181,10 +181,10 @@ export default function PostPage() {
   return(
     <section className='text-white'>
       <div className="flex w-full gap-x-4 items-start">
-        <div className="max-w-16 max-h-16 overflow-hidden rounded-full">
+        <div className="w-16 h-16 overflow-hidden rounded-full">
           <img
               src={ post.owner.profilePic.toDisplayable() }
-              className="object-cover h-full"
+              className="object-cover h-full min-w-16"
               alt="post-owner" />
         </div>
         <div className="flex flex-col grow">

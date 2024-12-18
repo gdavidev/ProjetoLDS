@@ -22,7 +22,7 @@ export default function PostRow(props: PostRowProps) {
 				<div className='w-10 h-10 overflow-hidden rounded-full'>
 					<img
 							src={ props.post.owner.profilePic.toDisplayable() }
-							className='object-cover h-full'
+							className='object-cover h-full min-w-10'
 							alt="post-owner" />
 				</div>
 				<div className="flex flex-col justify-between grow">
