@@ -8,6 +8,7 @@ export enum TextInputStyle {
 type TextInputProps = {
   name: string,
   value?: string,
+  defaultValue?: string,
   containerClassName?: string,
   inputContainerClassName?: string,
   inputClassName?: string,
@@ -17,6 +18,7 @@ type TextInputProps = {
   password?: boolean,
   styleType?: TextInputStyle,
   onChange?: ChangeEventHandler<HTMLInputElement>,
+  disabled?: boolean,
 }
 
 const TextInput = forwardRef((props: TextInputProps, ref: React.ForwardedRef<HTMLInputElement>) => {
@@ -41,12 +43,11 @@ const RegularTextInput = forwardRef((props: TextInputProps, ref: React.Forwarded
 })
 
 const LabelLessTextInput = forwardRef((props: TextInputProps, ref: React.ForwardedRef<HTMLInputElement>) => {
-  const formatter: StringFormatter = new StringFormatter(props.name)
-  const formatedName: string = formatter.replaceAll(' ', '-').toLowerCase()
+  const formatedName: string = StringFormatter.replaceAll(props.name, ' ', '-').toLowerCase()
 
   const makeInputClassName = (): string => 
     (props.inputClassName ?? '')
-    + ' py-2 front-lg text-black flex-grow'
+    + ' py-2 front-lg text-black grow'
     + (props.styleType === TextInputStyle.LABEL_LESS ? ' focus:outline-none' : '')
     + (!props.endDecoration ? ' pe-3' : '')
     + (!props.startDecoration ? ' ps-3' : '');
@@ -61,7 +62,8 @@ const LabelLessTextInput = forwardRef((props: TextInputProps, ref: React.Forward
     <div className={ makeContainerClassName() }>
       { props.startDecoration }
 
-      <input role="textbox"
+      <input
+          role="textbox"
           ref={ ref }
           id={ formatedName }
           name={ formatedName }
@@ -69,8 +71,10 @@ const LabelLessTextInput = forwardRef((props: TextInputProps, ref: React.Forward
           onChange={ props.onChange }
           aria-label={ formatedName }
           placeholder={ props.name }
+          disabled={ props.disabled }
           type={ props.password ? "password" : "text" }
-          defaultValue={ props.value } />
+          value={ props.value }
+          defaultValue={ props.defaultValue } />
 
       { props.endDecoration }
     </div>

@@ -5,14 +5,22 @@ export default class Emulator {
   abbreviation: string;
   console: string;
   companyName: string;
-  file: File;
 
-  constructor(id?: number, abbreviation?: string, console?: string, companyName?: string, file?: File) {
-    this.id               = id           || 0;
-    this.abbreviation     = abbreviation || "";
-    this.console          = console      || "";
-    this.companyName      = companyName  || "";
-    this.file             = file         || new File([], '')
+  constructor(
+      abbreviation: string,
+      console: string,
+      companyName: string,
+      id?: number)
+  constructor(
+      abbreviation: string,
+      console: string,
+      companyName: string,
+      id: number = 0)
+  {
+    this.id               = id;
+    this.abbreviation     = abbreviation;
+    this.console          = console;
+    this.companyName      = companyName;
   }
 
   toCreateDTO(): DTO.EmulatorCreateDTO {
@@ -20,7 +28,6 @@ export default class Emulator {
       nome: this.abbreviation,
       console: this.console,
       empresa: this.companyName,
-      emu_file: this.file,
     }
   }
 
@@ -30,7 +37,6 @@ export default class Emulator {
       nome: this.abbreviation,
       console: this.console,
       empresa: this.companyName,
-      emu_file: this.file,
     }
   }
 
@@ -40,10 +46,10 @@ export default class Emulator {
 
   static fromGetDTO(dto: DTO.EmulatorGetResponseDTO): Emulator {
     return new Emulator(
-      dto.id,
       dto.nome,
       dto.console,
       dto.empresa,
+      dto.id,
     )
   }
 }

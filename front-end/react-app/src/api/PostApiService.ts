@@ -4,57 +4,71 @@ import ApiService from "./ApiService";
 
 export default class PostApiService {
   private static readonly endpoints = {
-    get: 'api/post/',
-    post: 'api/post/create/',
-    put: 'api/post/update/',
-    delete: 'api/post/delete/',
+    get: 'api/topicos/list/',
+    detail: 'api/topicos/detail/',
+    search: 'api/topicos/search/',
+    post: 'api/topicos/create/',
+    put: 'api/topicos/update/',
+    delete: 'api/topicos/delete/',
   };
 
-  static async getAll(): Promise<Post[]> {
-    const data: DTO.PostGetResponseDTO[] = await ApiService.get(PostApiService.endpoints.get);
-    return data.map(dto => Post.fromGetDTO(dto));
+  static async getAll(token?: string): Promise<Post[]> {
+    const res  =
+        await ApiService.get<DTO.PostGetResponseDTO[]>(PostApiService.endpoints.get, {
+          headers: token !== undefined ? { 'Authorization': 'Bearer ' + token } : undefined
+        });
+    return res.data.map(dto => Post.fromGetDTO(dto));
   }
 
-  static async get(id: number): Promise<Post> {
-    const data: DTO.PostGetResponseDTO = 
-        await ApiService.get(PostApiService.endpoints.get, { data: {id: id} });
-    return Post.fromGetDTO(data);
-  }  
-  
+  static async get(id: number, token?: string): Promise<Post> {
+    const res =
+        await ApiService.get<DTO.PostGetResponseDTO>(PostApiService.endpoints.detail, {
+          params: { topico_id: id },
+          headers: token !== undefined ? { 'Authorization': 'Bearer ' + token } : undefined
+        });
+    return Post.fromGetDTO(res.data);
+  }
+
+  static async search(search: string, token?: string): Promise<Post[]> {
+    const res =
+        await ApiService.get<{ topicos: DTO.PostGetResponseDTO[] }>(PostApiService.endpoints.search, {
+          params: { search: search },
+          headers: token !== undefined ? { 'Authorization': 'Bearer ' + token } : undefined
+        });
+    return res.data.topicos.map(dto => Post.fromGetDTO(dto));
+  }
+
   public static async delete(post: Post, token: string): Promise<void> {
     await ApiService.delete(
       PostApiService.endpoints.delete,
       {
-        data: post.toDeleteDTO(),
+        data: { topico_id: post.id },
         headers: { 'Authorization': 'Bearer ' + token }
       }
     );
   }
 
-  static async store(post: Post, token: string): Promise<Post> {
-    if (post.id === 0) {
-      return await this.post(post, token);
-    } else {
-      await this.put(post, token);
-      return post;
-    }
-  }
-
-  private static async post(post: Post, token: string): Promise<Post> {
-    const response: DTO.PostCreateResponseDTO = await ApiService.post(
+  public static async create(dto: DTO.PostCreateDTO, token: string): Promise<DTO.PostGetResponseDTO> {
+    const res = await ApiService.post<DTO.PostGetResponseDTO>(
       PostApiService.endpoints.post,
-      post.toCreateDTO(),
-      { headers: { 'Authorization': 'Bearer ' + token } }
+      dto,
+      { headers: {
+        'Authorization': 'Bearer ' + token,
+        'Content-Type': 'multipart/form-data'
+      }}
     );
-    post.id = response.id;
-    return post;
+    return res.data
   }
 
-  private static async put(post: Post, token: string): Promise<void> {    
-    await ApiService.put(
+  public static async update(dto: DTO.PostUpdateDTO, token: string): Promise<DTO.PostGetResponseDTO> {
+    const res = await ApiService.put<DTO.PostGetResponseDTO>(
       PostApiService.endpoints.put,
-      post.toUpdateDTO(),
-      { headers: { 'Authorization': 'Bearer ' + token } }
-    );    
+      dto,
+      { headers: {
+        'Authorization': 'Bearer ' + token,
+        'Content-Type': 'multipart/form-data'
+      }}
+    );
+    return res.data
   }
 }

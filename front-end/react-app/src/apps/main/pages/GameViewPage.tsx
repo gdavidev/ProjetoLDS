@@ -1,49 +1,55 @@
 import { IonIcon } from '@ionic/react';
 import { play } from 'ionicons/icons';
 import { useGame } from '@/hooks/useGames';
-import useTypeSafeSearchParams from '@/hooks/useTypeSafeSearchParams.ts';
 import Loading from '@shared/components/Loading.tsx';
 import useEmergencyExit from '@/hooks/useEmergencyExit.ts';
-import { useCallback } from 'react';
+import { useParams } from 'react-router-dom';
 
 type GameViewPageParams = {
-  gameId: number
+  gameId: string
 }
 
 export default  function GameViewPage() {
-  const { exit } = useEmergencyExit()
-  const { params } = useTypeSafeSearchParams<GameViewPageParams>();
-  const { data: game, isLoading, isError } = useGame(params.gameId);
+  const { exit } = useEmergencyExit();
+  const params = useParams<GameViewPageParams>();
 
-  if (isLoading)
+  const { data: game, isLoading } = useGame(Number(params.gameId), {
+    onError: () => exit('/', 'Não foi possível carregar esse jogo, tente mais tarde.')
+  });
+
+  if (isLoading) {
     return (<Loading />);
-  if (isError || !game)
-    return exit('/', 'Não foi possível carregar esse jogo, tente mais tarde.')
-
-  const handlePlayGame = useCallback(() => {
-
-  }, [game])
+  } else if (game === undefined) {
+    exit('/', 'Não foi possível carregar esse jogo, tente mais tarde.')
+    return <></>
+  }
 
   return (
-    <section className="flex items-center justify-center w-full gap-x-2">
-      <picture>
+    <section className="flex justify-center w-full gap-x-12">
+      <picture className='overflow-hidden rounded-md'>
         <img
-          src={ game.thumbnail?.toDisplayable() }
+          src={ game.thumbnail.toDisplayable() }
           alt={ game.name }
           style={{ maxWidth: '100%', height: 'auto' }}
         />
       </picture>
-      <div>
-        <h1>{ game.name }</h1>
-        <p>{ game.desc }</p>
-        <p><strong>Emulador:</strong> { game.emulator.console }</p>
-        <button
-          onClick={ handlePlayGame }
-          style={{ marginRight: '10px' }}
-        >
-          <IonIcon icon={ play } />
+      <div className='text-white'>
+        <h1 className='font-black text-[3rem]'>{ game.name }</h1>
+        <a
+            href={ game.getDesktopAppQueryString() }
+            className='btn-r-full gap-2 px-10 py-4 w-48 bg-green-700 hover:bg-green-600 mb-6'
+            style={{ marginRight: '10px' }}>
+          <IonIcon icon={play} />
           Jogar
-        </button>
+        </a>
+
+        <h2 className='font-bold mb-2'>Descrição</h2>
+        <p>{game.desc}</p>
+
+        <div className='flex gap-x-16 mt-6'>
+          <p className='font-bold'>Emulador</p>
+          <p>{game.emulator.console}</p>
+        </div>
       </div>
     </section>
   );

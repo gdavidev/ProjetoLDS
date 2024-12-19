@@ -1,26 +1,27 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
 import Game from '@models/Game';
-import { IonIcon } from '@ionic/react'
-import { add, createOutline, trashOutline, reloadOutline } from 'ionicons/icons';
+import { IonIcon } from '@ionic/react';
+import { add, createOutline, reloadOutline, trashOutline } from 'ionicons/icons';
 import TableDisplay from '@apps/admin/components/TableDisplay';
 import GameEditModal from '@apps/admin/components/modal/GameEditModal';
-import FileUtil from '@libs/FileUtil';
 import { IconButton } from '@mui/material';
 import useCurrentUser from '@/hooks/useCurrentUser';
 import useStatefulArray from '@/hooks/useStatefulArray';
 import useGames, { useDeleteGame } from '@/hooks/useGames';
+import useMessageBox from '@/hooks/interaction/useMessageBox.ts';
+import { MessageBoxResult, MessageBoxType } from '@shared/components/MessageBox.tsx';
 
 export default function GamesView() {
-  const [ gameModalData   , setGameModalData   ] = useState<Game>(new Game());
+  const [ gameModalData   , setGameModalData   ] = useState<Game | undefined>();
   const [ isGameModalOpen , setIsGameModalOpen ] = useState<boolean>(false);
+  const { openMessageBox } = useMessageBox();
   const { user } = useCurrentUser();
   const gameList = useStatefulArray<Game>([], {
     compare: (game1: Game, game2: Game) => game1.id === game2.id
   });
 
-  const { refetch: refechGames } = useGames({
+  const { refetch: refetchGames } = useGames({
     onSuccess: (games: Game[]) => gameList.set(games.sort((prev, curr) => prev.id - curr.id))
   });
   const { mutate: deleteGame } = useDeleteGame(user?.token!, {
@@ -29,7 +30,7 @@ export default function GamesView() {
   })
 
   function addGame() {
-    setGameModalData(new Game());
+    setGameModalData(undefined);
     setIsGameModalOpen(true);
   }
   function editGame(game: Game) {
@@ -43,12 +44,24 @@ export default function GamesView() {
       const updatedGame: Game = newGame
       if (updatedGame.thumbnail === undefined && oldGame.thumbnail !== undefined)
         updatedGame.thumbnail = oldGame.thumbnail
-      if (updatedGame.file === undefined && oldGame.file !== undefined)
-        updatedGame.file = oldGame.file
+      if (updatedGame.rom === undefined && oldGame.rom !== undefined)
+        updatedGame.rom = oldGame.rom
 
       gameList.update(newGame)
     }
   }
+
+  const onDeleteGame = useCallback((game: Game) => {
+    openMessageBox({
+      title: 'Apagar Jogo',
+      message: 'Tem certeza que deseja apagar esse jogo?',
+      type: MessageBoxType.YES_NO,
+      onClick: (result: MessageBoxResult) => {
+        if (result === MessageBoxResult.YES)
+          deleteGame(game);
+      }
+    })
+  }, []);
 
   const templateHeader: {colName: string, colWidth: string}[] = [
     {colName: ''            , colWidth: 'fit-content' },
@@ -70,11 +83,12 @@ export default function GamesView() {
           <div className="flex gap-x-2 ">
             <IconButton 
               size='small'              
-              onClick={ () => refechGames() } 
+              onClick={ () => refetchGames() }
             >
               <IonIcon style={{color: 'white'}} icon={ reloadOutline } />
             </IconButton>
-            <button className='btn-r-md bg-primary hover:bg-primary-dark text-white'
+            <button
+                className='btn-primary'
                 onClick={ addGame }>
               <IonIcon icon={ add } /> Novo Jogo
             </button>
@@ -93,7 +107,7 @@ export default function GamesView() {
                     cellClassName='first:rounded-s-md last:rounded-e-md'
                     actions={{
                       edit: editGame, 
-                      delete: (game: Game) => deleteGame(game)
+                      delete: onDeleteGame
                     }} 
                   />
                 )
@@ -101,9 +115,15 @@ export default function GamesView() {
           }
         </TableDisplay>
       </section>
-      <GameEditModal game={ gameModalData } 
-          onCloseRequest={ () => { setIsGameModalOpen(false) } } isOpen={ isGameModalOpen } 
-          onChange={ gameModalData.id === 0 ? gameList.append : updateGameOnGameList } />
+      <GameEditModal
+          game={ gameModalData }
+          onCloseRequest={ () => { setIsGameModalOpen(false) } }
+          isOpen={ isGameModalOpen }
+          onChange={ (game: Game) => {
+            if (gameModalData && gameModalData.id === 0)
+               return gameList.append(game)
+            updateGameOnGameList(game)
+          } } />
     </>
   );
 }
@@ -121,19 +141,14 @@ type GameDataTableRowProps = {
 function GameDataTableRow(props: GameDataTableRowProps): React.ReactElement {  
   const game: Game = props.game;
   const cellClassName: string | undefined = props.cellClassName
-  let source: string
-  if (props.game.thumbnail?.base64) {
-    source = 'data:image/jpeg;base64,' + props.game.thumbnail?.base64
-  } else if (props.game.thumbnail?.file) {
-    source = FileUtil.uploadedFileToURL(props.game.thumbnail.file);    
-  } else {
-    source = "https://placehold.co/16"
-  }
 
   return (
     <tr className={ props.rowClassName }>
       <td className={ cellClassName }>         
-        <img className='max-w-16 min-h-16 bg-slate-600' src={ source } />
+        <img
+            alt={ game.name + ' thumbnail' }
+            className='object-cover h-16 w-16 bg-slate-600'
+            src={ props.game.thumbnail.toDisplayable("https://placehold.co/16") } />
       </td>
       <td className={ cellClassName }>{ game.id                     }</td>
       <td className={ cellClassName }>{ game.name                   }</td>

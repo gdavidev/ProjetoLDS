@@ -1,5 +1,5 @@
 import UserApiService from '@/api/CurrentUserApiService';
-import * as DTO from '@models/data/UserDTOs';
+import * as DTO from '@models/data/CurrentUserDTOs.ts';
 import { AxiosError } from 'axios';
 import { useCallback, useEffect, useState } from 'react';
 import { useMutation } from 'react-query';
@@ -8,6 +8,7 @@ type UseAuthEvents = {
   onSuccess: (data: any, variables: any) => void
   onError: (err: AxiosError | Error) => void
 }
+
 type UseAuthOptionsEvents = {
   onIsLoading?: () => void,
 } & UseAuthEvents
@@ -18,14 +19,17 @@ type UseAuthOptions = {
   onForgotPassword?: UseAuthEvents
   onPasswordReset?: UseAuthEvents
   onUpdate?: UseAuthEvents
+  onDelete?: UseAuthEvents
   onIsLoading?: () => void
 }
+
 type UseAuthResult = {
-  login: (data: DTO.UserLoginDTO) => void
-  register: (data: DTO.UserRegisterDTO) => void
-  forgotPassword: (data: DTO.UserForgotPasswordDTO) => void
-  passwordReset: (data: DTO.UserResetPasswordDTO & {token: string}) => void
-  update: (data: DTO.UserUpdateDTO & {token: string}) => void
+  login: (data: DTO.CurrentUserLoginDTO) => void
+  register: (data: DTO.CurrentUserRegisterDTO) => void
+  forgotPassword: (data: DTO.CurrentUserForgotPasswordDTO) => void
+  passwordReset: (data: DTO.CurrentUserResetPasswordDTO & {token: string}) => void
+  update: (data: DTO.CurrentUserUpdateDTO & {token: string}) => void
+  deleteAccount: (data: DTO.CurrentUserDeleteDTO & {token: string}) => void
   reset: () => void
   isLoading: boolean
 }
@@ -38,28 +42,33 @@ export default function useAuth(options?: UseAuthOptions | UseAuthOptionsEvents)
   } : undefined;
 
   const loginMutation = useMutation('LOGIN_USER',
-    async (dto: DTO.UserLoginDTO) => UserApiService.login(dto), 
+    async (dto: DTO.CurrentUserLoginDTO) => UserApiService.login(dto),
     mutationFn ?? (options as UseAuthOptions)?.onLogin
   );
 
   const forgotPasswordMutation = useMutation('FORGOT_PASS',
-    async (data: DTO.UserForgotPasswordDTO) => UserApiService.forgotPassword(data), 
+    async (data: DTO.CurrentUserForgotPasswordDTO) => UserApiService.forgotPassword(data),
     mutationFn ?? (options as UseAuthOptions)?.onForgotPassword
   );
 
   const registerMutation = useMutation('REGISTER_USER',
-    async (dto: DTO.UserRegisterDTO) => UserApiService.register(dto),
+    async (dto: DTO.CurrentUserRegisterDTO) => UserApiService.register(dto),
     mutationFn ?? (options as UseAuthOptions)?.onRegister   
   );
 
   const passwordResetMutation = useMutation('RESET_USER_PASSWORD',
-    async (dto: DTO.UserResetPasswordDTO & {token: string}) => UserApiService.resetPassword(dto, dto.token), 
+    async (dto: DTO.CurrentUserResetPasswordDTO & {token: string}) => UserApiService.resetPassword(dto, dto.token),
     mutationFn ?? (options as UseAuthOptions)?.onPasswordReset
   );
 
   const updateUserMutation = useMutation('UPDATE_USER', 
-    async (dto: DTO.UserUpdateDTO & { token: string }) => UserApiService.update(dto, dto.token), 
+    async (dto: DTO.CurrentUserUpdateDTO & { token: string }) => UserApiService.update(dto, dto.token),
     mutationFn ?? (options as UseAuthOptions)?.onUpdate
+  );
+
+  const deleteUserMutation = useMutation('DELETE_USER',
+      async (dto: DTO.CurrentUserDeleteDTO & { token: string }) => UserApiService.delete(dto, dto.token),
+      mutationFn ?? (options as UseAuthOptions)?.onDelete
   );
 
   useEffect(() => {
@@ -68,19 +77,28 @@ export default function useAuth(options?: UseAuthOptions | UseAuthOptionsEvents)
       forgotPasswordMutation.isLoading ||
       registerMutation.isLoading ||
       passwordResetMutation.isLoading ||
-      updateUserMutation.isLoading
+      updateUserMutation.isLoading ||
+      deleteUserMutation.isLoading
     );
     setIsLoading(newState);
     if (newState)
       options?.onIsLoading?.()
-  }, [loginMutation.isLoading, forgotPasswordMutation.isLoading, registerMutation.isLoading, passwordResetMutation.isLoading]);
+  }, [
+    loginMutation.isLoading,
+    forgotPasswordMutation.isLoading,
+    registerMutation.isLoading,
+    passwordResetMutation.isLoading,
+    updateUserMutation.isLoading,
+    deleteUserMutation.isLoading
+  ]);
 
   const reset = useCallback((): void => {
-    loginMutation.reset()
-    forgotPasswordMutation.reset()
-    registerMutation.reset()
-    passwordResetMutation.reset()
-    updateUserMutation.reset()
+    loginMutation.reset();
+    forgotPasswordMutation.reset();
+    registerMutation.reset();
+    passwordResetMutation.reset();
+    updateUserMutation.reset();
+    deleteUserMutation.reset();
   }, []);
 
   return {
@@ -89,6 +107,7 @@ export default function useAuth(options?: UseAuthOptions | UseAuthOptionsEvents)
     forgotPassword: forgotPasswordMutation.mutate,
     passwordReset: passwordResetMutation.mutate,
     update: updateUserMutation.mutate,
+    deleteAccount: deleteUserMutation.mutate,
     reset: reset,
     isLoading: isLoading
   }

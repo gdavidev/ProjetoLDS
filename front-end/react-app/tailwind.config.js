@@ -15,13 +15,18 @@ export default {
         'primary-light': '#9754CB',
         'primary-lighter': '#DEACF5',
         'secondary': '#5E5454',
-        'tertiary': '865151',
-        'background': '#262626',
-        'layout-background': '#363636',
+        'secondary-light': '#9A8989',
+        'secondary-dark': '#564C4C',
+        'tertiary': '#865151',
+        'background': '#333',
+        'layout-background': '#262626',
+        'table-header-background': '#252025',
+        'table-body-background': '#5E5E5E'
       }
     },
     fontFamily: {
-      'rubik': ['Rubik', 'arial']
+      'rubik': ['Rubik', 'arial'],
+      'poppins': ['Poppins', 'sans-serif']
     }
   }
 }

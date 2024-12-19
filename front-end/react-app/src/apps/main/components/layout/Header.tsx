@@ -5,7 +5,7 @@ import { Link, useLocation } from "react-router-dom";
 import Navbar from "./Navbar";
 import CurrentUser from "@models/CurrentUser";
 import { IonIcon } from "@ionic/react";
-import { caretDown, caretUp, person } from "ionicons/icons";
+import { caretDown, caretUp } from "ionicons/icons";
 import logo from '/icons/logo.png';
 import useCurrentUser from "@/hooks/useCurrentUser";
 import { Button } from "@mui/material";
@@ -14,7 +14,7 @@ import { Role } from '@/hooks/usePermission.ts';
 
 export default function Header() {
   const downloadLink: string = 'https://github.com/Denis-Saavedra/EmuHub-Desktop/raw/refs/heads/main/Instalador/Win32/Debug/EmuHubInstaller.exe'
-  const { user, setUser } = useCurrentUser();
+  const { user, logout } = useCurrentUser();
 
   return (
     <header className="fixed w-screen flex flex-col z-50">
@@ -23,14 +23,14 @@ export default function Header() {
             hover:scale-110 active:scale-95 transition duration-100 ease-in-out">
           <img src={ logo } className="w-40 h-12 sm:visible invisible" alt="logo" />
         </Link>
-        <div className="flex gap-x-2">          
+        <div className="flex items-center gap-x-2">
           <a href={ downloadLink } className="btn-r-full bg-white hover:bg-slate-300 text-primary">
              Download App
           </a>
           { 
             user && user.token !== '' ?
-              <LoggedUserDropdown user={ user } logoutFn={ () => setUser(null) } /> :
-              <LoginSigninButtons />
+              <LoggedUserDropdown user={ user } logoutFn={ logout } /> :
+              <LoginSignupButtons />
           }
         </div>
       </div>
@@ -43,7 +43,7 @@ function LoggedUserDropdown(props: { user: CurrentUser, logoutFn: () => void }) 
   const { colors } = useTailwindTheme()
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
-  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+  const handleClick = (event: any) => {
     setAnchorEl(event.currentTarget);
   };
   const handleClose = () => {
@@ -55,7 +55,14 @@ function LoggedUserDropdown(props: { user: CurrentUser, logoutFn: () => void }) 
       <Button 
         variant="contained" 
         size="large"
-        startIcon={ <IonIcon icon={ person } /> }
+        startIcon={
+          <div className='w-8 h-8 overflow-hidden rounded-full'>
+            <img
+                className='object-cover h-full'
+                alt='profile-img'
+                src={ props.user.profilePic.toDisplayable() } />
+          </div>
+        }
         endIcon={ <IonIcon icon={ open ? caretUp : caretDown } /> }
         onClick={ handleClick }
         sx={{ 
@@ -94,22 +101,22 @@ function LoggedUserDropdown(props: { user: CurrentUser, logoutFn: () => void }) 
   )
 }
 
-function LoginSigninButtons() {
+function LoginSignupButtons() {
   const currentPath: string = useLocation().pathname
   const pathToLogin: string = "/log-in"
-  const pathToSignin: string = "/sign-in"
+  const pathToSignup: string = "/sign-up"
 
   return(
     <>
       <Link to={ pathToLogin } aria-label="login-button" role="link"
           className={ "btn-r-md bg-primary-light hover:bg-primary-lighter " +
-            (currentPath === pathToLogin ? "text-white" : "text-primary") }>
-        Login
+            (currentPath === pathToLogin ? "text-white" : "text-primary-dark") }>
+        Entrar
       </Link>
-      <Link to={ pathToSignin } aria-label="signin-button" role="link"
+      <Link to={ pathToSignup } aria-label="signup-button" role="link"
           className={ "btn-r-md bg-primary-light hover:bg-primary-lighter " + 
-            (currentPath === pathToSignin ? "text-white" : "text-primary") }>
-        Sign-in
+            (currentPath === pathToSignup ? "text-white" : "text-primary-dark") }>
+        Registar-se
       </Link>
     </>
   )

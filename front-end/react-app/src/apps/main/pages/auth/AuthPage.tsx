@@ -1,17 +1,17 @@
 import React, { PropsWithoutRef, useContext, useCallback, useEffect } from 'react';
-import SignInLayout from "@/apps/main/pages/auth/SignInLayout";
+import SignUpLayout from "@apps/main/pages/auth/SignUpLayout.tsx";
 import LogInLayout from "@/apps/main/pages/auth/LogInLayout";
 import logo from '/icons/logo.png'
 import CurrentUser from "@/models/CurrentUser";
 import { MainContext, MainContextProps } from "@/apps/shared/context/MainContextProvider";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from 'react-router-dom';
 import PasswordResetLayout from "./PasswordResetLayout";
 import useAlert from '@/hooks/feedback/useAlert.tsx';
-import useNotification, { useNotificationDefaults } from '@/hooks/feedback/useNotification.tsx';
+import useNotification from '@/hooks/feedback/useNotification.tsx';
 
 export enum AuthPageMode {
   LOGIN,
-  REGISTER,
+  SIGNUP,
   RESET_PASSWORD,
 }
 export type AuthPageProps = {
@@ -19,41 +19,36 @@ export type AuthPageProps = {
 }
 
 export default function AuthPage(props: PropsWithoutRef<AuthPageProps>): React.ReactElement {
+  const location = useLocation();
   const navigate = useNavigate();
   const mainContext: MainContextProps = useContext(MainContext);
-  const { setNotification } = useNotification()
+  const { notifySuccess } = useNotification()
   const { alertElement, info, error, clear: clearAlert } = useAlert()
 
   useEffect(() => {
     clearAlert()
-  }, []);
+  }, [location.pathname]);
 
-  const loginUser = useCallback((user: CurrentUser) => {
-    setNotification({
-      ...useNotificationDefaults,
-      message: "Logado com sucesso!",
-      severity:'success',
-    })
+  const loginSuccess = useCallback((user: CurrentUser) => {
+    notifySuccess("Logado com sucesso!")
     mainContext.setCurrentUser?.(user)
+    if (location.state && location.state.from)
+      return navigate(location.state.from, { replace: true });
     navigate("/");
   }, []);
   const registeredSuccess = useCallback(() => {
-    setNotification({
-      ...useNotificationDefaults,
-      message: "Registrado com sucesso!",
-      severity:'success',
-    })
+    clearAlert();
+    notifySuccess("Registrado com sucesso! Você pode fazer seu login agora.");
+    navigate("/log-in");
   }, []);
   const passwordResetSuccess = useCallback(() => {
-    setNotification({
-      ...useNotificationDefaults,
-      message: "Senha alterada com sucesso!",
-      severity:'success',
-    })
+    clearAlert();
+    notifySuccess("Senha alterada com sucesso! Você pode fazer seu login agora.");
+    navigate("/log-in");
   }, []);
 
   return(
-    <div className="flex flex-col gap-y-4 w-1/2 mx-auto mt-0 justify-center items-center">
+    <div className="flex flex-col gap-y-4 xl:w-1/2 md:w-3/4 w-5/6 max-w-[120ch] mx-auto mt-0 justify-center items-center">
       <img src={ logo } alt="logo" className="w-96" />    
       <div className='w-full'>
         { alertElement }
@@ -61,9 +56,9 @@ export default function AuthPage(props: PropsWithoutRef<AuthPageProps>): React.R
       {
         {
           [AuthPageMode.LOGIN]:
-            <LogInLayout onError={ error } onSuccess={ loginUser } onStateChanged={ info } />,
-          [AuthPageMode.REGISTER]:
-            <SignInLayout onError={ error } onSuccess={ registeredSuccess } onStateChanged={ info } />,
+            <LogInLayout onError={ error } onSuccess={ loginSuccess } onStateChanged={ info } />,
+          [AuthPageMode.SIGNUP]:
+            <SignUpLayout onError={ error } onSuccess={ registeredSuccess } onStateChanged={ info } />,
           [AuthPageMode.RESET_PASSWORD]:
             <PasswordResetLayout onError={ error } onSuccess={ passwordResetSuccess } onStateChanged={ info } />,
         }[props.mode]
