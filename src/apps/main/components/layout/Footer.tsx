@@ -4,7 +4,7 @@ import { logoDiscord, logoFacebook, logoInstagram, logoTwitter } from "ionicons/
 export default function Footer() {
   return (
     <footer className={ "flex flex-col gap-y-5 px-32 pt-16 pb-12 text-start text-white " +
-        "bg-layout-backgroud border-t-primary border-t-2"} >
+        "bg-layout-background border-t-primary border-t-2"} >
       <div className="flex flex-row gap-x-8">
         <span className="font-bold text-lg">Contate nos:</span>
         <div className="flex flex-row gap-x-3 items-center">

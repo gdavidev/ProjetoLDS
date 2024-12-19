@@ -1,10 +1,10 @@
 import React from 'react';
-import Table from '@mui/joy/Table';
+import Table from '@mui/material/Table';
 
 type TableDisplayProps = {
   tableStyleObject?: React.CSSProperties,
   tableHeaderClassName?: string,
-  headerTemplateLabels: {
+  headerTemplate: {
     colName: string,
     colWidth: string,
   }[],
@@ -17,9 +17,9 @@ export default function TableDisplay(props: TableDisplayProps) {
       <thead>
         <tr className={ props.tableHeaderClassName }>
           { 
-            props.headerTemplateLabels.map((headerTemplateLabel, index) => 
-              <td key={ index } style={{width: headerTemplateLabel.colWidth}}>
-                { headerTemplateLabel.colName }
+            props.headerTemplate.map((headerTemplate, index) => 
+              <td key={ index } style={{minWidth: headerTemplate.colWidth}}>
+                { headerTemplate.colName }
               </td>)
           }
         </tr>              

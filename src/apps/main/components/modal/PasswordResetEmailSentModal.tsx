@@ -1,4 +1,4 @@
-import UserApiClient from "@/api/UserApiClient"
+import UserApiService from "@/api/CurrentUserApiService"
 import ModalPopup, { ModalPopupProps } from "@/apps/shared/components/ModalPopup"
 import Timer from "@/apps/shared/components/Timer"
 import ellipse from '@apps/main/assets/appearence/ellipse.png'
@@ -13,8 +13,7 @@ export default function PasswordResetEmailSentModal(props: PasswordResetEmailSen
   const totalWaitTime: number = 15;  
 
   function sendEmail() {
-    const userApiClient = new UserApiClient()
-    userApiClient.forgotPassword({ email: props.email })
+    UserApiService.forgotPassword({ email: props.email })
   } 
   
   return (

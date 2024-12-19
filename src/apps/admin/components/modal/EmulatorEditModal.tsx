@@ -1,129 +1,168 @@
-import { useContext, useEffect } from 'react';
-import FormControl from '@mui/joy/FormControl';
-import FormLabel from '@mui/joy/FormLabel';
-import { Alert } from '@mui/joy';
-import { useMutation, UseMutationResult } from 'react-query';
-import { MainContext, MainContextProps } from '@shared/context/MainContextProvider';
+import { useCallback, useEffect } from 'react';
 import ModalPopup, { ModalPopupProps } from '@/apps/shared/components/ModalPopup';
 import Emulator from '@/models/Emulator';
-import EmulatorApiClient from '@/api/EmulatorApiClient';
-import { FormState, useForm } from 'react-hook-form';
-import { IonIcon } from '@ionic/react';
-import { document, cloudUploadOutline } from 'ionicons/icons';
-import Button from '@mui/joy/Button';
-import FileUtil from '@/libs/FileUtil';
+import { Controller, useForm } from 'react-hook-form';
+import useCurrentUser from '@/hooks/useCurrentUser';
+import { useStoreEmulator } from '@/hooks/useEmulators';
+import useNotification from '@/hooks/feedback/useNotification.tsx';
+import { AxiosError } from 'axios';
+import useRequestErrorHandler from '@/hooks/useRequestErrorHandler.ts';
+import useAlert from '@/hooks/feedback/useAlert.tsx';
+import TextInput from '@shared/components/formComponents/TextInput.tsx';
 
 export type EmulatorEditModalProps = {
-  emulator: Emulator,
-  onChange?: (newEmulator: Emulator) => void
-} & ModalPopupProps
+	emulator?: Emulator;
+	onChange?: (newEmulator: Emulator) => void;
+} & ModalPopupProps;
 interface IEmulatorFormData {
-  company: string,
-  console: string,
-  abbreviation: string,
-  file?: FileList,
-}
-
-const defaultValues: IEmulatorFormData = {
-  company: "",
-  console: "",
-  abbreviation: "",
-  file: undefined
+	company: string;
+	console: string;
+	abbreviation: string;
 }
 
 export default function EmulatorEditModal(props: EmulatorEditModalProps) {
-  const mainContext: MainContextProps = useContext<MainContextProps>(MainContext)
-  const { register, handleSubmit, watch, reset, clearErrors, formState } = useForm<IEmulatorFormData>({
-    defaultValues: defaultValues,
-  });
+	const { alertElement, error, info } = useAlert();
+	const { notifyError, notifySuccess } = useNotification();
+	const { user, forceLogin } = useCurrentUser();
+	const { formState: { errors }, control, watch, handleSubmit, reset: setFormData, clearErrors } =
+			useForm<IEmulatorFormData>({
+				defaultValues: {
+					company: '',
+					console: '',
+					abbreviation: '',
+				},
+			});
 
-  useEffect(() => {
-    if (props.emulator.id !== 0)
-      reset({
-        company: props.emulator.companyName,
-        console: props.emulator.console,
-        abbreviation: props.emulator.abbreviation,
-        file: FileUtil.createFileList(props.emulator.file),
-      });
-  }, [props.isOpen])
-  
-  const emulatorService = useMutation('mutate-emulator',
-      async (emulator: Emulator) => {
-        const emulatorApiClient: EmulatorApiClient = new EmulatorApiClient(mainContext.currentUser?.token!);
-        return await emulatorApiClient.store(emulator);
-      },
-      {
-        onSuccess: async (_, emulator: Emulator) => props.onChange?.(emulator),
-        onError: async (err: any) => console.log("err: " + JSON.stringify(err)),
-      }
-    );
+	// ---- Initialization ----
+	useEffect(() => {
+		if (props.emulator && props.emulator.id !== 0)
+			setFormData({
+				company: props.emulator.companyName,
+				console: props.emulator.console,
+				abbreviation: props.emulator.abbreviation,
+			});
+	}, [props.isOpen]);
 
-  const resetForm = () => { 
-    emulatorService.reset();
-    clearErrors();
-    reset();
-  }
+	// ---- API Calls Setup ----
+	const { mutate: storeEmulator, reset: resetStoreEmulator, isLoading: isSendingEmulator } =
+			useStoreEmulator(user?.token!, {
+				onSuccess: (emulator: Emulator) => {
+					props.onChange?.(emulator);
+					props.onCloseRequest?.();
+					notifySuccess((props.emulator && props.emulator.id !== 0) ?
+							'Emulador criado com sucesso' :
+							'Emulador alterado com sucesso'
+					);
+				},
+				onError: (err: AxiosError | Error) => handleRequestError(err)
+			});
 
-  function onSubmit(data: IEmulatorFormData) {
-    const emulatorFile: File | undefined = data.file instanceof FileList ? data.file[0] : data.file;
-    const newEmulator: Emulator = new Emulator(
-      props.emulator.id,
-      data.abbreviation,
-      data.console,
-      data.company,
-      emulatorFile,
-    );
-    emulatorService.mutate(newEmulator);
-  }  
+	// ---- API Calls Error Handling ----
+	const { handleRequestError } = useRequestErrorHandler({
+		mappings: [
+			{ status: 401, onError: () => forceLogin('Seu login expirou, por favor entre novamente') },
+			{ status: 'default', userMessage: "Por favor tente novamente mais tarde." }
+		],
+		onError: (message: string) => {
+			notifyError(message)
+			props.onCloseRequest?.();
+		}
+	});
 
-  return (
-    <ModalPopup title={ props.emulator.id === 0 ? "Adicionar Jogo" : "Editar Jogo" }
-        isOpen={ props.isOpen } bottomText={ props.bottomText } topText={ props.topText } 
-        onCloseRequest={ () => { resetForm(); props.onCloseRequest?.() } }
-        className="flex flex-col gap-y-3">
-      <form onSubmit={ handleSubmit(onSubmit) }>
-        { getAlert(formState, emulatorService) }
-        <div className="flex flex-col gap-y-3 min-h-full justify-between">
-          <FormControl>
-            <FormLabel>Console</FormLabel>
-            <input {...register("console", { required: true })} className='input-text'/>
-          </FormControl>
-          <FormControl>
-            <FormLabel>Empresa</FormLabel>
-            <input {...register("company", { required: true })} className='input-text' />
-          </FormControl>
-          <FormControl>
-            <FormLabel>Abreviação</FormLabel>             
-            <input {...register("abbreviation", { required: true })} className='input-text' />
-          </FormControl>
-          <div className='flex justify-start items-center gap-x-2'>
-            <IonIcon className='min-h-4 min-w-4' icon={ document } />
-            <span className="truncate">{ watch("file")?.[0]?.name }</span>
-          </div>
-          <Button component="label" tabIndex={-1} variant="outlined" color="neutral" startDecorator={ <IonIcon icon={ cloudUploadOutline } /> } >
-            Aquivo do Emulador
-            <input type="file" className='hidden' {...register("file", { required: true })} />
-          </Button>
-        </div>
-        <input type="submit" disabled={ emulatorService.isLoading } value="Confirmar"
-            className={ "btn-r-md bg-primary text-white w-full mt-4" + (emulatorService.isLoading ? " disabled" : "") } />
-      </form>
-    </ModalPopup>
-  );
-};
+	// ---- API Calls Execution ----
+	const onSubmit = useCallback((data: IEmulatorFormData) => {
+		const newEmulator: Emulator = new Emulator(
+				data.abbreviation,
+				data.console,
+				data.company,
+				props.emulator ? props.emulator.id : 0,
+		);
+		storeEmulator(newEmulator);
+	}, []);
 
-function getAlert(formState: FormState<IEmulatorFormData>, emulatorService: UseMutationResult<any, any, any, any>): JSX.Element | undefined {
-  if (formState.errors.console)
-    return <Alert color="danger" >Campo console vazío.</Alert>
-  if (formState.errors.company)
-    return <Alert color="danger" >Campo empresa vazío.</Alert>
-  if (formState.errors.abbreviation)
-    return <Alert color="danger" >Campo nome vazío.</Alert>
-  if (emulatorService.isLoading)
-    return <Alert color="warning" >Enviando...</Alert>
-  if (emulatorService.isSuccess)
-    return <Alert color="success" >Enviado com sucesso!</Alert>
-  if (emulatorService.isError)
-    return <Alert color="danger" >{ emulatorService.error.message }</Alert>
-  return undefined
+	// ---- Form Error handling ----
+	useEffect(() => {
+		const formError =
+				Object.values(errors).find(err => err.message !== undefined)
+		if (formError && formError.message) error(formError.message);
+	}, [watch()]);
+
+	// ---- General callbacks ----
+	const resetForm = useCallback(() => {
+		resetStoreEmulator();
+		clearErrors();
+		setFormData();
+	}, []);
+
+	// ---- State Handling ----
+	useEffect(() => {
+		if (isSendingEmulator)
+			info('Enviando...');
+	}, [isSendingEmulator]);
+
+	return (
+		<ModalPopup
+			title={ (props.emulator && props.emulator.id === 0) ? 'Adicionar Emulador' : 'Editar Emulador' }
+			isOpen={props.isOpen}
+			bottomText={props.bottomText}
+			topText={props.topText}
+			onCloseRequest={() => {
+				resetForm();
+				props.onCloseRequest?.();
+			}}
+			className='flex flex-col gap-y-3'>
+			<form onSubmit={handleSubmit(onSubmit)}>
+				{ alertElement }
+				<div className='flex min-h-full flex-col justify-between gap-y-3'>
+					<Controller
+							name="console"
+							control={ control }
+							rules={{ required: 'É necessário especificar um Console.' }}
+							render={ ({field}) => (
+									<TextInput
+											{...field}
+										 name="Console"
+										 inputClassName={
+													'input-text' + (errors.console ? ' bg-red-100 border-red-500' : ' bg-slate-200')
+											}
+										 inputContainerClassName="rounded-md overflow-hidden" />
+							) }/>
+
+					<Controller
+							name="company"
+							control={ control }
+							rules={{ required: 'É necessário especificar uma Empresa.' }}
+							render={ ({field}) => (
+									<TextInput
+											{...field}
+											name="Empresa"
+											inputClassName={
+													'input-text' + (errors.company ? ' bg-red-100 border-red-500' : ' bg-slate-200')
+											}
+											inputContainerClassName="rounded-md overflow-hidden" />
+							) }/>
+
+					<Controller
+							name="abbreviation"
+							control={ control }
+							rules={{ required: 'É necessário especificar uma Abreviação para o console.' }}
+							render={ ({field}) => (
+									<TextInput
+											{...field}
+											name="Abreviação"
+											inputClassName={
+													'input-text' + (errors.abbreviation ? ' bg-red-100 border-red-500' : ' bg-slate-200')
+											}
+											inputContainerClassName="rounded-md overflow-hidden" />
+							) }/>
+
+				</div>
+				<input
+						type='submit'
+						disabled={ isSendingEmulator }
+						value='Confirmar'
+						className='btn-primary mt-4 w-full' />
+			</form>
+		</ModalPopup>
+	);
 }

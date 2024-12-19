@@ -1,27 +1,28 @@
-import { createContext, Context, PropsWithChildren, useState, useLayoutEffect } from 'react'
-import Cookies from 'js-cookie'
-import CurrentUser from '@models/User'
-import EventHandler from '@libs/EventHandler';
-import type { Config } from 'tailwindcss'
-import resolveConfig from 'tailwindcss/resolveConfig'
-import tailwindConfig from '@tailwind-config'
+import { createContext, PropsWithChildren, useCallback, useLayoutEffect, useState } from 'react';
+import Cookies from 'js-cookie';
+import CurrentUser from '@models/CurrentUser';
+import type { Config } from 'tailwindcss';
+import resolveConfig from 'tailwindcss/resolveConfig';
+import tailwindConfig from '@tailwind-config';
+import { Role } from '@/hooks/usePermission.ts';
+import Thumbnail from '@models/utility/Thumbnail.ts';
 
 export type MainContextProps = {
-  currentUser?: CurrentUser
-  setCurrentUser?: ((user: CurrentUser | undefined) => void),
-  onUserAuth: EventHandler<CurrentUser | undefined>,
+  getCurrentUser: () => CurrentUser | null,
+  setCurrentUser: (user: CurrentUser | null) => void,
   tailwindConfig: Config & typeof tailwindConfig,
 };
-const mainProps: MainContextProps = {
-  currentUser: undefined,
-  setCurrentUser: undefined,
-  onUserAuth: new EventHandler<CurrentUser | undefined>(),
-  tailwindConfig: resolveConfig<typeof tailwindConfig>(tailwindConfig),
+
+const defaultMainContextProps: MainContextProps = {
+  getCurrentUser: () => null,
+  setCurrentUser: () => null,
+  tailwindConfig: resolveConfig<typeof tailwindConfig>(tailwindConfig)
 };
-export const MainContext: Context<MainContextProps> = 
-  createContext<MainContextProps>(mainProps);
+export const MainContext =
+    createContext<MainContextProps>(defaultMainContextProps);
 
 type UserCookie = {
+  id: number
   token: string,
   userName: string,
   email: string,
@@ -29,55 +30,76 @@ type UserCookie = {
 }
 
 export default function MainContextProvider({ children }: PropsWithChildren) {
-  const [ currentUser, setCurrentUser ] = useState<CurrentUser | undefined>(undefined);
+  const [ currentUser, setCurrentUser ] = useState<CurrentUser | null>(null);
 
   useLayoutEffect(() => {
-    updateCurrentUserAndCookie(getUserFromCookieOrNull())
+    if (!currentUser)
+      updateCurrentUserAndCookie(getUserFromStorageOrNull())
+  }, [currentUser]);
+
+  const updateCurrentUserAndCookie = useCallback((newUser: CurrentUser | null) => {
+    if (newUser) {
+      setCurrentUser(newUser);
+      saveCurrentUserToStorage(newUser);
+    } else {
+      setCurrentUser(null);
+      dropStoredCurrentUser();
+    }
   }, []);
 
-  function updateCurrentUserAndCookie(newUser: CurrentUser | undefined | null) {
-    if (newUser) { 
-      setCurrentUser(newUser);
-      createUserCookie(newUser);
-      mainProps.onUserAuth.trigger(newUser);
-    } else {
-      setCurrentUser(undefined);
-      dropUserCookie();
-      mainProps.onUserAuth.trigger(undefined);
-    }
-  }
-  
-  mainProps.setCurrentUser = updateCurrentUserAndCookie
-  mainProps.currentUser = currentUser
+  const getCurrentUser = useCallback(() => {
+    return currentUser ?? getUserFromStorageOrNull()
+  }, []);
 
   return (
-    <MainContext.Provider value={ mainProps }>
+    <MainContext.Provider 
+      value={{
+        getCurrentUser: getCurrentUser,
+        setCurrentUser: updateCurrentUserAndCookie,
+        tailwindConfig: defaultMainContextProps.tailwindConfig
+      }}>
       { children }
     </MainContext.Provider>
   )
 }
 
-function createUserCookie(user: CurrentUser) {
+function saveCurrentUserToStorage(user: CurrentUser) {
   const userCookieObject: UserCookie = {
-    token: user.token!,
-    userName: user.userName!,
-    email: user.email!,
-    isAdmin: String(user.isAdmin!),
-  }
-  Cookies.set('user', JSON.stringify(userCookieObject))
+    id: user.id,
+    token: user.token,
+    userName: user.userName,
+    email: user.email,
+    isAdmin: String(user.role === Role.ADMIN),
+  };
+  Cookies.set('user', JSON.stringify(userCookieObject));
+
+  user.profilePic.getBase64()
+      .then((image: string | null) => {
+        if (image) localStorage.setItem('userProfilePic', image);
+      })
 }
-function getUserFromCookieOrNull(): CurrentUser | null {
+
+function getUserFromStorageOrNull(): CurrentUser | null {
   const userCookieContent: string | undefined = Cookies.get('user')
-  if (userCookieContent === undefined) return null
+  if (userCookieContent === undefined) 
+    return null
 
   const userCookieObject: UserCookie = JSON.parse(userCookieContent)
-  const token: string = userCookieObject.token
-  const userName: string = userCookieObject.userName
-  const email: string = userCookieObject.email
-  const isAdmin: string = userCookieObject.isAdmin
+  const userProfilePicBase64: string | null = localStorage.getItem('userProfilePic')
 
-  return new CurrentUser(userName, email, '', token, (isAdmin === 'true'))
+  return new CurrentUser(
+      userCookieObject.id,
+      userCookieObject.userName,
+      userCookieObject.token,
+      userCookieObject.email,
+      (userCookieObject.isAdmin === 'true' ? Role.ADMIN : Role.USER),
+      userProfilePicBase64 ?
+          new Thumbnail({ base64: userProfilePicBase64 }) :
+          undefined
+  );
 }
-function dropUserCookie() {
-  Cookies.remove('user') 
+
+function dropStoredCurrentUser() {
+  Cookies.remove('user')
+  localStorage.removeItem('userProfilePic')
 }

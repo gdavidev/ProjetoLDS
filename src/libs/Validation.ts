@@ -9,8 +9,6 @@ export default class Validation {
     let pass = password.trim();
     if (pass === "" || pass.length < 8)
       return false;
-    if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])[a-zA-Z0-9@#$%&*]{8,256}$/.test(pass))
-      return false;
-    return true;
+    return /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[@#$%&*])[a-zA-Z0-9@#$%&*]{8,256}$/.test(pass);
   }
 }

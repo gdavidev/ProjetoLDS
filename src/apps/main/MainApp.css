@@ -5,7 +5,7 @@
 @layer components {
   /* NAVBAR */
   .navbar-item {
-    @apply font-rubik font-bold box-border flex bg-layout-backgroud/80 m-0 w-32 
+    @apply font-rubik font-bold box-border flex bg-layout-background/80 m-0 w-32
       ease-in-out select-none hover:text-primary text-center transition duration-150
       border-none
   }

@@ -1,55 +1,37 @@
-import { UserRegisterDTO, UserLoginDTO, UserLoginResponseDTO } from "@models/data/UserDTOs";
+import Thumbnail from '@models/utility/Thumbnail.ts';
+import userImageNotFound from '@/assets/media/user-image-not-found.webp'
+import CurrentUser from '@models/CurrentUser.ts';
+import * as DTO from '@models/data/UserDTOs.ts';
 
-export default class CurrentUser {
-  isAdmin?: boolean
-  userName?: string
-  email?: string
-  password?: string
-  token?: string
-  profilePic?: File
+export default class User {
+  id: number
+  name: string
+  profilePic: Thumbnail;
 
-  constructor()  
-  constructor(userName: string, email: string, password?: string, token?: string, isAdmin?: boolean)  
-  constructor(userName?: string, email?: string, password?: string, token?: string, isAdmin?: boolean, profilePic?: File) {
-    this.userName   = userName;
-    this.token      = token;
-    this.profilePic = profilePic || undefined;
-    this.email      = email;
-    this.password   = password;
-    this.isAdmin    = isAdmin;
-  }
-
-  isAuth(): boolean { 
-    if (this.token)
-      return true
-    return false
-  }
-
-  toRegisterDTO(): {} {
-    const dto: UserRegisterDTO = {
-      username: this.userName!,
-      email: this.email!,
-      password: this.password!,
-      imagem_perfil: this.profilePic,
+  constructor(id: number, name: string, profilePic?: Thumbnail) {
+    this.id         = id;
+    this.name       = name;
+    if (profilePic) {
+      profilePic.fallbackUrl = userImageNotFound;
+      this.profilePic = profilePic;
+    } else {
+      this.profilePic = new Thumbnail({ fallbackUrl: userImageNotFound });
     }
-    return dto;
   }
 
-  toLoginDTO(): {} {
-    const dto: UserLoginDTO = {
-      email: this.email!,
-      password: this.password!,
-    }
-    return dto;
+  static fromCurrentUser(user: CurrentUser): User {
+    return new User(
+        user.id,
+        user.userName,
+        user.profilePic,
+    );
   }
 
-  static fromLoginResponseDTO(dto: UserLoginResponseDTO): CurrentUser {
-    return new CurrentUser(
-      dto.user.username,
-      dto.user.email,
-      '',
-      dto.token,
-      dto.user.admin
-    )
+  static fromGetDTO(dto: DTO.UseGetResponseDTO): User {
+    return new User(
+        dto.id,
+        dto.username,
+        new Thumbnail({ base64: dto.img_perfil }),
+    );
   }
 }

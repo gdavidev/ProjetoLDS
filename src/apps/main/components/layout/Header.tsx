@@ -1,44 +1,36 @@
-import { useContext, useEffect, useState } from "react";
-import Menu from '@mui/joy/Menu';
-import MenuButton from '@mui/joy/MenuButton';
-import MenuItem from '@mui/joy/MenuItem';
-import Dropdown from '@mui/joy/Dropdown';
-import SearchBar from "@shared/components/formComponents/SearchBar";
+import { useState } from "react";
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
 import { Link, useLocation } from "react-router-dom";
 import Navbar from "./Navbar";
-import { MainContext, MainContextProps } from "@shared/context/MainContextProvider";
-import CurrentUser from "@models/User";
+import CurrentUser from "@models/CurrentUser";
 import { IonIcon } from "@ionic/react";
-import { caretDown, person } from "ionicons/icons";
+import { caretDown, caretUp } from "ionicons/icons";
 import logo from '/icons/logo.png';
+import useCurrentUser from "@/hooks/useCurrentUser";
+import { Button } from "@mui/material";
+import useTailwindTheme from "@/hooks/configuration/useTailwindTheme";
+import { Role } from '@/hooks/usePermission.ts';
 
 export default function Header() {
   const downloadLink: string = 'https://github.com/Denis-Saavedra/EmuHub-Desktop/raw/refs/heads/main/Instalador/Win32/Debug/EmuHubInstaller.exe'
-  const mainContext: MainContextProps = useContext(MainContext)
-  const [ currentUser , setCurrentUser  ] = useState<CurrentUser | undefined>(undefined);
-
-  useEffect(() => {
-    if (mainContext.currentUser)
-      setCurrentUser(mainContext.currentUser)
-    mainContext.onUserAuth.subscribe(setCurrentUser)
-  }, []);
+  const { user, logout } = useCurrentUser();
 
   return (
     <header className="fixed w-screen flex flex-col z-50">
-      <div className="flex justify-between items-center px-6 py-1.5 bg-layout-backgroud">
+      <div className="flex justify-between items-center px-6 py-1.5 bg-layout-background">
         <Link to="/" className="flex items-center gap-x-3 select-none
             hover:scale-110 active:scale-95 transition duration-100 ease-in-out">
           <img src={ logo } className="w-40 h-12 sm:visible invisible" alt="logo" />
-        </Link>        
-        <SearchBar className="fixed flex inset-x-1/2 w-60 -translate-x-1/2" />        
-        <div className="flex gap-x-2">          
+        </Link>
+        <div className="flex items-center gap-x-2">
           <a href={ downloadLink } className="btn-r-full bg-white hover:bg-slate-300 text-primary">
              Download App
           </a>
           { 
-            currentUser && currentUser.isAuth() ?
-              <LoggedUserDropdown user={ currentUser } /> :
-              <LoginSigninButtonContainer />
+            user && user.token !== '' ?
+              <LoggedUserDropdown user={ user } logoutFn={ logout } /> :
+              <LoginSignupButtons />
           }
         </div>
       </div>
@@ -47,57 +39,84 @@ export default function Header() {
   );
 }
 
-const LoggedUserDropdown = (props: { user: CurrentUser }) => {
-  const mainContext: MainContextProps = useContext(MainContext)  
-  const logout = () => {
-    mainContext.setCurrentUser?.(undefined)
-  }
+function LoggedUserDropdown(props: { user: CurrentUser, logoutFn: () => void }) {
+  const { colors } = useTailwindTheme()
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const open = Boolean(anchorEl);
+  const handleClick = (event: any) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
   
   return (
-    <Dropdown>
-      <MenuButton variant="solid" size="lg"
-          startDecorator={ <IonIcon icon={ person } /> }
-          endDecorator={ <IonIcon icon={ caretDown } /> }>
+    <div>
+      <Button 
+        variant="contained" 
+        size="large"
+        startIcon={
+          <div className='w-8 h-8 overflow-hidden rounded-full'>
+            <img
+                className='object-cover h-full'
+                alt='profile-img'
+                src={ props.user.profilePic.toDisplayable() } />
+          </div>
+        }
+        endIcon={ <IonIcon icon={ open ? caretUp : caretDown } /> }
+        onClick={ handleClick }
+        sx={{ 
+          backgroundColor: colors['primary'],
+          px: '2rem',
+          py: '0.5rem'
+        }}
+      >
         { props.user.userName }
-      </MenuButton>
-      <Menu size="lg" sx={{border: 'none'}}>
-        <MenuItem sx={{padding: '0'}}>
+      </Button>
+      <Menu
+        anchorEl={anchorEl}
+        open={open}
+        onClose={handleClose}        
+      >
+        <MenuItem onClick={ handleClose }>
           <Link to="/profile" className="w-full h-full px-8 text-center">Perfil</Link>
         </MenuItem>
         {
-          // TODO add way to set an admin in the backend
-          true ? //props.user.isAdmin !== undefined && props.user.isAdmin ?
-            <MenuItem sx={{padding: '0'}}>
+          props.user.role === Role.ADMIN &&
+            <MenuItem onClick={ handleClose }>
               <Link to="/admin/view-games" className="w-full h-full px-8 text-center">Admin</Link>
-            </MenuItem> :
-            ""
+            </MenuItem>
         }
-        <MenuItem sx={{padding: '0'}}>
-          <Link to="/log-in" onClick={ logout } className="w-full h-full px-8 text-center">
+        <MenuItem onClick={ handleClose }>
+          <Link 
+            to="/log-in" 
+            onClick={ props.logoutFn } 
+            className="w-full h-full px-8 text-center"
+          >
             Sair
           </Link>        
         </MenuItem>            
       </Menu>
-    </Dropdown>
+    </div>
   )
 }
 
-const LoginSigninButtonContainer = () => {
+function LoginSignupButtons() {
   const currentPath: string = useLocation().pathname
   const pathToLogin: string = "/log-in"
-  const pathToSignin: string = "/sign-in"
+  const pathToSignup: string = "/sign-up"
 
   return(
     <>
       <Link to={ pathToLogin } aria-label="login-button" role="link"
           className={ "btn-r-md bg-primary-light hover:bg-primary-lighter " +
-            (currentPath === pathToLogin ? "text-white" : "text-primary") }>
-        Login
+            (currentPath === pathToLogin ? "text-white" : "text-primary-dark") }>
+        Entrar
       </Link>
-      <Link to={ pathToSignin } aria-label="signin-button" role="link"
+      <Link to={ pathToSignup } aria-label="signup-button" role="link"
           className={ "btn-r-md bg-primary-light hover:bg-primary-lighter " + 
-            (currentPath === pathToSignin ? "text-white" : "text-primary") }>
-        Sign-in
+            (currentPath === pathToSignup ? "text-white" : "text-primary-dark") }>
+        Registar-se
       </Link>
     </>
   )
